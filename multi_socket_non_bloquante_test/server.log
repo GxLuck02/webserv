@@ -1,0 +1,601 @@
+SOMAXCONN = 128
+New client connected: 4
+[0]Current client count: 1
+New client connected: 5
+[0]Current client count: 2
+New client connected: 6
+[0]Current client count: 3
+New client connected: 7
+[0]Current client count: 4
+New client connected: 8
+[0]Current client count: 5
+New client connected: 9
+[0]Current client count: 6
+New client connected: 10
+[0]Current client count: 7
+New client connected: 11
+[0]Current client count: 8
+New client connected: 12
+[0]Current client count: 9
+New client connected: 13
+[0]Current client count: 10
+New client connected: 14
+[0]Current client count: 11
+New client connected: 15
+[0]Current client count: 12
+New client connected: 16
+[0]Current client count: 13
+New client connected: 17
+[0]Current client count: 14
+New client connected: 18
+[0]Current client count: 15
+New client connected: 19
+[0]Current client count: 16
+New client connected: 20
+[0]Current client count: 17
+New client connected: 21
+[0]Current client count: 18
+New client connected: 22
+[0]Current client count: 19
+New client connected: 23
+[0]Current client count: 20
+New client connected: 24
+[0]Current client count: 21
+New client connected: 25
+[0]Current client count: 22
+New client connected: 26
+[0]Current client count: 23
+New client connected: 27
+[0]Current client count: 24
+New client connected: 28
+[0]Current client count: 25
+New client connected: 29
+[0]Current client count: 26
+New client connected: 30
+[0]Current client count: 27
+New client connected: 31
+[0]Current client count: 28
+New client connected: 32
+[0]Current client count: 29
+New client connected: 33
+[0]Current client count: 30
+New client connected: 34
+[0]Current client count: 31
+New client connected: 35
+[0]Current client count: 32
+New client connected: 36
+[0]Current client count: 33
+New client connected: 37
+[0]Current client count: 34
+New client connected: 38
+[0]Current client count: 35
+New client connected: 39
+[0]Current client count: 36
+New client connected: 40
+[0]Current client count: 37
+New client connected: 41
+[0]Current client count: 38
+New client connected: 42
+[0]Current client count: 39
+New client connected: 43
+[0]Current client count: 40
+New client connected: 44
+[0]Current client count: 41
+New client connected: 45
+[0]Current client count: 42
+New client connected: 46
+[0]Current client count: 43
+New client connected: 47
+[0]Current client count: 44
+New client connected: 48
+[0]Current client count: 45
+New client connected: 49
+[0]Current client count: 46
+New client connected: 50
+[0]Current client count: 47
+New client connected: 51
+[0]Current client count: 48
+New client connected: 52
+[0]Current client count: 49
+New client connected: 53
+[0]Current client count: 50
+New client connected: 54
+[0]Current client count: 51
+New client connected: 55
+[0]Current client count: 52
+New client connected: 56
+[0]Current client count: 53
+New client connected: 57
+[0]Current client count: 54
+New client connected: 58
+[0]Current client count: 55
+New client connected: 59
+[0]Current client count: 56
+New client connected: 60
+[0]Current client count: 57
+New client connected: 61
+[0]Current client count: 58
+New client connected: 62
+[0]Current client count: 59
+New client connected: 63
+[0]Current client count: 60
+New client connected: 64
+[0]Current client count: 61
+New client connected: 65
+[0]Current client count: 62
+New client connected: 66
+[0]Current client count: 63
+New client connected: 67
+[0]Current client count: 64
+New client connected: 68
+[0]Current client count: 65
+New client connected: 69
+[0]Current client count: 66
+New client connected: 70
+[0]Current client count: 67
+New client connected: 71
+[0]Current client count: 68
+New client connected: 72
+[0]Current client count: 69
+New client connected: 73
+[0]Current client count: 70
+New client connected: 74
+[0]Current client count: 71
+New client connected: 75
+[0]Current client count: 72
+New client connected: 76
+[0]Current client count: 73
+New client connected: 77
+[0]Current client count: 74
+New client connected: 78
+[0]Current client count: 75
+New client connected: 79
+[0]Current client count: 76
+New client connected: 80
+[0]Current client count: 77
+New client connected: 81
+[0]Current client count: 78
+New client connected: 82
+[0]Current client count: 79
+New client connected: 83
+[0]Current client count: 80
+New client connected: 84
+[0]Current client count: 81
+New client connected: 85
+[0]Current client count: 82
+New client connected: 86
+[0]Current client count: 83
+New client connected: 87
+[0]Current client count: 84
+New client connected: 88
+[0]Current client count: 85
+New client connected: 89
+[0]Current client count: 86
+New client connected: 90
+[0]Current client count: 87
+New client connected: 91
+[0]Current client count: 88
+New client connected: 92
+[0]Current client count: 89
+New client connected: 93
+[0]Current client count: 90
+New client connected: 94
+[0]Current client count: 91
+New client connected: 95
+[0]Current client count: 92
+New client connected: 96
+[0]Current client count: 93
+New client connected: 97
+[0]Current client count: 94
+New client connected: 98
+[0]Current client count: 95
+New client connected: 99
+[0]Current client count: 96
+New client connected: 100
+[0]Current client count: 97
+New client connected: 101
+[0]Current client count: 98
+New client connected: 102
+[0]Current client count: 99
+New client connected: 103
+[0]Current client count: 100
+New client connected: 104
+[0]Current client count: 101
+New client connected: 105
+[0]Current client count: 102
+New client connected: 106
+[0]Current client count: 103
+New client connected: 107
+[0]Current client count: 104
+New client connected: 108
+[0]Current client count: 105
+New client connected: 109
+[0]Current client count: 106
+New client connected: 110
+[0]Current client count: 107
+New client connected: 111
+[0]Current client count: 108
+New client connected: 112
+[0]Current client count: 109
+New client connected: 113
+[0]Current client count: 110
+New client connected: 114
+[0]Current client count: 111
+New client connected: 115
+[0]Current client count: 112
+New client connected: 116
+[0]Current client count: 113
+New client connected: 117
+[0]Current client count: 114
+New client connected: 118
+[0]Current client count: 115
+New client connected: 119
+[0]Current client count: 116
+New client connected: 120
+[0]Current client count: 117
+New client connected: 121
+[0]Current client count: 118
+New client connected: 122
+[0]Current client count: 119
+New client connected: 123
+[0]Current client count: 120
+Received from client 4: Hello from client!
+Received from client 5: Hello from client!
+Received from client 6: Hello from client!
+Received from client 7: Hello from client!
+Received from client 8: Hello from client!
+Received from client 9: Hello from client!
+Received from client 10: Hello from client!
+Received from client 11: Hello from client!
+Received from client 12: Hello from client!
+Received from client 13: Hello from client!
+Received from client 14: Hello from client!
+Received from client 15: Hello from client!
+Received from client 16: Hello from client!
+Received from client 17: Hello from client!
+Received from client 18: Hello from client!
+Received from client 19: Hello from client!
+Received from client 20: Hello from client!
+Received from client 21: Hello from client!
+Received from client 22: Hello from client!
+Received from client 23: Hello from client!
+Received from client 24: Hello from client!
+Received from client 25: Hello from client!
+Received from client 26: Hello from client!
+Received from client 27: Hello from client!
+Received from client 28: Hello from client!
+Received from client 29: Hello from client!
+Received from client 30: Hello from client!
+Received from client 31: Hello from client!
+Received from client 32: Hello from client!
+Received from client 33: Hello from client!
+Received from client 34: Hello from client!
+Received from client 35: Hello from client!
+Received from client 36: Hello from client!
+Received from client 37: Hello from client!
+Received from client 38: Hello from client!
+Received from client 39: Hello from client!
+Received from client 40: Hello from client!
+Received from client 41: Hello from client!
+Received from client 42: Hello from client!
+Received from client 43: Hello from client!
+Received from client 44: Hello from client!
+Received from client 45: Hello from client!
+Received from client 46: Hello from client!
+Received from client 47: Hello from client!
+Received from client 48: Hello from client!
+Received from client 49: Hello from client!
+Received from client 50: Hello from client!
+Received from client 51: Hello from client!
+Received from client 52: Hello from client!
+Received from client 53: Hello from client!
+Received from client 54: Hello from client!
+Received from client 55: Hello from client!
+Received from client 56: Hello from client!
+Received from client 57: Hello from client!
+Received from client 58: Hello from client!
+Received from client 59: Hello from client!
+Received from client 60: Hello from client!
+Received from client 61: Hello from client!
+Received from client 62: Hello from client!
+Received from client 63: Hello from client!
+Received from client 64: Hello from client!
+Received from client 65: Hello from client!
+Received from client 66: Hello from client!
+Received from client 67: Hello from client!
+Received from client 68: Hello from client!
+Received from client 69: Hello from client!
+Received from client 70: Hello from client!
+Received from client 71: Hello from client!
+Received from client 72: Hello from client!
+Received from client 73: Hello from client!
+Received from client 74: Hello from client!
+Received from client 75: Hello from client!
+Received from client 76: Hello from client!
+Received from client 77: Hello from client!
+Received from client 78: Hello from client!
+Received from client 79: Hello from client!
+Received from client 80: Hello from client!
+Received from client 81: Hello from client!
+Received from client 82: Hello from client!
+Received from client 83: Hello from client!
+Received from client 84: Hello from client!
+Received from client 85: Hello from client!
+Received from client 86: Hello from client!
+Received from client 87: Hello from client!
+Received from client 88: Hello from client!
+Received from client 89: Hello from client!
+Received from client 90: Hello from client!
+Received from client 91: Hello from client!
+Received from client 92: Hello from client!
+Received from client 93: Hello from client!
+Received from client 94: Hello from client!
+Received from client 95: Hello from client!
+Received from client 96: Hello from client!
+Received from client 97: Hello from client!
+Received from client 98: Hello from client!
+Received from client 99: Hello from client!
+Received from client 100: Hello from client!
+Received from client 101: Hello from client!
+Received from client 102: Hello from client!
+Received from client 103: Hello from client!
+Received from client 104: Hello from client!
+Received from client 105: Hello from client!
+Received from client 106: Hello from client!
+Received from client 107: Hello from client!
+Received from client 108: Hello from client!
+Received from client 109: Hello from client!
+Received from client 110: Hello from client!
+Received from client 111: Hello from client!
+Received from client 112: Hello from client!
+Received from client 113: Hello from client!
+Received from client 114: Hello from client!
+Received from client 115: Hello from client!
+Received from client 116: Hello from client!
+Received from client 117: Hello from client!
+Received from client 118: Hello from client!
+Received from client 119: Hello from client!
+Received from client 120: Hello from client!
+Received from client 121: Hello from client!
+Received from client 122: Hello from client!
+Received from client 123: Hello from client!
+Client disconnected: 4
+[1]Current client count: 119
+Client disconnected: 5
+[1]Current client count: 118
+Client disconnected: 6
+[1]Current client count: 117
+Client disconnected: 7
+[1]Current client count: 116
+Client disconnected: 8
+[1]Current client count: 115
+Client disconnected: 9
+[1]Current client count: 114
+Client disconnected: 10
+[1]Current client count: 113
+Client disconnected: 11
+[1]Current client count: 112
+Client disconnected: 12
+[1]Current client count: 111
+Client disconnected: 13
+[1]Current client count: 110
+Client disconnected: 14
+[1]Current client count: 109
+Client disconnected: 15
+[1]Current client count: 108
+Client disconnected: 16
+[1]Current client count: 107
+Client disconnected: 17
+[1]Current client count: 106
+Client disconnected: 18
+[1]Current client count: 105
+Client disconnected: 19
+[1]Current client count: 104
+Client disconnected: 20
+[1]Current client count: 103
+Client disconnected: 21
+[1]Current client count: 102
+Client disconnected: 22
+[1]Current client count: 101
+Client disconnected: 23
+[1]Current client count: 100
+Client disconnected: 24
+[1]Current client count: 99
+Client disconnected: 25
+[1]Current client count: 98
+Client disconnected: 26
+[1]Current client count: 97
+Client disconnected: 27
+[1]Current client count: 96
+Client disconnected: 28
+[1]Current client count: 95
+Client disconnected: 29
+[1]Current client count: 94
+Client disconnected: 30
+[1]Current client count: 93
+Client disconnected: 31
+[1]Current client count: 92
+Client disconnected: 32
+[1]Current client count: 91
+Client disconnected: 33
+[1]Current client count: 90
+Client disconnected: 34
+[1]Current client count: 89
+Client disconnected: 35
+[1]Current client count: 88
+Client disconnected: 36
+[1]Current client count: 87
+Client disconnected: 37
+[1]Current client count: 86
+Client disconnected: 38
+[1]Current client count: 85
+Client disconnected: 39
+[1]Current client count: 84
+Client disconnected: 40
+[1]Current client count: 83
+Client disconnected: 41
+[1]Current client count: 82
+Client disconnected: 42
+[1]Current client count: 81
+Client disconnected: 43
+[1]Current client count: 80
+Client disconnected: 44
+[1]Current client count: 79
+Client disconnected: 45
+[1]Current client count: 78
+Client disconnected: 46
+[1]Current client count: 77
+Client disconnected: 47
+[1]Current client count: 76
+Client disconnected: 48
+[1]Current client count: 75
+Client disconnected: 49
+[1]Current client count: 74
+Client disconnected: 50
+[1]Current client count: 73
+Client disconnected: 51
+[1]Current client count: 72
+Client disconnected: 52
+[1]Current client count: 71
+Client disconnected: 53
+[1]Current client count: 70
+Client disconnected: 54
+[1]Current client count: 69
+Client disconnected: 55
+[1]Current client count: 68
+Client disconnected: 56
+[1]Current client count: 67
+Client disconnected: 57
+[1]Current client count: 66
+Client disconnected: 58
+[1]Current client count: 65
+Client disconnected: 59
+[1]Current client count: 64
+Client disconnected: 60
+[1]Current client count: 63
+Client disconnected: 61
+[1]Current client count: 62
+Client disconnected: 62
+[1]Current client count: 61
+Client disconnected: 63
+[1]Current client count: 60
+Client disconnected: 64
+[1]Current client count: 59
+Client disconnected: 65
+[1]Current client count: 58
+Client disconnected: 66
+[1]Current client count: 57
+Client disconnected: 67
+[1]Current client count: 56
+Client disconnected: 68
+[1]Current client count: 55
+Client disconnected: 69
+[1]Current client count: 54
+Client disconnected: 70
+[1]Current client count: 53
+Client disconnected: 71
+[1]Current client count: 52
+Client disconnected: 72
+[1]Current client count: 51
+Client disconnected: 73
+[1]Current client count: 50
+Client disconnected: 74
+[1]Current client count: 49
+Client disconnected: 75
+[1]Current client count: 48
+Client disconnected: 76
+[1]Current client count: 47
+Client disconnected: 77
+[1]Current client count: 46
+Client disconnected: 78
+[1]Current client count: 45
+Client disconnected: 79
+[1]Current client count: 44
+Client disconnected: 80
+[1]Current client count: 43
+Client disconnected: 81
+[1]Current client count: 42
+Client disconnected: 82
+[1]Current client count: 41
+Client disconnected: 83
+[1]Current client count: 40
+Client disconnected: 84
+[1]Current client count: 39
+Client disconnected: 85
+[1]Current client count: 38
+Client disconnected: 86
+[1]Current client count: 37
+Client disconnected: 87
+[1]Current client count: 36
+Client disconnected: 88
+[1]Current client count: 35
+Client disconnected: 89
+[1]Current client count: 34
+Client disconnected: 90
+[1]Current client count: 33
+Client disconnected: 91
+[1]Current client count: 32
+Client disconnected: 92
+[1]Current client count: 31
+Client disconnected: 93
+[1]Current client count: 30
+Client disconnected: 94
+[1]Current client count: 29
+Client disconnected: 95
+[1]Current client count: 28
+Client disconnected: 96
+[1]Current client count: 27
+Client disconnected: 97
+[1]Current client count: 26
+Client disconnected: 98
+[1]Current client count: 25
+Client disconnected: 99
+[1]Current client count: 24
+Client disconnected: 100
+[1]Current client count: 23
+Client disconnected: 101
+[1]Current client count: 22
+Client disconnected: 102
+[1]Current client count: 21
+Client disconnected: 103
+[1]Current client count: 20
+Client disconnected: 104
+[1]Current client count: 19
+Client disconnected: 105
+[1]Current client count: 18
+Client disconnected: 106
+[1]Current client count: 17
+Client disconnected: 107
+[1]Current client count: 16
+Client disconnected: 108
+[1]Current client count: 15
+Client disconnected: 109
+[1]Current client count: 14
+Client disconnected: 110
+[1]Current client count: 13
+Client disconnected: 111
+[1]Current client count: 12
+Client disconnected: 112
+[1]Current client count: 11
+Client disconnected: 113
+[1]Current client count: 10
+Client disconnected: 114
+[1]Current client count: 9
+Client disconnected: 115
+[1]Current client count: 8
+Client disconnected: 116
+[1]Current client count: 7
+Client disconnected: 117
+[1]Current client count: 6
+Client disconnected: 118
+[1]Current client count: 5
+Client disconnected: 119
+[1]Current client count: 4
+Client disconnected: 120
+[1]Current client count: 3
+Client disconnected: 121
+[1]Current client count: 2
+Client disconnected: 122
+[1]Current client count: 1
+Client disconnected: 123
+[1]Current client count: 0
