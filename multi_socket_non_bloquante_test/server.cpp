@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 15:09:01 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/17 17:12:23 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/24 16:30:21 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 #include <fcntl.h>
 
 #define BUFFER_SIZE 1024
-#define MAX_CLIENT	120
+#define MAX_CLIENT	800
 
 int main()
 {
@@ -27,7 +27,7 @@ int main()
 	int servSocket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (servSocket_fd < 0)
 	{
-		std::runtime_error("Error: error in creation of serversocket .");
+		throw std::runtime_error("Error: error in creation of serversocket .");
 		return (0);
 	}
 
@@ -58,13 +58,13 @@ int main()
 	address.sin_port = htons(8080);
 	if  (bind(servSocket_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		std::runtime_error("Error: error in bind of serversocket .");
+		throw std::runtime_error("Error: error in bind of serversocket .");
 		return (0);
 	}
 	std::cout << "SOMAXCONN = " << SOMAXCONN << std::endl;
 	if (listen(servSocket_fd, SOMAXCONN) < 0)
   {
-		std::runtime_error("Error: error in listen of serversocket .");
+		throw std::runtime_error("Error: error in listen of serversocket .");
 		return (0);
 	}
 	//set pollfd for server socket
