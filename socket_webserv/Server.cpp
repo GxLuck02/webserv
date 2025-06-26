@@ -6,11 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/25 19:24:42 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/26 18:29:33 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <unistd.h>
+#include <arpa/inet.h>
 
 // class Server
 // {
@@ -70,6 +72,18 @@ Server &Server::operator=(const Server &other)
 
 /*************************** Members functions ***************************/
 
+Client *Server::getClient(int fd) const
+{
+	for (size_t i = 0; i < this->_clients.size(); ++i)
+	{
+		if (this->_clients[i].getFd() == fd)
+		{
+			return const_cast<Client*>(&this->_clients[i]);
+		}
+	}
+	throw std::runtime_error("Error: Client not found.");
+}
+
 void	Server::initServer()
 {
 	this->_serv_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -100,20 +114,18 @@ void	Server::initServer()
 	}
 	sockaddr_in address;
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr =INADDR_ANY;
+	address.sin_addr.s_addr = this->_serv_config.getIp();
 	address.sin_port = htons(this->_serv_config.getPort());
 	if  (bind(this->_serv_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
+		close(this->_serv_socket);
 		throw std::runtime_error("Error: error in bind of serversocket .");
-		return ;
 	}
 	std::cout << "SOMAXCONN = " << SOMAXCONN << std::endl;
 	if (listen(this->_serv_socket, SOMAXCONN) < 0)
-	{
 		throw std::runtime_error("Error: error in listen of serversocket .");
-		return ;
-	}
 	std::cout << "Server initialized on port " << this->_serv_config.getPort() << std::endl;
+	std::cout << "Server IP: " << inet_ntoa(address.sin_addr) << std::endl;
 }
 
 void Server::run()
@@ -133,25 +145,10 @@ void Server::run()
 			std::cerr << "Error in poll" << std::endl;
 			break;
 		}
-
-		for (size_t i = 0; i < this->_poll_fds.size(); ++i)
-		{
-			if (this->_poll_fds[i].revents & POLLIN)
-			{
-				if (this->_poll_fds[i].fd == this->_serv_socket)
-				{
-					this->acceptNewClient();
-				}
-				else
-				{
-	
-					std::cout << "Data available on client socket: " << this->_poll_fds[i].fd << std::endl;
-					// Read data from the client
-				}
-			}
-		}
+		
 	}
 }
+
 
 void Server::acceptNewClient()
 {
@@ -182,6 +179,22 @@ void Server::acceptNewClient()
 	new_client_poll_fd.fd = new_client_socket;
 	new_client_poll_fd.events = POLLIN;
 	new_client_poll_fd.revents = 0;
-
+	Client new_client(new_client_socket, this->_serv_config.getPort(), ntohl(client_address.sin_addr.s_addr));
+	std::cout << "Content of new client buffer: " << new_client.getBuffer() << std::endl;
+	this->_clients.push_back(new_client);
 	this->_poll_fds.push_back(new_client_poll_fd);
+}
+
+void Server::removeClient(int fd)
+{
+	for (size_t i = 0; i < this->_clients.size(); ++i)
+	{
+		if (this->_clients[i].getFd() == fd)
+		{
+			std::cout << "Removing client with fd: " << fd << std::endl;
+			this->_clients.erase(this->_clients.begin() + i);
+			this->_poll_fds.erase(this->_poll_fds.begin() + i + 1); // +1 because _poll_fds[0] is the server socket
+			break;
+		}
+	}
 }

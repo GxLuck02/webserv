@@ -4,7 +4,7 @@ import random
 
 HOST = '127.0.0.1'
 PORT = 8080
-CLIENT_COUNT = 800
+CLIENT_COUNT = 5
 MESSAGE = b"Hello from client!"
 
 # Type de comportements possibles

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/25 19:14:00 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/26 17:07:37 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Serv_config::Serv_config()
 {
 	this->_servName = "";
 	this->_port = 8080;
-	this->_ip = "127.0.0.1";
+	this->_ip = inet_addr("127.0.0.1");
 	this->_max_clients = 0;
 	this->_timeout = 0;
 	std::cout << "Serv_config default constructor called." << std::endl;
@@ -60,7 +60,7 @@ int Serv_config::getPort() const
 	return this->_port;
 }
 
-const std::string &Serv_config::getIp() const
+int Serv_config::getIp() const
 {
 	return this->_ip;
 }

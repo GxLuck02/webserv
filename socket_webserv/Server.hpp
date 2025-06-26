@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/25 19:10:24 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/26 18:28:30 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 #include "Client.hpp"
 #include "Server_configue.hpp"
 #include <cstdio>
+#include <cerrno>
 
-#define MAX_CLIENTS 1024 //fd_max
+#define MAX_CLIENTS 5 //fd_max
 
 class Server
 {
@@ -33,9 +34,14 @@ class Server
 		Server(const Server &other);
 		Server &operator=(const Server &other);
 		
+		Client* getClient(int fd) const;
 		void initServer();
 		void run();
 		void acceptNewClient();
+		void handleClientRead(int fd);
+		void handleClientWrite(int fd);
+		void removeClient(int fd);
+		
 		
 };
 

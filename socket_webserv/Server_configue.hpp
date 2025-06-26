@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/25 18:00:17 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/26 17:15:46 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <vector>
+#include <arpa/inet.h>
 
 class Serv_config
 {
 	private:
 		std::string 	_servName;
 		int 			_port;
-		std::string 	_ip;
+		in_addr_t		_ip;
 		int 			_max_clients;
 		int 			_timeout;
 	public:
@@ -38,7 +39,7 @@ class Serv_config
 
 		const std::string &getServName() const;
 		int getPort() const;
-		const std::string &getIp() const;
+		int getIp() const;
 		int getMaxClients() const;
 		int getTimeout() const;
 };

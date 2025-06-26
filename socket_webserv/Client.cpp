@@ -6,16 +6,16 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/25 17:32:48 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/26 17:46:49 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(int fd, int port, int ip)
+Client::Client(int fd, int port, in_addr_t ip)
 	: _fd(fd), _port(port), _ip(ip), _isClosed(false)
 {
-	std::cout << "Client created with fd: " << _fd << ", port: " << _port << ", ip: " << _ip << std::endl;
+	std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;
 }
 
 Client::~Client()
@@ -31,7 +31,7 @@ Client::~Client()
 Client::Client(const Client &other)
 	: _fd(other._fd), _port(other._port), _ip(other._ip), _isClosed(other._isClosed)
 {
-	this->setBuffer(other.getBuffer());
+	this->appendToBuffer(other.getBuffer());
 	std::cout << "Client copied with fd: " << _fd << std::endl;
 }
 
@@ -39,12 +39,13 @@ Client &Client::operator=(const Client &other)
 {
 	if (this != &other)
 	{
-		_fd = other._fd;
+		// Do not copy file descriptor, as it should be unique per client
+		// _fd = other._fd; // Removed to avoid double-close and resource issues
 		_port = other._port;
 		_ip = other._ip;
 		_isClosed = other._isClosed;
-		this->setBuffer(other.getBuffer());
-		std::cout << "Client assigned with fd: " << _fd << std::endl;
+		this->appendToBuffer(other.getBuffer());
+		std::cout << "Client assigned (fd not copied) with fd: " << _fd << std::endl;
 	}
 	return *this;
 }
@@ -61,7 +62,7 @@ int Client::getPort() const
 	 return(this->_port);
 }
 
-int Client::getIp() const
+in_addr_t Client::getIp() const
 {
 	 return(this->_ip);
 }
@@ -71,12 +72,11 @@ const std::string &Client::getBuffer() const
 	 return(const_cast<std::string &>(_buffer));
 }
 
-void Client::setBuffer(const std::string &data)
+void Client::appendToBuffer(const std::string& data)
 {
-	if (data.empty())
-	{
-		std::cerr << "Error: Attempt to set an empty buffer." << std::endl;
-		return;
-	}
-	_buffer = data;
+	_buffer += data;
+}
+void Client::clearBuffer()
+{
+	_buffer.clear();
 }
