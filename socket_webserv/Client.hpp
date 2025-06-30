@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/26 17:46:09 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/30 18:12:28 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Client
 		in_addr_t	_ip;
 		std::string _buffer;
 		bool		_isClosed;
+		time_t		_lastActivity;
 		
 	public:
 		Client(int fd, int port, in_addr_t ip);
@@ -44,6 +45,10 @@ class Client
 		const std::string &getBuffer() const;
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		
+		bool isRequestComplete() const;
+		bool isClosed() const;
+		void setClosed(bool closed);
+		void updateLastActivity();
 }; 
 
 #endif

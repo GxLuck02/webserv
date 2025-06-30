@@ -6,15 +6,16 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/26 17:46:49 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/30 18:12:48 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
 Client::Client(int fd, int port, in_addr_t ip)
-	: _fd(fd), _port(port), _ip(ip), _isClosed(false)
+	: _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
 {
+	this->_buffer.clear();
 	std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;
 }
 
@@ -79,4 +80,27 @@ void Client::appendToBuffer(const std::string& data)
 void Client::clearBuffer()
 {
 	_buffer.clear();
+}
+
+bool Client::isRequestComplete() const
+{
+	// just for simple test, check after for all requests
+	return _buffer.find("\r\n\r\n") != std::string::npos;
+}
+
+bool Client::isClosed() const
+{
+	return _isClosed;
+}
+
+void Client::setClosed(bool closed){
+	_isClosed = closed;
+	if (closed && _fd != -1) {
+		close(_fd);
+	}
+}
+
+void Client::updateLastActivity()
+{
+	_lastActivity = time(NULL);
 }

@@ -5,7 +5,7 @@ import random
 HOST = '127.0.0.1'
 PORT = 8080
 CLIENT_COUNT = 5
-MESSAGE = b"Hello from client!"
+MESSAGE = b"Hello from client!\r\n\r\n"
 
 # Type de comportements possibles
 CLIENT_TYPES = ["normal", "fire_and_forget", "slow_response", "no_close", "invalid_data"]
@@ -15,7 +15,7 @@ async def tcp_client(id, behavior):
         reader, writer = await asyncio.open_connection(HOST, PORT)
 
         if behavior == "invalid_data":
-            writer.write(b"\x00\x01\x02\x03INVALID")
+            writer.write(b"\x00\x01\x02\x03INVALID\r\n\r\n")
         else:
             writer.write(MESSAGE)
         await writer.drain()

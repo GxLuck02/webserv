@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/26 18:28:30 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/06/30 18:12:00 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class Server
 		// Server configuration
 		Serv_config _serv_config;
 		int _serv_socket;
-		std::vector<Client> _clients;
+		std::vector<Client *> _clients;
 		std::vector<pollfd> _poll_fds; //permet de suivre les fds avec poll()
 	public:
 		Server();
@@ -35,6 +35,7 @@ class Server
 		Server &operator=(const Server &other);
 		
 		Client* getClient(int fd) const;
+		int getIndexPollFd(int fd) const;
 		void initServer();
 		void run();
 		void acceptNewClient();
