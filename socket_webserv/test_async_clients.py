@@ -7,8 +7,8 @@ PORT = 8080
 CLIENT_COUNT = 500
 MESSAGE = b"Hello from client!\r\n\r\n"
 
-# Type de comportements possibles
-CLIENT_TYPES = ["normal", "fire_and_forget", "slow_response", "no_close", "invalid_data"]
+# Comportements possibles, sans "no_close" maintenant
+CLIENT_TYPES = ["normal", "fire_and_forget", "slow_response", "invalid_data"]
 
 async def tcp_client(id, behavior):
     try:
@@ -21,27 +21,28 @@ async def tcp_client(id, behavior):
         await writer.drain()
 
         if behavior == "fire_and_forget":
-            # Ne lit jamais la réponse, ferme immédiatement
+            # Envoie et ferme immédiatement sans lire la réponse
             writer.close()
             await writer.wait_closed()
             print(f"[Client {id} - {behavior}] ✅ Sent and closed immediately.")
             return
 
         if behavior == "slow_response":
-            await asyncio.sleep(random.uniform(1, 3))  # Attente avant de lire
+            await asyncio.sleep(random.uniform(1, 3))  # Attente avant lecture
 
-        if behavior != "no_close":
-            data = await asyncio.wait_for(reader.read(1024), timeout=5)
-            if data != MESSAGE and behavior == "normal":
+        # Lecture de la réponse avec timeout 5s
+        data = await asyncio.wait_for(reader.read(1024), timeout=5)
+
+        if behavior == "normal":
+            if data != MESSAGE:
                 print(f"[Client {id} - {behavior}] ❌ Echo mismatch!")
             else:
                 print(f"[Client {id} - {behavior}] ✅ Received echo OK")
-            writer.close()
-            await writer.wait_closed()
         else:
-            # Ne ferme jamais la socket (simulateur de fuite de ressource)
-            await asyncio.sleep(10)
-            print(f"[Client {id} - {behavior}] ❗ Socket left open")
+            print(f"[Client {id} - {behavior}] ✅ Received data (length {len(data)})")
+
+        writer.close()
+        await writer.wait_closed()
 
     except Exception as e:
         print(f"[Client {id} - {behavior}] ❌ Error: {e}")
