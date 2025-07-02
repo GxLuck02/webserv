@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 16:48:41 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:51:48 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,9 @@
 
 #include <iostream>
 #include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <vector>
 #include <arpa/inet.h>
+#include <ctime>
+#include <unistd.h>
 
 class Client
 {
@@ -44,11 +40,12 @@ class Client
 		in_addr_t getIp() const;
 		time_t getLastActivity() const;
 		const std::string &getBuffer() const;
+		void setClosed(bool closed);
+		bool isClosed() const;
+		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		
 		bool isRequestComplete() const;
-		bool isClosed() const;
-		void setClosed(bool closed);
 		void updateLastActivity();
 }; 
 

@@ -6,33 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 17:06:34 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 19:26:36 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
-
-// class Server
-// {
-// 	private:
-// 		// Server configuration
-// 		Serv_config _serv_config;
-// 		int _serv_socket;
-// 		std::vector<Client> _clients;
-// 		std::vector<pollfd> _poll_fds; //permet de suivre les fds avec poll()
-// 	public:
-// 		Server();
-// 		~Server();
-// 		Server(const Server &other);
-// 		Server &operator=(const Server &other);
-		
-// 		void initServer();
-// 		void run();
-// 		void acceptNewClient();
-		
-// };
 
 Server::Server()
 {
@@ -80,8 +60,9 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
-/*************************** Members functions ***************************/
+/************************** Geters and Setters ***************************/
 
+// Get the client object associated with a given file descriptor
 Client *Server::getClient(int fd) const
 {
 	for (size_t i = 0; i < this->_clients.size(); ++i)
@@ -94,6 +75,7 @@ Client *Server::getClient(int fd) const
 	throw std::runtime_error("Error: Client not found.");
 }
 
+// Get the index of the poll file descriptor for a given file descriptor
 int Server::getIndexPollFd(int fd) const
 {
 	for (size_t i = 0; i < this->_poll_fds.size(); ++i)
@@ -106,50 +88,28 @@ int Server::getIndexPollFd(int fd) const
 	throw std::runtime_error("Error: Poll fd not found.");
 }
 
+/*************************** Gesture of Server ***************************/
+
+// Initialize the server
+// This function creates a socket, sets it to non-blocking mode, binds it to the specified IP and port, and starts listening for incoming connections.
 void	Server::initServer()
 {
 	this->_serv_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_serv_socket < 0)
-	{
-		throw std::runtime_error("Error: error in creation of serversocket .");
-		return ;
-	}
+		throw std::runtime_error("Error: error in creation of serversocket.");
 	int opt = 1;
-  	if (setsockopt(this->_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-			perror("setsockopt");
-			std::cerr << "Error: setsockopt failed." << std::endl;
-			close(this->_serv_socket);
-			return ;
-    }
-	int flags = fcntl(this->_serv_socket, F_GETFL, 0);
-	if (flags < 0)
-	{
-		perror("fcntl server F_GETFL");
-		close(this->_serv_socket);
-		return ;
-	}
-	if (fcntl(this->_serv_socket, F_SETFL, flags | O_NONBLOCK) < 0)
-	{
-		perror("fcntl server F_SETFL");
-		close(this->_serv_socket);
-		return ;
-	}
-	sockaddr_in address;
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = this->_serv_config.getIp();
-	address.sin_port = htons(this->_serv_config.getPort());
-	if  (bind(this->_serv_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
+	if (setsockopt(this->_serv_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) 
 	{
 		close(this->_serv_socket);
-		throw std::runtime_error("Error: error in bind of serversocket .");
+		throw std::runtime_error("Error: setsockopt failed.");
 	}
-	std::cout << "SOMAXCONN = " << SOMAXCONN << std::endl;
-	if (listen(this->_serv_socket, SOMAXCONN) < 0)
-		throw std::runtime_error("Error: error in listen of serversocket .");
-	std::cout << "Server initialized on port " << this->_serv_config.getPort() << std::endl;
-	std::cout << "Server IP: " << inet_ntoa(address.sin_addr) << std::endl;
+	this->setSocketNonBlocking();
+	this->bindSocket();
+	this->listenSocket();
 }
 
+// Run the server
+// This function initializes the server, sets up the poll file descriptors, and enters the main loop
 void Server::run()
 {
 	std::cout << "Server is running..." << std::endl;
@@ -165,19 +125,14 @@ void Server::run()
 		int poll_count = poll(this->_poll_fds.data(), this->_poll_fds.size(), 900);
 		if (poll_count < 0)
 		{
-			std::cerr << "Error in poll" << std::endl;
-			break;
+			throw std::runtime_error("Error: poll failed.");
 		}
 		if (this->_poll_fds[0].revents & POLLIN)
-		{
 			this->acceptNewClient();
-			
-		}
 		for (long unsigned int i = 0; i < this->_poll_fds.size(); ++i)
 		{
 			if (this->_poll_fds[i].revents & POLLIN && this->_poll_fds[i].fd != this->_serv_socket)
 			{
-				// Handle read event for client sockets
 				std::cout << "Handling read for client fd: " << _poll_fds[i].fd << std::endl;
 				this->handleClientRead(_poll_fds[i].fd);
 			}
@@ -191,9 +146,16 @@ void Server::run()
 				std::cerr << "Error or hangup on client fd: " << this->_poll_fds[i].fd << std::endl;
 				this->removeClient(this->_poll_fds[i].fd);
 			}
-			this->_poll_fds[i].revents = 0; // Reset revents for next poll
+			this->_poll_fds[i].revents = 0;
 		}
 	}
+	this->endRunLoop();
+}
+
+// End the run loop
+// This function clears the poll_fds and clients, effectively ending the run loop.
+void Server::endRunLoop()
+{
 	for (size_t i = 0; i < this->_clients.size(); ++i)
 	{
 		if (!this->_clients[i]->isClosed())
@@ -212,42 +174,56 @@ void Server::run()
 		std::cout << "Server socket closed." << std::endl;
 	}
 }
-
-
-void Server::acceptNewClient()
+// Set the server socket to non-blocking mode
+// This function uses fcntl to set the socket to non-blocking mode, allowing the server to handle multiple clients without blocking on read/write operations.
+void Server::setSocketNonBlocking()
 {
-	sockaddr_in client_address;
-	socklen_t client_address_len = sizeof(client_address);
-	int new_client_socket = accept(this->_serv_socket, (struct sockaddr *)&client_address, &client_address_len);
-	if (new_client_socket < 0)
-	{
-		std::cerr << "Error accepting new connection" << std::endl;
-		return;
-	}
-	std::cout << "New client connected: " << new_client_socket << std::endl;
-
-	int flags = fcntl(new_client_socket, F_GETFL, 0);
+	int flags = fcntl(this->_serv_socket, F_GETFL, 0);
 	if (flags < 0)
 	{
-		perror("fcntl F_GETFL");
-		close(new_client_socket);
-		return;
+		close(this->_serv_socket);
+		throw std::runtime_error("Error: fcntl F_GETFL failed.");
 	}
-	if (fcntl(new_client_socket, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (fcntl(this->_serv_socket, F_SETFL, flags | O_NONBLOCK) < 0)
 	{
-		perror("fcntl F_SETFL");
-		close(new_client_socket);
-		return;
+		close(this->_serv_socket);
+		throw std::runtime_error("Error: fcntl F_SETFL failed.");
 	}
-	struct pollfd new_client_poll_fd;
-	new_client_poll_fd.fd = new_client_socket;
-	new_client_poll_fd.events = POLLIN;
-	new_client_poll_fd.revents = 0;
-	Client* new_client = new Client(new_client_socket, this->_serv_config.getPort(), ntohl(client_address.sin_addr.s_addr));
-	this->_clients.push_back(new_client);
-	this->_poll_fds.push_back(new_client_poll_fd);
+	std::cout << "Server socket set to non-blocking mode." << std::endl;
 }
 
+// Bind the server socket to the specified IP and port
+// This function creates a sockaddr_in structure with the server's IP and port, and binds the socket to it.
+void Server::bindSocket()
+{
+	sockaddr_in address;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = this->_serv_config.getIp();
+	address.sin_port = htons(this->_serv_config.getPort());
+	if  (bind(this->_serv_socket, (struct sockaddr *)&address, sizeof(address)) < 0)
+	{
+		close(this->_serv_socket);
+		throw std::runtime_error("Error: error in bind of serversocket .");
+	}
+	std::cout << "Server initialized on port " << this->_serv_config.getPort() << std::endl;
+	std::cout << "Server IP: " << inet_ntoa(address.sin_addr) << std::endl;
+}
+
+// Listen for incoming connections on the server socket
+// This function sets the server socket to listen for incoming connections with a maximum queue size of SOM
+void Server::listenSocket()
+{
+	if (listen(this->_serv_socket, SOMAXCONN) < 0)
+	{
+		close(this->_serv_socket);
+		throw std::runtime_error("Error: error in listen of serversocket .");
+	}
+}
+
+/**************************** Gesture of Clients *****************************************/
+
+// Handle reading data from the client
+// This function reads data from the client socket, updates the client's last activity time, and checks
 void Server::handleClientRead(int fd)
 {
 	Client *current_client = this->getClient(fd);
@@ -284,6 +260,8 @@ void Server::handleClientRead(int fd)
 	return ;
 }
 
+// Handle writing data to the client
+// This function checks if the client's buffer is empty, sends the data to the client, and updates the poll_fds to switch back to read mode.
 void Server::handleClientWrite(int fd)
 {
 	Client *current_Client = this->getClient(fd);
@@ -317,6 +295,25 @@ void Server::handleClientWrite(int fd)
 	return ;
 }
 
+// Accept a new client connection
+// This function accepts a new client connection, sets the socket to non-blocking mode, and adds the client to the list of clients and poll_fds.
+void Server::acceptNewClient()
+{
+	sockaddr_in client_address;
+	socklen_t client_address_len = sizeof(client_address);
+	int new_client_socket = accept(this->_serv_socket, (struct sockaddr *)&client_address, &client_address_len);
+	if (new_client_socket < 0)
+	{
+		std::cerr << "Error accepting new connection" << std::endl;
+		return;
+	}
+	std::cout << "New client connected: " << new_client_socket << std::endl;
+	this->setClientNonBlocking(new_client_socket);
+	this->addClientToPollFds(new_client_socket, client_address);
+}
+
+// Remove a client from the server
+//This function closes the socket, clears the client's buffer, marks it as closed, and removes it from the list of clients and poll_fds.
 void Server::removeClient(int fd)
 {
 	std::cout << "Removing client with fd: " << fd << std::endl;
@@ -342,6 +339,7 @@ void Server::removeClient(int fd)
 	}
 }
 
+// Check for timeouts and remove clients that have been inactive for too long
 void Server::checkTimeouts()
 {
 	time_t now;
@@ -355,4 +353,33 @@ void Server::checkTimeouts()
 			--i;
 		}
 	}
+}
+
+void Server::setClientNonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	if (flags < 0)
+	{
+		perror("fcntl F_GETFL");
+		close(fd);
+		return;
+	}
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+	{
+		perror("fcntl F_SETFL");
+		close(fd);
+		return;
+	}
+}
+
+void Server::addClientToPollFds(int new_client_socket, sockaddr_in &client_address)
+{
+	struct pollfd new_client_poll_fd;
+	new_client_poll_fd.fd = new_client_socket;
+	new_client_poll_fd.events = POLLIN;
+	new_client_poll_fd.revents = 0;
+	Client* new_client = new Client(new_client_socket, this->_serv_config.getPort(), ntohl(client_address.sin_addr.s_addr));
+	this->_clients.push_back(new_client);
+	this->_poll_fds.push_back(new_client_poll_fd);
+	std::cout << "New client added to poll_fds with fd: " << new_client_socket << std::endl;
 }

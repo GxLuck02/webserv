@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 17:02:19 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:45:41 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ Client &Client::operator=(const Client &other)
 	return *this;
 }
 
-/************************************ Members functions ************************************/
+/************************************ Getters and Setters **********************************/
+
 
 int Client::getFd() const
 {
@@ -78,21 +79,6 @@ const std::string &Client::getBuffer() const
 	 return(const_cast<std::string &>(_buffer));
 }
 
-void Client::appendToBuffer(const std::string& data)
-{
-	_buffer += data;
-}
-void Client::clearBuffer()
-{
-	_buffer.clear();
-}
-
-bool Client::isRequestComplete() const
-{
-	// just for simple test, check after for all requests
-	return _buffer.find("\r\n\r\n") != std::string::npos;
-}
-
 bool Client::isClosed() const
 {
 	return _isClosed;
@@ -105,6 +91,25 @@ void Client::setClosed(bool closed){
 	}
 }
 
+/************************************ Members functions ************************************/
+
+void Client::appendToBuffer(const std::string& data)
+{
+	_buffer += data;
+}
+void Client::clearBuffer()
+{
+	_buffer.clear();
+}
+
+// Check if the request is complete by looking for the end of the HTTP header
+bool Client::isRequestComplete() const
+{
+	// just for simple test, check after for all requests
+	return _buffer.find("\r\n\r\n") != std::string::npos;
+}
+
+// Update the last activity time of the client
 void Client::updateLastActivity()
 {
 	_lastActivity = time(NULL);

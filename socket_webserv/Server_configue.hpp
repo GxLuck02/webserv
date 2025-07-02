@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/26 17:15:46 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:48:51 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,6 @@
 
 #include <iostream>
 #include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <vector>
 #include <arpa/inet.h>
 
 class Serv_config

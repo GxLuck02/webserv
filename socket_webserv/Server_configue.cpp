@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 16:44:15 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 18:40:17 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,7 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 	return *this;
 }
 
-/**************************** Members functions ************************************/
-
-const std::string &Serv_config::getServName() const
-{
-	return this->_servName;
-}
+/**************************** Geters and Setters ***********************************/
 
 int Serv_config::getPort() const
 {
@@ -74,4 +69,11 @@ int Serv_config::getTimeout() const
 {
 	return this->_timeout;
 }
+
+const std::string &Serv_config::getServName() const
+{
+	return this->_servName;
+}
+
+/**************************** Members functions ************************************/
 
