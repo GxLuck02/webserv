@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/30 18:12:48 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 17:02:19 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ int Client::getPort() const
 in_addr_t Client::getIp() const
 {
 	 return(this->_ip);
+}
+
+time_t Client::getLastActivity() const
+{
+	 return(this->_lastActivity);
 }
 
 const std::string &Client::getBuffer() const

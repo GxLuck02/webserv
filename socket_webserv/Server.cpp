@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/30 18:14:22 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 17:06:34 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,16 @@ Server::~Server()
 		close(this->_serv_socket);
 		std::cout << "Server socket closed." << std::endl;
 	}
+	for (size_t i = 0; i < this->_clients.size(); ++i)
+	{
+		if(this->_clients[i]->getFd() != -1)
+		{
+			close(this->_clients[i]->getFd());
+			std::cout << "Closing client fd: " << this->_clients[i]->getFd() << std::endl;
+		}
+		delete this->_clients[i];
+	}
+	this->_poll_fds.clear();
 	std::cout << "Server destructor called." << std::endl;
 }
 
@@ -151,7 +161,8 @@ void Server::run()
 	this->_poll_fds.push_back(serv_poll_fd);
 	while (true)
 	{
-		int poll_count = poll(this->_poll_fds.data(), this->_poll_fds.size(), -1);
+		this->checkTimeouts();
+		int poll_count = poll(this->_poll_fds.data(), this->_poll_fds.size(), 900);
 		if (poll_count < 0)
 		{
 			std::cerr << "Error in poll" << std::endl;
@@ -327,6 +338,21 @@ void Server::removeClient(int fd)
 		{
 			this->_poll_fds.erase(this->_poll_fds.begin() + i);
 			break;
+		}
+	}
+}
+
+void Server::checkTimeouts()
+{
+	time_t now;
+	for (size_t i = 0; i < this->_clients.size(); ++i)
+	{
+		std::time(&now);
+		if (std::difftime(now, this->_clients[i]->getLastActivity()) >= this->_serv_config.getTimeout())
+		{
+			std::cout << "Client fd: " << this->_clients[i]->getFd() << " timed out." << std::endl;
+			this->removeClient(this->_clients[i]->getFd());
+			--i;
 		}
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/30 18:12:00 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 16:50:23 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Server_configue.hpp"
 #include <cstdio>
 #include <cerrno>
+#include <ctime>
 
 #define MAX_CLIENTS 5 //fd_max
 
@@ -42,7 +43,7 @@ class Server
 		void handleClientRead(int fd);
 		void handleClientWrite(int fd);
 		void removeClient(int fd);
-		
+		void checkTimeouts();
 		
 };
 

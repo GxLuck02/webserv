@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/06/30 18:12:28 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/02 16:48:41 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ class Client
 		int getFd() const;
 		int getPort() const;
 		in_addr_t getIp() const;
+		time_t getLastActivity() const;
 		const std::string &getBuffer() const;
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		
