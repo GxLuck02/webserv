@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 19:26:36 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/08 19:37:46 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,13 +178,7 @@ void Server::endRunLoop()
 // This function uses fcntl to set the socket to non-blocking mode, allowing the server to handle multiple clients without blocking on read/write operations.
 void Server::setSocketNonBlocking()
 {
-	int flags = fcntl(this->_serv_socket, F_GETFL, 0);
-	if (flags < 0)
-	{
-		close(this->_serv_socket);
-		throw std::runtime_error("Error: fcntl F_GETFL failed.");
-	}
-	if (fcntl(this->_serv_socket, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (fcntl(this->_serv_socket, F_SETFL, O_NONBLOCK) < 0)
 	{
 		close(this->_serv_socket);
 		throw std::runtime_error("Error: fcntl F_SETFL failed.");
@@ -357,14 +351,7 @@ void Server::checkTimeouts()
 
 void Server::setClientNonBlocking(int fd)
 {
-	int flags = fcntl(fd, F_GETFL, 0);
-	if (flags < 0)
-	{
-		perror("fcntl F_GETFL");
-		close(fd);
-		return;
-	}
-	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
 	{
 		perror("fcntl F_SETFL");
 		close(fd);
