@@ -1,39 +1,37 @@
-NAME     := webserv
-CC       := c++
-CFLAGS   := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
+NAME        := webserv
+CC          := c++
+INC_DIR     := Includes
+CFLAGS      := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
 
-SRC_DIR  := Srcs/
-INC_DIR  := Includes/
-OBJ_DIR  := obj/
+SRC_DIRS    := Srcs Srcs/Clients Srcs/Server
+OBJ_DIR     := obj
 
-SRCS     := $(wildcard $(SRC_DIR)*.cpp)
-OBJS     := $(SRCS:$(SRC_DIR)%.cpp=$(OBJ_DIR)%.o)
+# Trouve tous les fichiers .cpp dans les SRC_DIRS
+SRCS        := $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.cpp))
 
-# Règle principale
+# Pour chaque .cpp => crée le chemin obj/FICHIER.o correspondant
+OBJS        := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRCS))
+
 all: $(NAME)
 
 # Lien final
 $(NAME): $(OBJS)
 	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Compilation des .cpp en .o dans OBJ_DIR
-$(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
-	@mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
 	@echo "Compiling $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Nettoyage des objets
 clean:
 	@echo "Cleaning object files..."
 	rm -rf $(OBJ_DIR)
 
-# Nettoyage complet
 fclean: clean
 	@echo "Removing executable..."
 	rm -f $(NAME)
 
-# Recompilation complète
 re: fclean all
 
 .PHONY: all clean fclean re
