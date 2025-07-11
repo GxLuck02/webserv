@@ -6,14 +6,14 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 18:45:41 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/11 17:03:58 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(int fd, int port, in_addr_t ip)
-	: _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
+Client::Client(int fd, int port, in_addr_t ip, Serv_config* serv_config)
+	: _serv_config(serv_config), _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
 {
 	this->_buffer.clear();
 	std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;

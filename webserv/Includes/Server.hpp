@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 19:24:09 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:14:04 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,13 @@
 #include <fcntl.h>
 #include <cerrno>
 
-#define MAX_CLIENTS 5 //fd_max
-
 class Server
 {
 	private:
-		// Server configuration
-		Serv_config _serv_config;
-		int _serv_socket;
+		std::vector<Serv_config> _servs;
 		std::vector<Client *> _clients;
-		std::vector<pollfd> _poll_fds; //permet de suivre les fds avec poll()
+		std::vector<pollfd> _poll_fds;
+		
 	public:
 		Server();
 		~Server();
@@ -44,19 +41,21 @@ class Server
 		void initServer();
 		void run();
 		void endRunLoop();
-		void setSocketNonBlocking();
-		void bindSocket();
-		void listenSocket();
+		void setSocketNonBlocking(int index);
+		void bindSocket(int index);
+		void listenSocket(int index);
+		void addServerToPollFds();
+		bool checkItsServerSocket(int index) const;
 		
 		void handleClientRead(int fd);
 		void handleClientWrite(int fd);
-		void acceptNewClient();
+		void acceptNewClient(int index);
 		void removeClient(int fd);
 		void checkTimeouts();
 		void setClientNonBlocking(int fd);
-		void addClientToPollFds(int fd, sockaddr_in &client_address);
+		void addClientToPollFds(int fd, sockaddr_in &client_address, int index);
 		
-		
+		std::vector<Serv_config> _test_serv_servers();
 };
 
 #endif
