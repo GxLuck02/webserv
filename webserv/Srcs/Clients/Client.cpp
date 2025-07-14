@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/11 17:03:58 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/14 14:11:05 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ Client &Client::operator=(const Client &other)
 {
 	if (this != &other)
 	{
-		// Do not copy file descriptor, as it should be unique per client
-		// _fd = other._fd; // Removed to avoid double-close and resource issues
 		_port = other._port;
 		_ip = other._ip;
 		_isClosed = other._isClosed;

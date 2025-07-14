@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/11 16:18:17 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/14 19:29:54 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ Server::Server()
 {
 	std::cout << "Server default constructor called." << std::endl;
 	// Parser input();
-	// this->_serv_servers = input.getServers();
+	// this->_servs = input.getServers();
 	this->_servs = this->_test_serv_servers(); // For testing purposes
 	
 }
@@ -228,6 +228,7 @@ void Server::listenSocket(int index)
 	}
 }
 
+// Add the server to the poll file descriptors
 void Server::addServerToPollFds()
 {
 	for (size_t i = 0; i < this->_servs.size(); ++i)
@@ -241,6 +242,7 @@ void Server::addServerToPollFds()
 	}
 }
 
+// Check if the poll file descriptor corresponds to a server socket
 bool Server::checkItsServerSocket(int index) const
 {
 	for (size_t i = 0; i < this->_servs.size(); ++i)
@@ -389,6 +391,7 @@ void Server::checkTimeouts()
 	}
 }
 
+// Set a client socket to non-blocking mode
 void Server::setClientNonBlocking(int fd)
 {
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
@@ -399,6 +402,7 @@ void Server::setClientNonBlocking(int fd)
 	}
 }
 
+// Add a new client to the poll_fds and clients vector
 void Server::addClientToPollFds(int new_client_socket, sockaddr_in &client_address, int index)
 {
 	struct pollfd new_client_poll_fd;
@@ -411,6 +415,7 @@ void Server::addClientToPollFds(int new_client_socket, sockaddr_in &client_addre
 	std::cout << "New client added to poll_fds with fd: " << new_client_socket << std::endl;
 }
 
+// Get the server configuration for the client
 Serv_config* Client::getServConfig() const
 {
 	return this->_serv_config;
