@@ -11,20 +11,32 @@
 		background-image: url('https://i.ytimg.com/vi/xadlJiNkn80/maxresdefault.jpg');
 		background-size: cover;         /* Pour que l’image prenne tout l’espace */
 		background-position: center;    /* Centrer l’image */
-		background-repeat: no-repeat;   /* Ne pas répéter l’image */
+		background-repeat: no-repeat;
+    background-attachment: fixed;  /* Ne pas répéter l’image */
 		color: white;
-		margin: 0;
-		padding: 204px;
+    margin: 0px;
+		padding: 0px;
+    height: 100vh;
+    position: relative;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
+     h1 {
+     position: absolute;
+     top: 30vh;
+     left: 50vw;
+     transform: translate(-50%, -50%);
+     font-size: 3rem;
+     font-weight: bolder;
+     white-space: nowrap;
     }
+
 
     form {
-      max-width: 300px;
-      margin: 0 auto;
+      position: absolute;
+      width: 300px;
+      top: 70vh;
+      left: 50vw;
+      transform: translate(-50%, -50%);
       background: #38011bd5;
       padding: 30px;
       border-radius: 15px;
@@ -68,7 +80,7 @@
   </style>
 </head>
 <body>
-  <h1 style="color: black;">Contactez-Nous</h1>
+  <h1 style="color: black;">Contacter-Nous</h1>
   <form method="POST" action="/submit">
     <label for="name">Votre nom</label>
     <input type="text" name="name" id="name" required />
