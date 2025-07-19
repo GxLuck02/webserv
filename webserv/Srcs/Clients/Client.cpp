@@ -6,14 +6,14 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 18:45:41 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/14 14:11:05 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 
-Client::Client(int fd, int port, in_addr_t ip)
-	: _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
+Client::Client(int fd, int port, in_addr_t ip, Serv_config* serv_config)
+	: _serv_config(serv_config), _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
 {
 	this->_buffer.clear();
 	std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;
@@ -40,8 +40,6 @@ Client &Client::operator=(const Client &other)
 {
 	if (this != &other)
 	{
-		// Do not copy file descriptor, as it should be unique per client
-		// _fd = other._fd; // Removed to avoid double-close and resource issues
 		_port = other._port;
 		_ip = other._ip;
 		_isClosed = other._isClosed;

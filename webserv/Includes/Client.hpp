@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/02 18:51:48 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:16:47 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,21 @@
 #include <arpa/inet.h>
 #include <ctime>
 #include <unistd.h>
+#include "Server_configue.hpp"
 
 class Client
 {
 	private:
-		int 		_fd;
-		int			_port;
-		in_addr_t	_ip;
-		std::string _buffer;
-		bool		_isClosed;
-		time_t		_lastActivity;
+		Serv_config 	*_serv_config;
+		int 			_fd;
+		int				_port;
+		in_addr_t		_ip;
+		std::string 	_buffer;
+		bool			_isClosed;
+		time_t			_lastActivity;
 		
 	public:
-		Client(int fd, int port, in_addr_t ip);
+		Client(int fd, int port, in_addr_t ip, Serv_config* serv_config);
 		~Client();
 		Client(const Client &other);
 		Client &operator=(const Client &other);
@@ -42,6 +44,7 @@ class Client
 		const std::string &getBuffer() const;
 		void setClosed(bool closed);
 		bool isClosed() const;
+		Serv_config* getServConfig() const;
 		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		

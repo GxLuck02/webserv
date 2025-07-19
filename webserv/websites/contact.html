@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Votre Équipe Esport</title>
+  <style>
+    body {
+		font-family: 'Segoe UI', sans-serif;
+		height: auto;
+		background-image: url('https://i.ytimg.com/vi/xadlJiNkn80/maxresdefault.jpg');
+		background-size: cover;         /* Pour que l’image prenne tout l’espace */
+		background-position: center;    /* Centrer l’image */
+		background-repeat: no-repeat;
+    background-attachment: fixed;  /* Ne pas répéter l’image */
+		color: white;
+    margin: 0px;
+		padding: 0px;
+    height: 100vh;
+    position: relative;
+    }
+
+     h1 {
+     position: absolute;
+     top: 30vh;
+     left: 50vw;
+     transform: translate(-50%, -50%);
+     font-size: 3rem;
+     font-weight: bolder;
+     white-space: nowrap;
+    }
+
+
+    form {
+      position: absolute;
+      width: 300px;
+      top: 70vh;
+      left: 50vw;
+      transform: translate(-50%, -50%);
+      background: #38011bd5;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 94%;
+      padding: 10px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 8px;
+      background: #fafafa85;
+      color: rgb(255, 255, 255);
+      font-size: 1rem;
+	  resize: none;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background: #f87b28;
+      border: none;
+      color: rgb(255, 255, 255);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #a74f14;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="color: black;">Contacter-Nous</h1>
+  <form method="POST" action="/submit">
+    <label for="name">Votre nom</label>
+    <input type="text" name="name" id="name" required />
+
+    <label for="email">Votre email</label>
+    <input type="email" name="email" id="email" required />
+
+    <label for="message">Votre message</label>
+    <textarea name="message" id="message" rows="5" ></textarea>
+
+    <button type="submit">Envoyer</button>
+  </form>
+</body>
+</html>
