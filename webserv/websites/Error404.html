@@ -51,9 +51,20 @@
     }
   </style>
 </head>
+
 <body style>
-  <h1 >Error 404</h1>
+  <h1>Unkown error</h1>
   <button_link onclick="location.href='index.html'">Retour à l'accueil</button_link>
+
+	<script>
+		const params = new URLSearchParams(window.location.search);
+		const error = params.get("error");
+
+		if (error) {
+			document.querySelector("h1").textContent =
+				`Error ${error} `;
+		}
+	</script>
 
 </body>
 </html>
