@@ -6,11 +6,12 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/14 19:29:54 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/01 14:59:44 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "RecieveRequest.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
 
@@ -290,6 +291,7 @@ void Server::handleClientRead(int fd)
 				std::cout << "Request complete for client fd: " << fd << std::endl;
 				this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
 				buffer[0] = '\0';
+				beforeRequest(*current_client);
 			}
 		}
 	return ;
