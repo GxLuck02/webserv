@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Votre Équipe Esport</title>
+  <style>
+    body {
+		font-family: 'Segoe UI', sans-serif;
+		height: auto;
+		background-image: url('https://pbs.twimg.com/media/GHc9d1PWkAANtXl?format=jpg&name=4096x4096');
+		background-size: cover;         /* Pour que l’image prenne tout l’espace */
+		background-position: center;    /* Centrer l’image */
+		background-repeat: no-repeat;   /* Ne pas répéter l’image */
+		background-attachment: fixed;
+    color: white;
+		margin: 0px;
+		padding: 0px;
+    height: 100vh;
+    position: relative;
+    }
+
+    h1 {
+     position: absolute;
+     top: 20vh;
+     left: 50vw;
+     transform: translate(-50%, -50%);
+     font-size: 4rem;
+     font-weight: bolder;
+    }
+
+    button_link {
+      position: absolute;
+      top: 60vh;
+      left: 50vw;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      padding: 9px;
+      font-size: 1.2rem;
+      background: #c00d07;
+      border: none;
+      color: rgb(255, 255, 255);
+      text-align: center;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.4s ease;
+    }
+
+    button_link:hover {
+      background: #f17522;
+    }
+  </style>
+</head>
+
+<body style>
+  <h1>Unkown error</h1>
+  <button_link onclick="location.href='index.html'">Retour à l'accueil</button_link>
+
+	<script>
+		const params = new URLSearchParams(window.location.search);
+		const error = params.get("error");
+
+		if (error) {
+			document.querySelector("h1").textContent =
+				`Error ${error} `;
+		}
+	</script>
+
+</body>
+</html>

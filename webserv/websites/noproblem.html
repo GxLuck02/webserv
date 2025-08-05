@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Contact - Votre Équipe Esport</title>
+	<style>
+		body {
+			font-family: 'Segoe UI', sans-serif;
+			height: auto;
+			background-image: url('https://www.breakflip.com/imgcdn/2KIDvbSCXG7vFXUQNejX8tV2NkhsJkXggtUkn6lHPVE/rs:fill:2400:1350:1/g:sm/aHR0cHM6Ly93d3cuYnJlYWtmbGlwLmNvbS91cGxvYWRzLzY3ZjRkZmFlYzBmMjEtYXJ0aHVyLXBlcnRpY296LWtjb3JwLXBvbGl0aXF1ZS5qcGc');
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			color: white;
+			margin: 0px;
+			padding: 0px;
+			height: 100vh;
+			position: relative;
+		}
+
+		h1 {
+			background: #f9fafaa9;
+			padding: 20px;
+			border-radius: 15px;
+			position: absolute;
+			top: 20vh;
+			left: 50vw;
+			transform: translate(-50%, -50%);
+			font-size: 2rem;
+			font-weight: lighter;
+		}
+
+		button_link {
+			position: absolute;
+			top: 85vh;
+			left: 50vw;
+			transform: translate(-50%, -50%);
+			width: 300px;
+			padding: 9px;
+			font-size: 1.5rem;
+			background: #c00d07;
+			border: none;
+			color: rgb(255, 255, 255);
+			text-align: center;
+			border-radius: 15px;
+			cursor: pointer;
+			transition: background 0.4s ease;
+		}
+
+		button_link:hover {
+			background: #f17522;
+		}
+	</style>
+</head>
+
+<body style>
+	<h1 style="color: black;">Merci d'avoir rejoint la secte </h1>
+	<button_link onclick="location.href='index.html'">Retour à notre accueil ☭</button_link>
+
+	<script>
+		const params = new URLSearchParams(window.location.search);
+		const name = params.get("name");
+		const email = params.get("email");
+
+		if (name && email) {
+			document.querySelector("h1").textContent =
+				`Merci ${name} d'avoir rejoins la secte! Nous vous contacterons surement jamais à ${email}`;
+		}
+	</script>
+</body>
+
+</html>
