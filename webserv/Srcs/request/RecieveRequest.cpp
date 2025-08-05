@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:56:35 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/04 14:17:48 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@ int	beforeRequest(Client &ClientInstance)
 	std::string		request = ClientInstance.getBuffer();
 	std::string		line;
 	std::stringstream	ssrequest(request);
+
+	Request		requestInstance;
+	Response		responseInstance;
 
 	std::getline(ssrequest, line);
 
@@ -73,6 +76,13 @@ int	beforeRequest(Client &ClientInstance)
 	}
 	//if (makeResponse(requestInstance, responseInstance) == -1)
 	//	return (0);
+		std::cout << responseInstance.getResponse() << std::endl;
+		std::cout << requestInstance.getMethode() << std::endl;
+		std::cout << requestInstance.getUri() << std::endl;
+		std::cout << requestInstance.getHttpVersion() << std::endl;
+		std::cout << requestInstance.getStatusCode() << std::endl;
+		std::cout << requestInstance.getField("Host") << std::endl;
+		std::cout << requestInstance.getField("Connection") << std::endl;
 
 	return (0);
 	

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/01 14:59:44 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/04 13:49:54 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,8 +274,8 @@ void Server::handleClientRead(int fd)
 		}
 		else if (byte_read < 0)
 		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return ;
+			// if (errno == EAGAIN || errno == EWOULDBLOCK) //check if it valide for subject
+			// 	return ;
 			perror("recv");
 			std::cerr << "Error reading from client socket." << std::endl;
 			this->removeClient(fd);
