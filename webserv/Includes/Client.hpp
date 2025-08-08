@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/11 16:16:47 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/07 18:37:42 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ class Client
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		
 		bool isRequestComplete() const;
+		bool checkTransferEncodingChunked() const;
+		bool searchChunkedEnd(size_t header_end) const;
 		void updateLastActivity();
 }; 
 

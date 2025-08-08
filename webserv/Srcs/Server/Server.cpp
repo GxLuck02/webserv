@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/06 17:30:44 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/08 16:14:02 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,7 +291,7 @@ void Server::handleClientRead(int fd)
 				std::cout << "Request complete for client fd: " << fd << std::endl;
 				this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
 				buffer[0] = '\0';
-				beforeRequest(*current_client);
+				//beforeRequest(*current_client);
 			}
 		}
 	return ;

@@ -6,12 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/06 23:06:41 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/08 16:34:10 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <algorithm>
+#include <list>
 
 Client::Client(int fd, int port, in_addr_t ip, Serv_config* serv_config)
 	: _serv_config(serv_config), _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
@@ -158,26 +159,9 @@ bool Client::isRequestComplete() const
         return false; // Content-Length mal formé
     }
 	
-    // // Vérifier Transfer-Encoding: chunked (case-insensitive)
-    // if (_buffer.find("Transfer-Encoding:") != std::string::npos)
-    // {
-	// 	std::cout << "[ Checking Transfer-Encoding ]" << std::endl;
-	// 	// Trouver la position de "transfer-encoding:"
-	// 	size_t te_pos = _buffer.find("Transfer-Encoding:");
-    //     size_t te_end = _buffer.find(line_ending, te_pos);
-    //     if (te_end != std::string::npos)
-    //     {
-    //         std::string te_value = _buffer.substr(te_pos + 18, te_end - te_pos - 18);
-    //         if (te_value.find("chunked") != std::string::npos)
-    //         {
-    //             // Pour chunked, chercher la séquence de fin
-    //             std::string chunk_terminator = "0\r\n\r\n";
-    //             size_t search_start = header_end + header_separator.length();
-    //             size_t terminator_pos = _buffer.find(chunk_terminator, search_start);
-    //             return (terminator_pos != std::string::npos);
-    //         }
-    //     }
-    // }
+    if (checkTransferEncodingChunked())
+          return true;
+
     std::string method = _buffer.substr(0, _buffer.find(' '));
     std::transform(method.begin(), method.end(), method.begin(), ::toupper);
 	std::cout << "[ Cheking Method ] :" << method << std::endl;
@@ -192,4 +176,96 @@ bool Client::isRequestComplete() const
 void Client::updateLastActivity()
 {
 	_lastActivity = time(NULL);
+}
+
+bool Client::checkTransferEncodingChunked() const
+{
+    size_t header_end = _buffer.find("\r\n\r\n");
+    if (header_end == std::string::npos)
+	{
+		std::cout << "[ Header not found ]" << std::endl;
+        return false;
+	}
+    
+    std::cout << "[ Checking Transfer-Encoding: chunked ]" << std::endl;
+    // Vérifier Transfer-Encoding: chunked (case-insensitive)
+    if (_buffer.find("Transfer-Encoding:") != std::string::npos)
+    {
+		std::cout << "[ Checking Transfer-Encoding ]" << std::endl;
+		// Trouver la position de "transfer-encoding:"
+		size_t te_pos = _buffer.find("Transfer-Encoding:");
+        size_t te_end = _buffer.find("\r\n", te_pos);
+        if (te_end != std::string::npos)
+        {
+            std::string te_value = _buffer.substr(te_pos + 18, te_end - te_pos - 18);
+            if (te_value.find("chunked") != std::string::npos)
+            {
+                
+                if (searchChunkedEnd(header_end))
+                {
+                    std::cout << "[ Transfer-Encoding: chunked found ]" << std::endl;
+                    return true; // Chunked encoding found
+                }
+                else
+                {
+                    std::cout << "[ Transfer-Encoding: chunked not complete ]" << std::endl;
+                    return false; // Chunked encoding not complete
+                }
+            }
+        }
+    }
+    return false; // Transfer-Encoding: chunked not found
+}
+
+bool Client::searchChunkedEnd(size_t header_end) const {
+    if (header_end + 4 >= _buffer.size()) return false;
+
+    size_t pos = header_end + 4; // Après \r\n\r\n
+    while (pos < _buffer.size()) {
+        // Trouver la fin de la ligne contenant la taille du chunk
+        size_t crlf = _buffer.find("\r\n", pos);
+        if (crlf == std::string::npos) return false;
+
+        // Lire la taille en hexadécimal
+        std::string size_str = _buffer.substr(pos, crlf - pos - 4);
+        std::cout << "[ Chunk Size String ] : " << size_str << std::endl;
+    bool valid_hex = true;
+    for (size_t i = 0; i < size_str.size(); ++i) {
+        if (!std::isxdigit(static_cast<unsigned char>(size_str[i]))) {
+            std::cout << "[ Invalid chunk size: not hex ]" << std::endl;
+            valid_hex = false;
+            break; // On sort du for
+        }
+    }
+
+    if (!valid_hex) {
+        // Sauter à la prochaine ligne après ce "faux chunk size"
+        pos = crlf + 2;
+        continue; // On reprend le while au prochain tour
+    }
+        char *endptr;
+        long chunk_size = std::strtol(size_str.c_str(), &endptr, 16);
+        std::cout << "[ Chunk Size ] : " << chunk_size << std::endl;
+        if (endptr == size_str.c_str() || chunk_size < 0) return false;
+
+        
+        
+        if (chunk_size == 0)
+        {
+            // std::cout << _buffer.substr(_buffer.size() - 6 , 4) << std::endl;
+            // if (_buffer.substr(_buffer.size() - 6 , 4) == "\r\n"){
+            //     std::cout << "[ Chunked transfer complete ]" << std::endl;
+            //     return true; // Chunked transfer complete
+            // }
+            // return false; // Chunked transfer not complete
+            return true; // Chunked transfer complete
+        }
+        // Vérifier qu’on a bien tout le chunk dans le buffer
+        if (pos + static_cast<size_t>(chunk_size) + 2 > _buffer.size())
+            return false;
+
+        pos += chunk_size + 2; // Passer au chunk suivant (+2 pour CRLF après data)
+    }
+
+    return false;
 }
