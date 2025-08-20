@@ -3,7 +3,7 @@ CC          := c++
 INC_DIR     := Includes
 CFLAGS      := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
 
-SRC_DIRS    := Srcs Srcs/Clients Srcs/Server Srcs/request Srcs/response
+SRC_DIRS    := Srcs Srcs/Clients Srcs/Server Srcs/request Srcs/response Srcs/ConfigParser
 OBJ_DIR     := obj
 
 # Trouve tous les fichiers .cpp dans les SRC_DIRS

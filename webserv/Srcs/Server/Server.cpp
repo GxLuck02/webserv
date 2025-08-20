@@ -6,22 +6,31 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/08 16:14:02 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/20 15:48:49 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "RecieveRequest.hpp"
+#include "Parser.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
 
-Server::Server()
+Server::Server(std::string configFille)
 {
 	std::cout << "Server default constructor called." << std::endl;
-	// Parser input();
-	// this->_servs = input.getServers();
-	this->_servs = this->_test_serv_servers(); // For testing purposes
-	
+	ConfigParser input(configFille);
+	this->_servs = input.getConfigs();
+	if (this->_servs.empty())
+		throw std::runtime_error("No server configurations found.");
+	else
+	{
+		for (size_t i = 0; i < this->_servs.size(); i++)
+		{
+			std::cout << "Parsed ////" << this->_servs[i] << " //////\n";
+		}
+	}
+		
 }
 
 Server::~Server()
@@ -291,11 +300,13 @@ void Server::handleClientRead(int fd)
 				std::cout << "Request complete for client fd: " << fd << std::endl;
 				this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
 				buffer[0] = '\0';
-				//beforeRequest(*current_client);
+				beforeRequest(*current_client);
 			}
 		}
 	return ;
 }
+
+
 
 // Handle writing data to the client
 // This function checks if the client's buffer is empty, sends the data to the client, and updates the poll_fds to switch back to read mode.
@@ -423,23 +434,23 @@ Serv_config* Client::getServConfig() const
 	return this->_serv_config;
 }
 
-// For testing purposes, we can create a vector of Serv_config objects
-std::vector<Serv_config> Server::_test_serv_servers()
-{
-	std::vector<Serv_config> test_servers;
-	Serv_config test_server;
-	test_server.setServName("TestServer_1");
-	test_server.setPort(8080);
-	test_server.setIp();
-	test_server.setTimeout(60);
-	test_server.setListenFd(0);
-	test_servers.push_back(test_server);
-	Serv_config test_server2;
-	test_server2.setServName("TestServer_2");
-	test_server2.setPort(9090);
-	test_server2.setIp();
-	test_server2.setTimeout(50);
-	test_server2.setListenFd(0);
-	test_servers.push_back(test_server2);
-	return test_servers;
-}
+// // For testing purposes, we can create a vector of Serv_config objects
+// std::vector<Serv_config> Server::_test_serv_servers()
+// {
+// 	std::vector<Serv_config> test_servers;
+// 	Serv_config test_server;
+// 	test_server.setServName("TestServer_1");
+// 	test_server.setPort(8080);
+// 	test_server.setIp();
+// 	test_server.setTimeout(60);
+// 	test_server.setListenFd(0);
+// 	test_servers.push_back(test_server);
+// 	Serv_config test_server2;
+// 	test_server2.setServName("TestServer_2");
+// 	test_server2.setPort(9090);
+// 	test_server2.setIp();
+// 	test_server2.setTimeout(50);
+// 	test_server2.setListenFd(0);
+// 	test_servers.push_back(test_server2);
+// 	return test_servers;
+// }

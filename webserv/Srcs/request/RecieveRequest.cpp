@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/04 14:17:48 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/11 19:00:00 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,13 @@ int	beforeRequest(Client &ClientInstance)
 
 	std::getline(ssrequest, line);
 
+	std::cout << "[ Request Line ] : " << line << std::endl;
 	if (ParseRequestLine(requestInstance, line) == -1)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-		
+	std::cout << "[ Request Line Parsed ]" << std::endl;
 	while (getline(ssrequest, line))
 	{
 		if (line == "\r\n" || line == "\n")
@@ -40,15 +41,13 @@ int	beforeRequest(Client &ClientInstance)
 			return (0);
 		}
 	}
-
-
+	std::cout << "[ Request Fields Parsed ]" << std::endl;
 	if (parseTokenisedHeaderField(requestInstance) == -1)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-
-
+	std::cout << "[ Tokenised Header Fields Parsed ]" << std::endl;
 	if (requestInstance.getMethode() == "POST")
 	{
 		if (fillContentLength(requestInstance, responseInstance) == -1)
@@ -74,6 +73,7 @@ int	beforeRequest(Client &ClientInstance)
 		//}
 
 	}
+	std::cout << "[ Request Body Parsed ]" << std::endl;
 	//if (makeResponse(requestInstance, responseInstance) == -1)
 	//	return (0);
 		std::cout << responseInstance.getResponse() << std::endl;
