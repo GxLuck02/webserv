@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/11 16:14:04 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/15 17:43:40 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,10 @@ class Server
 		std::vector<Client *> _clients;
 		std::vector<pollfd> _poll_fds;
 		
-	public:
 		Server();
+		
+	public:
+		Server(std::string configFile);
 		~Server();
 		Server(const Server &other);
 		Server &operator=(const Server &other);
