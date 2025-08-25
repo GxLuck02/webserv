@@ -6,15 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:48:49 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:26:58 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "RecieveRequest.hpp"
 #include "Parser.hpp"
-#include <unistd.h>
-#include <arpa/inet.h>
 
 Server::Server(std::string configFille)
 {
@@ -29,8 +27,7 @@ Server::Server(std::string configFille)
 		{
 			std::cout << "Parsed ////" << this->_servs[i] << " //////\n";
 		}
-	}
-		
+	}	
 }
 
 Server::~Server()
@@ -86,9 +83,7 @@ Client *Server::getClient(int fd) const
 	for (size_t i = 0; i < this->_clients.size(); ++i)
 	{
 		if (this->_clients[i]->getFd() == fd)
-		{
 			return this->_clients[i];
-		}
 	}
 	throw std::runtime_error("Error: Client not found.");
 }
@@ -99,9 +94,7 @@ int Server::getIndexPollFd(int fd) const
 	for (size_t i = 0; i < this->_poll_fds.size(); ++i)
 	{
 		if (this->_poll_fds[i].fd == fd)
-		{
 			return i;
-		}
 	}
 	throw std::runtime_error("Error: Poll fd not found.");
 }
@@ -274,39 +267,35 @@ void Server::handleClientRead(int fd)
 	Client *current_client = this->getClient(fd);
 	char	buffer[1024];
 	
-		ssize_t byte_read = 0;
-		byte_read = recv(fd, buffer, sizeof(buffer), 0);
-		if (byte_read == 0)
+	ssize_t byte_read = 0;
+	byte_read = recv(fd, buffer, sizeof(buffer), 0);
+	if (byte_read == 0)
+	{
+		std::cerr << "Client fd: " << fd << " closed connection." << std::endl;
+		this->removeClient(fd);
+	}
+	else if (byte_read < 0)
+	{
+		perror("recv");
+		std::cerr << "Error reading from client socket." << std::endl;
+		this->removeClient(fd);
+	}
+	else
+	{
+		current_client->updateLastActivity();
+		std::cout << "Received " << byte_read << " bytes from client fd: " << fd << std::endl;
+		current_client->appendToBuffer(std::string(buffer, byte_read));
+		std::cout << "Client buffer after read: " << current_client->getBuffer() << std::endl;
+		if (current_client->isRequestComplete())
 		{
-			std::cerr << "Client fd: " << fd << " closed connection." << std::endl;
-			this->removeClient(fd);
+			std::cout << "Request complete for client fd: " << fd << std::endl;
+			this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
+			buffer[0] = '\0';
+			beforeRequest(*current_client);
 		}
-		else if (byte_read < 0)
-		{
-			// if (errno == EAGAIN || errno == EWOULDBLOCK) //check if it valide for subject
-			// 	return ;
-			perror("recv");
-			std::cerr << "Error reading from client socket." << std::endl;
-			this->removeClient(fd);
-		}
-		else
-		{
-			current_client->updateLastActivity();
-			std::cout << "Received " << byte_read << " bytes from client fd: " << fd << std::endl;
-			current_client->appendToBuffer(std::string(buffer, byte_read));
-			std::cout << "Client buffer after read: " << current_client->getBuffer() << std::endl;
-			if (current_client->isRequestComplete())
-			{
-				std::cout << "Request complete for client fd: " << fd << std::endl;
-				this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
-				buffer[0] = '\0';
-				beforeRequest(*current_client);
-			}
-		}
+	}
 	return ;
 }
-
-
 
 // Handle writing data to the client
 // This function checks if the client's buffer is empty, sends the data to the client, and updates the poll_fds to switch back to read mode.
@@ -314,6 +303,7 @@ void Server::handleClientWrite(int fd)
 {
 	Client *current_Client = this->getClient(fd);
 	ssize_t byte_sent = 0;
+	
 	if (current_Client->getBuffer().empty())
 	{
 		std::cerr << "No data to send to client fd: " << fd << std::endl;
@@ -349,13 +339,13 @@ void Server::acceptNewClient(int index)
 {
 	sockaddr_in client_address;
 	socklen_t client_address_len = sizeof(client_address);
+	
 	int new_client_socket = accept(this->_servs[index].getListenFd(), (struct sockaddr *)&client_address, &client_address_len);
 	if (new_client_socket < 0)
 	{
 		std::cerr << "Error accepting new connection" << std::endl;
 		return;
 	}
-	
 	std::cout << "New client connected: " << new_client_socket << std::endl;
 	this->setClientNonBlocking(new_client_socket);
 	this->addClientToPollFds(new_client_socket, client_address, index);
@@ -371,7 +361,7 @@ void Server::removeClient(int fd)
 	{
 		if (this->_clients[i]->getFd() == fd)
 		{
-			this->_clients[i]->clearBuffer(); // Clear buffer before deleting
+			this->_clients[i]->clearBuffer();
 			this->_clients[i]->setClosed(true);
 			delete this->_clients[i];
 			this->_clients.erase(this->_clients.begin() + i);
@@ -433,24 +423,3 @@ Serv_config* Client::getServConfig() const
 {
 	return this->_serv_config;
 }
-
-// // For testing purposes, we can create a vector of Serv_config objects
-// std::vector<Serv_config> Server::_test_serv_servers()
-// {
-// 	std::vector<Serv_config> test_servers;
-// 	Serv_config test_server;
-// 	test_server.setServName("TestServer_1");
-// 	test_server.setPort(8080);
-// 	test_server.setIp();
-// 	test_server.setTimeout(60);
-// 	test_server.setListenFd(0);
-// 	test_servers.push_back(test_server);
-// 	Serv_config test_server2;
-// 	test_server2.setServName("TestServer_2");
-// 	test_server2.setPort(9090);
-// 	test_server2.setIp();
-// 	test_server2.setTimeout(50);
-// 	test_server2.setListenFd(0);
-// 	test_servers.push_back(test_server2);
-// 	return test_servers;
-// }

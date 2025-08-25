@@ -6,21 +6,18 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 15:31:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:32:23 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 16:09:08 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSER_HPP 
 #define PARSER_HPP 
-#include <string> 
-#include <vector> 
-#include <map>
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include "Server_configue.hpp"
 #include "Define.hpp"
-
 
 typedef struct LocationConfig
 { 
@@ -38,7 +35,6 @@ class ConfigParser
 {
 	public:
 		ConfigParser(const std::string& path);
-		
 		std::vector<ServerConfig> getServers() const;
 		std::vector<Serv_config> getConfigs() const;
 		

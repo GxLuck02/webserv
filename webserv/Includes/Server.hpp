@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/15 17:43:40 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:21:36 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "Client.hpp"
 #include "Server_configue.hpp"
 #include <cstdio>
-#include <vector>
 #include <poll.h>
 #include <sys/socket.h>
 #include <fcntl.h>

@@ -6,14 +6,12 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:38:44 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:43:06 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:29:33 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <csignal>
-#include <iostream>
-#include <cstdlib>
 
 Server* g_server = NULL;
 
@@ -34,7 +32,6 @@ int main(int argc, char *argv[])
         return 1;
     }
     signal(SIGINT, handle_sigint);
-    
     try
     {
         g_server = new Server(argv[1]);
@@ -55,4 +52,3 @@ int main(int argc, char *argv[])
     delete g_server;
     return 0;
 }
-

@@ -6,14 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:33:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:55:20 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server_configue.hpp"
 #include "Define.hpp"
 
-//a VOirrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 Serv_config::Serv_config()
 {
 	std::cout << "Serv_config constructor called." << std::endl;
@@ -218,23 +217,21 @@ void Serv_config::addLocation(const std::string &path, const location_t &locatio
 }
 /**************************** Privates functions ************************************/
 
+//Convert the max body size string in size_t, the string can contain the value in 1G or mb etc..
 size_t Serv_config::_getConvertedMaxSize(std::string const &size)
 {
 	std::string	c;
 	std::string	sub;
 	double		tmp = 0;
-
+	
 	if (!isdigit(size[size.length() - 1]))
 	{
 		sub = size.substr(0, size.length() - 1);
 		c = size.substr(size.length() - 1);
 	}
-
 	if ((c.empty() && size.find_first_not_of(DECIMAL) != std::string::npos)
-		|| c.find_first_not_of(SUFIX_BYTES) != std::string::npos
-		|| sub.find_first_not_of(DECIMAL) != std::string::npos)
+		|| c.find_first_not_of(SUFIX_BYTES) != std::string::npos || sub.find_first_not_of(DECIMAL) != std::string::npos)
 		throw std::runtime_error(ERR_MAX_SIZE_INPUT(size));
-	
 	if (c.empty())
 		tmp = std::atof(size.c_str());
 	else if (c == "b" || c == "B")
@@ -245,15 +242,14 @@ size_t Serv_config::_getConvertedMaxSize(std::string const &size)
 		tmp = std::atof(sub.c_str()) * 1024 * 1024;
 	else if (c == "g" || c == "G")
 		tmp = std::atof(sub.c_str()) * 1024 * 1024 * 1024;
-
 	if (tmp > MAX_SIZE_LIMIT)
 		throw std::runtime_error(ERR_MAX_SIZE_RANGE(size));
-
 	return static_cast<size_t>(tmp);
 }
 
 /*********************Output Operator **************************/
 
+//print Server_configue
 std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 {
 	out << "ServerName: " << server.getServName() << std::endl;
@@ -284,6 +280,5 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 		out << "	UploadTo: " << it->second.uploadTo << std::endl;
 		out << std::endl;
 	}
-	// out << "Error Reponse ↓" << std::endl << server.getErrorResponse() << std::endl;
 	return out;
 }

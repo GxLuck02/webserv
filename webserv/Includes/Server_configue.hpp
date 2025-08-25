@@ -6,16 +6,12 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:33:04 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:19:51 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_CONFIGUE_HPP
 #define SERVER_CONFIGUE_HPP
-
-#include <iostream>
-#include <string>
-#include <arpa/inet.h>
 
 #include <iostream>
 #include <string>
@@ -51,12 +47,12 @@ class Serv_config
 		int 			_timeout;
 		int 			_listen_fd;
 		size_t			_max_body_size;
-		locationMap	_locations;
+		locationMap		_locations;
 		
 		size_t _getConvertedMaxSize(std::string const &size);
 		
 	public:
-		Serv_config(); // a voirrrrrrrrrrrrr
+		Serv_config();
 		~Serv_config();
 		Serv_config(const Serv_config &other);
 		Serv_config &operator=(const Serv_config &other);
