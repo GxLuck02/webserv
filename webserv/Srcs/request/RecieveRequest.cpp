@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/01 17:05:04 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/01 17:05:16 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,31 @@ int	beforeRequest(Client &clientInstance)
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		//if (requestInstance.getContentLength() > serverInstance.getMaxBodySize())
-		//{
-		//	requestInstance.setStatusCode(413);
-		//	sendErrorResponse(requestInstance, responseInstance);
-		//	return (0);
-		//}
+		}
+
+	else if (requestInstance.getMethode() == "GET")
+	{
+		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
+	else if (requestInstance.getMethode() == "DELETE")
+	{
+		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
+	else
+	{
+		requestInstance.setStatusCode(501);
+		requestInstance.setErrorBody("Not Implemented: Method not supported");
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
+	}
 
 	}
 	//if (makeResponse(requestInstance, responseInstance) == -1)
