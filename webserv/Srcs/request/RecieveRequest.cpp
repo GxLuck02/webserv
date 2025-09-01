@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/01 17:05:16 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/01 17:07:14 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,17 +99,6 @@ int	beforeRequest(Client &clientInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-
-	}
-	//if (makeResponse(requestInstance, responseInstance) == -1)
-	//	return (0);
-		std::cout << responseInstance.getResponse() << std::endl;
-		std::cout << requestInstance.getMethode() << std::endl;
-		std::cout << requestInstance.getUri() << std::endl;
-		std::cout << requestInstance.getHttpVersion() << std::endl;
-		std::cout << requestInstance.getStatusCode() << std::endl;
-		std::cout << requestInstance.getField("Host") << std::endl;
-		std::cout << requestInstance.getField("Connection") << std::endl;
 
 	return (0);
 	
