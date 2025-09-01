@@ -6,14 +6,12 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:38:44 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/09 14:53:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:29:33 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include <csignal>
-#include <iostream>
-#include <cstdlib>
 
 Server* g_server = NULL;
 
@@ -26,10 +24,23 @@ void handle_sigint(int signum) {
     std::exit(signum);
 }
 
-int main() {
+int main(int argc, char *argv[])
+{
+    if (argc != 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <config_file_path>\n";
+        return 1;
+    }
     signal(SIGINT, handle_sigint);
-
-    g_server = new Server();
+    try
+    {
+        g_server = new Server(argv[1]);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
     try {
         g_server->initServer();
         g_server->run();
@@ -41,4 +52,3 @@ int main() {
     delete g_server;
     return 0;
 }
-

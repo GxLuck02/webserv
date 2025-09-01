@@ -6,16 +6,13 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/07/11 16:16:47 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:21:51 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 #define CLIENT_HPP
 
-#include <iostream>
-#include <string>
-#include <arpa/inet.h>
 #include <ctime>
 #include <unistd.h>
 #include "Server_configue.hpp"
@@ -49,6 +46,8 @@ class Client
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		
 		bool isRequestComplete() const;
+		bool checkTransferEncodingChunked() const;
+		bool searchChunkedEnd(size_t header_end) const;
 		void updateLastActivity();
 }; 
 

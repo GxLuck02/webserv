@@ -6,13 +6,14 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 15:04:57 by proton            #+#    #+#             */
-/*   Updated: 2025/08/20 12:58:23 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/01 16:59:41 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef	RECIEVEREQUEST_HPP
 #define RECIEVEREQUEST_HPP
 
+#include "Client.hpp"
 #include "Request.hpp"
 #include "ParseRequest.hpp"
 #include "Response.hpp"

@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 14:31:48 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/01 17:01:37 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -370,10 +370,15 @@ int ParseRequestLine( Request& instance, std::string request )
 
 	if (access(requestToken[1].c_str(), R_OK) == -1)
 	{
-		instance.setStatusCode(404);
-		return (-1);
+		std::string filePath = "websites";
+		filePath.append(requestToken[1]);
+		if (access(filePath.c_str(), R_OK) == -1)
+		{
+			std::cout << "[ File not found ] : " << filePath << std::endl;
+			instance.setStatusCode(404);
+			return (-1);
+		}
 	}
-	
 	if (requestToken[2].empty())
 	{
 		instance.setStatusCode(400);
