@@ -1,27 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   ParseWwwFormUrlEncoded.hpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/03 15:04:57 by proton            #+#    #+#             */
-/*   Updated: 2025/08/20 12:58:23 by proton           ###   ########.fr       */
+/*   Created: 2025/08/06 11:04:17 by proton            #+#    #+#             */
+/*   Updated: 2025/08/07 10:49:36 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
+#ifndef PARSEWWWFORMURLENCODED_HPP
+#define PARSEWWWFORMURLENCODED_HPP
 
 #include "Request.hpp"
-#include "ParseRequest.hpp"
-#include "Response.hpp"
-#include "SendResponse.hpp"
-#include "Client.hpp"
-#include "GetRequest.hpp"
-#include "DeleteRequest.hpp"
 
-int	beforeRequest(Client &ClientInstance);
-
+int parseWwwFormUrlEncoded(Request &requestInstance, const std::string &body);
 
 #endif

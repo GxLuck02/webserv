@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:49:09 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/19 18:00:23 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,22 +85,38 @@ std::string	Request::getField( std::string key )
 	return (key);
 }
 
-std::string	Request::getBody( std::string key, enum e_map keyOrValue )
+std::string	Request::getErrorBody() const
+{
+	return (this->_errorBody);
+}
+
+std::string	Request::getBody( size_t index, enum e_map keyOrValue )
 {
 	std::map<std::string, std::string>::iterator it = this->_body.begin();
 
-	while (it != this->_body.end())
+	for(size_t i = 0; i < index && it != this->_body.end(); i++, it++)
 	{
-		if (it->first == key)
-		{
-			if (keyOrValue == KEY)
-				return (it->first);
-			else
-				return (it->second);
-		}
-		it++;
+		if (keyOrValue == KEY)
+			return (it->first);
+		else
+			return (it->second);
 	}
 	return ("");
+}
+
+std::string	Request::getQuery() const
+{
+	return (this->_query);
+}
+
+size_t	Request::getBodyLength() const
+{
+	return (this->_body.size());
+}
+
+std::string	Request::getBodyStart() const
+{
+	return (this->_bodyStart);
 }
 
 int	Request::getStatusCode() const
@@ -130,6 +146,11 @@ std::string	Request::getContentType() const
 int	Request::getContentLength() const
 {
 	return (this->_contentLength);
+}
+
+int	Request::getChunked() const
+{
+	return (this->_chunked);
 }
 
 void	Request::setMethode( std::string methode )
@@ -169,11 +190,31 @@ void	Request::setContentType( std::string type )
 	this->_contentType = type;
 }
 
+void	Request::setErrorBody( std::string body )
+{
+	this->_errorBody = body;
+}
+
 void	Request::setBody( std::string key, std::string value )
 {
 	if (key.empty() || value.empty())
 		return ;
 	this->_body.insert(std::pair<std::string, std::string>(key, value));
+}
+
+void	Request::setBodyStart( std::string bodyStart )
+{
+	this->_bodyStart = bodyStart;
+}
+
+void	Request::setChunked( int chunked )
+{
+	this->_chunked = chunked;
+}
+
+void	Request::setQuery( std::string query )
+{
+	this->_query = query;
 }
 
 void	Request::eraseMap()

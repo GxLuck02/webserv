@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:22:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:44:44 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/19 17:57:38 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <map>
+#include "Client.hpp"
 
 enum	e_map
 {
@@ -29,13 +30,17 @@ class	Request
 {
 	private:
 
-		std::string				_methode;
-		std::string				_uri;
-		std::string				_httpVersion;
+		std::string							_methode;
+		std::string							_uri;
+		std::string							_query;
+		std::string							_httpVersion;
 		std::map<std::string, std::string>	_field;
-		int					_statusCode;
-		int					_contentLength;
-		std::string				_contentType;
+		int									_statusCode;
+		int									_contentLength;
+		int 								_chunked;
+		std::string							_contentType;
+		std::string							_errorBody;
+		std::string							_bodyStart;
 		std::map<std::string, std::string>	_body;
 
 	public:
@@ -52,10 +57,15 @@ class	Request
 		std::string	getField( size_t loopRound );
 		std::string	getField( std::string key );
 		std::string	getContentType() const;
-		int		getContentLength() const;
-		std::string	getBody( std::string key, enum e_map keyOrValue );
-		int		getStatusCode() const;
-		int		getFieldLength();
+		int			getContentLength() const;
+		std::string	getErrorBody() const;
+		std::string	getBodyStart() const;
+		std::string	getBody( size_t index, enum e_map keyOrValue );
+		std::string getQuery() const;
+		size_t		getBodyLength() const;
+		int			getStatusCode() const;
+		int			getFieldLength();
+		int			getChunked() const;
 		void		setMethode( std::string methode );
 		void		setUri( std::string uri );
 		void		setHttpVersion( std::string httpVersion );
@@ -63,7 +73,11 @@ class	Request
 		void		setField( std::string key, std::string value );
 		void		setContentLength( int length );
 		void		setContentType( std::string type );
+		void		setErrorBody( std::string body );
+		void		setChunked( int chunked );
 		void		setBody( std::string key, std::string value );
+		void		setBodyStart( std::string bodyStart );
+		void		setQuery( std::string query );
 		void		eraseMap();
 
 		//std::map<std::string, std::string>::iterator	getFieldIterator( size_t num );

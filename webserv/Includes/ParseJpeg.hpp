@@ -1,23 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sendResponse.hpp                                   :+:      :+:    :+:   */
+/*   ParseJpeg.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/04 11:40:13 by proton            #+#    #+#             */
-/*   Updated: 2025/07/10 14:19:15 by proton           ###   ########.fr       */
+/*   Created: 2025/08/07 17:20:59 by proton            #+#    #+#             */
+/*   Updated: 2025/08/07 17:26:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	SENDRESPONSE_HPP
-#define	SENDRESPONSE_HPP
+#ifndef PARSEJPEG_HPP
+#define PARSEJPEG_HPP
 
-#include "request.hpp"
-#include "response.hpp"
-#include "StatusCode.hpp"
+#include <iostream>
+#include <string>
+#include "Request.hpp"
 
-int	sendErrorResponse( Request& requestInstance, Response& responseInstance );
-int	makeResponse( Request& requestInstance, Response& responseInstance );
+int parseJpeg( Request& requestInstance, const std::string &jpegData );
+
 
 #endif

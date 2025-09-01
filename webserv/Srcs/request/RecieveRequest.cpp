@@ -3,21 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:56:35 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/08/21 13:26:19 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RecieveRequest.hpp"
-#include "Client.hpp"
+#include "../../Includes/RecieveRequest.hpp"
 
-int	beforeRequest(Client &ClientInstance)
+int	beforeRequest(Client &clientInstance)
 {
-	std::string		request = ClientInstance.getBuffer();
+	std::string		request = clientInstance.getBuffer();
 	std::string		line;
 	std::stringstream	ssrequest(request);
+	Request			requestInstance;
+	Response		responseInstance;
 
 	std::getline(ssrequest, line);
 
@@ -26,10 +27,10 @@ int	beforeRequest(Client &ClientInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-		
+
 	while (getline(ssrequest, line))
 	{
-		if (line == "\r\n" || line == "\n")
+		if (line == "\r" || line.empty())
 			break ;
 		if (tokeniseRequestField(requestInstance, line ) == -1 )
 		{
@@ -38,13 +39,11 @@ int	beforeRequest(Client &ClientInstance)
 		}
 	}
 
-
 	if (parseTokenisedHeaderField(requestInstance) == -1)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-
 
 	if (requestInstance.getMethode() == "POST")
 	{
@@ -58,18 +57,46 @@ int	beforeRequest(Client &ClientInstance)
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		if (fillBody(requestInstance, request) == -1)
+		if (requestInstance.getContentLength() > clientInstance.getMaxBodySize())
+		{
+			requestInstance.setStatusCode(413);
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		if (fillBody(requestInstance, request, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		//if (requestInstance.getContentLength() > serverInstance.getMaxBodySize())
-		//{
-		//	requestInstance.setStatusCode(413);
-		//	sendErrorResponse(requestInstance, responseInstance);
-		//	return (0);
-		//}
+		if (parseBody(requestInstance, clientInstance, responseInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
 
+	else if (requestInstance.getMethode() == "GET")
+	{
+		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
+	else if (requestInstance.getMethode() == "DELETE")
+	{
+		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
+	else
+	{
+		requestInstance.setStatusCode(501);
+		requestInstance.setErrorBody("Not Implemented: Method not supported");
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
 	}
 	//if (makeResponse(requestInstance, responseInstance) == -1)
 	//	return (0);

@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/07/29 11:04:36 by proton           ###   ########.fr       */
+/*   Updated: 2025/08/21 14:31:48 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,25 @@ int	findChar( std::string str, char c )
 int	fillContentLength( Request& instance, Response& responseInstance )
 {
 	std::string	contentLength;
+	std::string chunked;
 	int			content = 0;
 
 	contentLength = instance.getField("Content-Length");
+	chunked = instance.getField("Transfer-Encoding");
 
-	if (contentLength.empty())
+	if (contentLength.empty() && chunked != "chunked\r")
 	{
 		instance.setStatusCode(411);
+		instance.setErrorBody("Content-Length header is missing");
 		return (-1);
 	}
+
+	else if (chunked == "chunked\r")
+	{
+		instance.setChunked(1);
+		return (0);
+	}
+	
 	content = atoi(contentLength.c_str());
 	if (content < 1)
 	{
@@ -58,7 +68,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		return (-1);
 
 	}
-	if (contentType != "x-www-form-urlencoded\r")
+	if (contentType != "x-www-form-urlencoded\r" || contentType != "multipart/form-data\r")
 	{
 		instance.setStatusCode(415);
 		return (-1);
@@ -81,45 +91,101 @@ size_t	findBodyStart( std::string request )
 	return (i);
 }
 
-int	fillBody( Request& requestInstance, std::string request )
+int	isHexadecimal(const std::string &str)
 {
-	int		start = findBodyStart(request);
-	std::string	body;
-	size_t		eqPos = 0;
-	size_t		ampPos = 0;
-	std::string	key;
-	std::string	value;
+	int value;
+	std::stringstream ss(str);
+	
+	ss << std::hex << str;
+	if (ss >> value)
+	{
+		if (ss.eof())
+			return 1;
+	}
+	return (0);
+}
 
-	if (start == -1)
+int	setChunkedBody(Request& requestInstance, const std::string &body, int maxBodySize)
+{
+	std::string			chunk;
+	int					chunkSize;
+	std::stringstream	ss(body);
+	std::string 		line;
+	std::string			newBody;
+
+	while(std::getline(ss, line))
+	{
+		if (line == "0\r\n")
+			break ;
+		else if (isHexadecimal(line))
+			continue ;
+		newBody += line;
+	}
+
+	return (0);
+}
+
+int	fillBody( Request& requestInstance, std::string request, Client& clientInstance )
+{
+	size_t		start = findBodyStart(request);
+	std::string	body;
+
+	if (start == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Body not found");
 		return (-1);
 	}
 
 	body = request.substr(start + 4, request.length());
-	
-	while (start < start + requestInstance.getContentLength())
+	if (body.empty())
 	{
-		eqPos = body.find('=', start);
-		if (eqPos == std::string::npos)
-			break;
-
-		key = body.substr(start, eqPos - start);
-		
-		ampPos = body.find('&', eqPos + 1);
-
-		if (ampPos == std::string::npos)
-		{
-			value = body.substr(eqPos + 1);
-			start = body.length();
-		}
-		else 
-		{
-			value = body.substr(eqPos + 1, ampPos - eqPos - 1);
-			start = ampPos + 1;
-		}
-		requestInstance.setBody(key, value);
+		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Body is empty");
+		return (-1);
 	}
+
+	if (requestInstance.getChunked() == 1)
+	{
+		setChunkedBody(requestInstance, body, clientInstance.getServConfig()->getMaxBodySize());
+		return (0);
+	}
+	
+	requestInstance.setBodyStart(body);
+	return (0);
+}
+
+int	parseBody( Request& requestInstance, Client& clientInstance, Response& responseInstance )
+{
+	std::string	body = requestInstance.getBodyStart();
+	
+	if (requestInstance.getContentType() == "multipart/form-data\r")
+	{
+		if (parseMultipartFormData(requestInstance, clientInstance, responseInstance) == -1)
+			return (-1);
+		return (0);
+	}
+
+	else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
+	{
+		if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
+			return (-1);
+		return (0);
+	}
+
+	else if (requestInstance.getContentType() == "image/jpeg\r")
+	{
+		if (parseJpeg(requestInstance, body) == -1)
+			return (-1);
+		return (0);
+	}
+	else
+	{
+		requestInstance.setStatusCode(415);
+		requestInstance.setErrorBody("Unsupported Content-Type");
+		return (-1);
+	}
+
 	return (0);
 }
 
@@ -247,6 +313,21 @@ std::string* splitField(std::string request, char separator)
 	return tokens;
 }
 
+void setQuery(std::string uri, Request& instance)
+{
+	size_t queryPos = uri.find('?');
+
+	if (queryPos != std::string::npos)
+	{
+		instance.setQuery(uri.substr(queryPos + 1));
+		instance.setUri(uri.substr(0, queryPos));
+	}
+	else
+	{
+		instance.setQuery("");
+	}
+}
+
 
 int ParseRequestLine( Request& instance, std::string request )
 {
@@ -272,13 +353,22 @@ int ParseRequestLine( Request& instance, std::string request )
 		return (-1);
 	}	
 	
-	//if (findMarkPoint(requestToken[1]))
-	//{
-	//	// a faire plus tard
-	//	// parseQuery(requestToken[1]);
-	//}
+	if (requestToken[1].find('?') != std::string::npos)
+	{
+		setQuery(requestToken[1], instance);
+		uri = requestToken[1].substr(0, requestToken[1].find('?'));
+	}
+	else
+	{
+		if (findMarkPoint(requestToken[1]) == -1)
+		{
+			instance.setStatusCode(400);
+			return (-1);
+		}
+		uri = requestToken[1];
+	}
 
-	else if (access(requestToken[1].c_str(), R_OK) == -1)
+	if (access(requestToken[1].c_str(), R_OK) == -1)
 	{
 		instance.setStatusCode(404);
 		return (-1);
@@ -362,7 +452,10 @@ int	parseServerNameAndPort( Request& instance, std::string fieldValue )
 			return (-1);
 		}
 	}
-	return (0);
+	return (0);	{
+		instance.setStatusCode(411);
+		return (-1);
+	}
 }
 
 int	parseConnection( Request& instance, std::string fieldValue )
@@ -391,7 +484,6 @@ int	parseEachTokens( Request& instance, std::string key )
 
 	if (key == "Host")
 	{
-		std::cout << "IN HOST" << std::endl;
 		if (parseServerNameAndPort(instance, assignationKey) == -1)
 			return (-1);
 	}
@@ -400,15 +492,6 @@ int	parseEachTokens( Request& instance, std::string key )
 	{
 		if (parseConnection(instance, assignationKey) == -1)
 			return (-1);
-	}
-
-	else if (key == "Content-Length" || key == "Content-Type")
-		return (0);
-
-	else
-	{
-		instance.setStatusCode(501);
-		return (-1);
 	}
 	return (0);
 }

@@ -1,20 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   StatusCode.hpp                                     :+:      :+:    :+:   */
+/*   DeleteRequest.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/04 13:28:24 by proton            #+#    #+#             */
-/*   Updated: 2025/07/04 13:33:06 by proton           ###   ########.fr       */
+/*   Created: 2025/08/20 12:58:50 by proton            #+#    #+#             */
+/*   Updated: 2025/08/21 12:38:24 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STATUSCODE_HPP
-#define	STATUSCODE_HPP
+#ifndef DELETEREQUEST_HPP
+#define DELETEREQUEST_HPP
 
-#include <iostream>
+#include "Request.hpp"
+#include "Response.hpp"
+#include "Client.hpp"
+#include <fstream>
+#include <vector>
 
-std::string	getStatusCodeMessage( int statusCode );
+int handleDeleteRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance);
+
 
 #endif
