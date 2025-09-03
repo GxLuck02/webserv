@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 14:37:34 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/02 11:18:29 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 static int searchQueryParameters(const std::string &query, const std::string &uri, Response &responseInstance)
 {
     std::ifstream file(uri.c_str());
+    (void)query;
     if (!file.is_open())
         return -1;
 
@@ -43,6 +44,7 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
 {
     std::string uri = requestInstance.getUri();
     std::string fileExtension = uri.substr(uri.find_last_of('.'));
+    (void)clientInstance;
     
     if (uri.empty())
     {

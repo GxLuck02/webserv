@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:06:27 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 12:41:39 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/03 13:19:16 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,9 @@ std::string	getStatusCodeMessage( int statusCode )
 
 		case 501:
 			return ("Not Implemented");
+		
+		case 505:
+			return ("HTTP Version Not Supported");
 
 		default:
 			return ("OK");

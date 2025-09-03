@@ -6,11 +6,11 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 13:05:55 by proton            #+#    #+#             */
-/*   Updated: 2025/08/15 15:20:56 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/02 11:09:54 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Includes/FillBodyInCreatedFIle.hpp"
+#include "../../Includes/FillBodyInCreatedFile.hpp"
 
 
 int fillBodyWwwFormUrlEncoded( Request &requestInstance, Request &tempRequest, std::string& filepath )
@@ -23,7 +23,7 @@ int fillBodyWwwFormUrlEncoded( Request &requestInstance, Request &tempRequest, s
     }
 
     size_t bodySize = tempRequest.getBodyLength();
-    std::ofstream newFile(filepath);
+    std::ofstream newFile(filepath.c_str());
     if (!newFile.is_open())
     {
         requestInstance.setStatusCode(500);
@@ -46,7 +46,7 @@ int fillBodyWwwFormUrlEncoded( Request &requestInstance, Request &tempRequest, s
 
 int fillBodyJpeg( Request &requestInstance, std::string& body, std::string& filepath )
 {
-    std::ofstream newFile(filepath, std::ios::binary);
+    std::ofstream newFile(filepath.c_str(), std::ios::binary);
     if (!newFile.is_open())
     {
         requestInstance.setStatusCode(500);
@@ -70,7 +70,7 @@ int fillBodyJpeg( Request &requestInstance, std::string& body, std::string& file
 
 int fillBodyTextPlain( Request &requestInstance, std::string& body, std::string& filepath )
 {
-    std::ofstream newFile(filepath);
+    std::ofstream newFile(filepath.c_str());
     if (!newFile.is_open())
     {
         requestInstance.setStatusCode(500);

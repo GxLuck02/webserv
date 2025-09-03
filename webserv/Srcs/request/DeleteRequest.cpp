@@ -6,13 +6,13 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:00:02 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 12:38:35 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/02 10:54:03 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/DeleteRequest.hpp"
 
-static int deleteWithQuery(Request &requestInstance, Response &responseInstance, Client &clientInstance)
+static int deleteWithQuery(Request &requestInstance, Response &responseInstance)
 {
     std::string uri = requestInstance.getUri();
     std::string query = requestInstance.getQuery();
@@ -75,6 +75,7 @@ static int deleteWithQuery(Request &requestInstance, Response &responseInstance,
 int handleDeleteRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     std::string uri = requestInstance.getUri();
+    (void)clientInstance;
 
     if (uri.empty())
     {
@@ -92,7 +93,7 @@ int handleDeleteRequest(Request &requestInstance, Response &responseInstance, Cl
 
     if (!requestInstance.getQuery().empty())
     {
-        if (deleteWithQuery(requestInstance, responseInstance, clientInstance) == -1)
+        if (deleteWithQuery(requestInstance, responseInstance) == -1)
         {
             requestInstance.setStatusCode(404);
             requestInstance.setErrorBody("Not Found: The requested resource does not exist");

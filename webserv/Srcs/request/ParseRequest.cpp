@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/01 17:01:37 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/03 14:53:57 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,10 +105,9 @@ int	isHexadecimal(const std::string &str)
 	return (0);
 }
 
-int	setChunkedBody(Request& requestInstance, const std::string &body, int maxBodySize)
+int	setChunkedBody(const std::string &body)
 {
 	std::string			chunk;
-	int					chunkSize;
 	std::stringstream	ss(body);
 	std::string 		line;
 	std::string			newBody;
@@ -129,6 +128,7 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 {
 	size_t		start = findBodyStart(request);
 	std::string	body;
+	(void)clientInstance;
 
 	if (start == std::string::npos)
 	{
@@ -147,7 +147,7 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 
 	if (requestInstance.getChunked() == 1)
 	{
-		setChunkedBody(requestInstance, body, clientInstance.getServConfig()->getMaxBodySize());
+		setChunkedBody(body);
 		return (0);
 	}
 	
@@ -329,75 +329,82 @@ void setQuery(std::string uri, Request& instance)
 }
 
 
-int ParseRequestLine( Request& instance, std::string request )
+int ParseRequestLine(Request& instance, std::string request, Client& clientInstance)
 {
-	std::string	uri;
-	std::string	httpVersion;
-	std::string*	requestToken;
-	
-	if (!request.find("\r\n") && !request.find("\n"))
-	{
+    std::string uri;
+    std::string httpVersion;
+    std::string* requestToken;
+
+    if (!request.find("\r\n") && !request.find("\n")) 
+	{ 
 		instance.setStatusCode(400);
+		instance.setErrorBody("Bad Request");
 		return (-1);
-	}
-	requestToken = splitRequest( request, ' ' );
-	if (requestToken == NULL)
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
-	
-	if (requestToken[0] != "GET" && requestToken[0] != "POST" && requestToken[0] != "DELETE")
-	{
-		instance.setStatusCode(405);
-		return (-1);
-	}	
-	
-	if (requestToken[1].find('?') != std::string::npos)
-	{
-		setQuery(requestToken[1], instance);
-		uri = requestToken[1].substr(0, requestToken[1].find('?'));
-	}
-	else
-	{
-		if (findMarkPoint(requestToken[1]) == -1)
-		{
-			instance.setStatusCode(400);
-			return (-1);
-		}
-		uri = requestToken[1];
 	}
 
-	if (access(requestToken[1].c_str(), R_OK) == -1)
-	{
-		std::string filePath = "websites";
-		filePath.append(requestToken[1]);
-		if (access(filePath.c_str(), R_OK) == -1)
-		{
-			std::cout << "[ File not found ] : " << filePath << std::endl;
-			instance.setStatusCode(404);
-			return (-1);
-		}
-	}
-	if (requestToken[2].empty())
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
-	if (parseHttpVersion(requestToken[2]) == -1)
-	{
-		instance.setStatusCode(505);
-		return (-1);
-	}
-	
-	instance.setMethode(requestToken[0]);
-	instance.setUri(requestToken[1]);
-	instance.setHttpVersion(requestToken[2]);
-	instance.setStatusCode(200);
+    requestToken = splitRequest(request, ' ');
+    if (requestToken == NULL)
+    {
+		std::cout << "in token null" << std::endl;
+        instance.setStatusCode(400);
+        instance.setErrorBody("Bad Request");
+        return (-1);
+    }
 
-	delete[] requestToken;
-	return (0);
+    if (requestToken[0] != "GET" && requestToken[0] != "POST" && requestToken[0] != "DELETE")
+    {
+        instance.setStatusCode(405);
+        instance.setErrorBody("Method Not Allowed");
+        delete[] requestToken;
+        return (-1);
+    }
+
+    if (requestToken[1].find('?') != std::string::npos)
+    {
+        setQuery(requestToken[1], instance);
+        uri = requestToken[1].substr(0, requestToken[1].find('?'));
+    }
+    else
+    {
+        uri = requestToken[1];
+    }
+
+    std::string root = clientInstance.getServConfig()->getRoot();
+    std::string fullPath = root + uri;
+
+    if (access(fullPath.c_str(), R_OK) == -1)
+    {
+        instance.setStatusCode(404);
+        instance.setErrorBody("Not Found: " + uri);
+        delete[] requestToken;
+        return (-1);
+    }
+
+    if (requestToken[2].empty())
+    {
+        instance.setStatusCode(400);
+		std::cout << "in token 2 empty" << std::endl;
+        instance.setErrorBody("Bad Request");
+        delete[] requestToken;
+        return (-1);
+    }
+    if (parseHttpVersion(requestToken[2]) == -1)
+    {
+        instance.setStatusCode(505);
+        instance.setErrorBody("HTTP Version Not Supported");
+        delete[] requestToken;
+        return (-1);
+    }
+
+    instance.setMethode(requestToken[0]);
+    instance.setUri(fullPath);
+    instance.setHttpVersion(requestToken[2]);
+    instance.setStatusCode(200);
+
+    delete[] requestToken;
+    return (0);
 }
+
 
 int	tokeniseRequestField( Request& instance, std::string request ) // request doit etre seulement les lignes dont j ai besoin
 {
@@ -407,6 +414,7 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	if (fieldArray == NULL)
 	{
 		instance.setStatusCode(400);
+		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
 	if (fieldArray[0] == "Host" && countArrayStrings( fieldArray ) == 3 )
@@ -415,6 +423,8 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	else if (countArrayStrings( fieldArray ) == 3)
 	{
 		instance.setStatusCode( 400 );
+		instance.setErrorBody("Bad Request in header field");
+		delete[] fieldArray;
 		return (-1);
 	}
 
@@ -426,41 +436,63 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	return (0);
 }
 
-int	findInConfigFile( std::string value, std::string key )
+int	findInConfigFile(std::string value, std::string key, Client& clientInstance)
 {
-	if (key == "Server-Name")
-	{
-		return (0);
-	}
-	if (key == "Port")
-	{
-		if (value != "8080\r")
-			return (-1);
-		return (0);
-	}
-	return (-1);
+    if (key == "Host")
+    {
+        std::string configHost = clientInstance.getServConfig()->getServName();
+		std::cout << "configHost: " << configHost << std::endl;
+        if (value != configHost && value != configHost + "\r")
+            return (-1);
+        return (0);
+    }
+    if (key == "Port")
+    {
+        int configPort = clientInstance.getServConfig()->getPort();
+		std::stringstream ss;
+		ss << configPort;
+		std::string portStr = ss.str();
+        if (value != portStr && value != portStr + "\r")
+            return (-1);
+        return (0);
+    }
+    return (-1);
 }
 
-int	parseServerNameAndPort( Request& instance, std::string fieldValue )
+int	parseServerNameAndPort(Request& instance, std::string fieldValue, Client& clientInstance)
 {
-	if (findInConfigFile(fieldValue, "Server-Name") == -1)
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
+    size_t		colonPos = fieldValue.find(':');
+    std::string host;
+    std::string port;
 
-	if (findChar(fieldValue, ':'))
-	{
-		if (findInConfigFile(fieldValue.substr(fieldValue.find(':') + 1, fieldValue.length()), "Port") == -1)
-		{
-			instance.setStatusCode(400);
-			return (-1);
-		}
-	}
-	return (0);	{
-		instance.setStatusCode(411);
-		return (-1);
-	}
+    if (colonPos != std::string::npos)
+    {
+        host = fieldValue.substr(0, colonPos);
+        port = fieldValue.substr(colonPos + 1);
+    }
+    else
+    {
+        host = fieldValue;
+        port = "";
+    }
+
+    if (findInConfigFile(host, "Host", clientInstance) == -1)
+    {
+        instance.setStatusCode(400);
+        instance.setErrorBody("Bad Request, host not found in config file");
+        return (-1);
+    }
+
+    if (!port.empty())
+    {
+        if (findInConfigFile(port, "Port", clientInstance) == -1)
+        {
+            instance.setStatusCode(400);
+            instance.setErrorBody("Bad Request, port not found in config file");
+            return (-1);
+        }
+    }
+    return (0);
 }
 
 int	parseConnection( Request& instance, std::string fieldValue )
@@ -479,9 +511,11 @@ int	parseConnection( Request& instance, std::string fieldValue )
 	return (0);
 }
 
-int	parseEachTokens( Request& instance, std::string key )
+int	parseEachTokens( Request& instance, std::string key, Client& clientInstance )
 {
 	std::string	assignationKey;
+
+	std::cout << "in parseEachTokens with key: " << key << std::endl;
 
 	assignationKey = instance.getField(key);
 	if (assignationKey.empty())
@@ -489,7 +523,7 @@ int	parseEachTokens( Request& instance, std::string key )
 
 	if (key == "Host")
 	{
-		if (parseServerNameAndPort(instance, assignationKey) == -1)
+		if (parseServerNameAndPort(instance, assignationKey, clientInstance) == -1)
 			return (-1);
 	}
 
@@ -501,17 +535,21 @@ int	parseEachTokens( Request& instance, std::string key )
 	return (0);
 }
 
-int	parseTokenisedHeaderField( Request& instance )
+int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 {
 	size_t		fieldLength = instance.getFieldLength();
 	size_t		i = 0;
 	std::string	key;
 
-	while (i < fieldLength - 1)
-	{
-		key = instance.getField(i);
+	std::cout << "in parseTokenisedHeaderField" << fieldLength << std::endl;
 
-		if (parseEachTokens(instance, key) == -1)
+	std::cout << "fieldLength: " << fieldLength << std::endl;
+	while (i < fieldLength)
+	{
+		std::cout << "in loop parseTokenisedHeaderField i: " << i << std::endl;
+		key = instance.getField(i);
+		std::cout << "after getField key: " << key << std::endl;
+		if (parseEachTokens(instance, key, clientInstance) == -1)
 			return (-1);
 		i++;
 	}

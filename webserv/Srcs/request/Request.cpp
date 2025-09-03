@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/08/19 18:00:23 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/03 14:56:14 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,13 @@ std::string	Request::getField( size_t loopRound )
 {
 	std::map<std::string, std::string>::iterator	it = this->_field.begin();
 	size_t						i = 0;
-	
-	it++;
 
 	while (i < loopRound && it != this->_field.end())
 	{
 		it++;
 		i++;
 	}
-	return (it->first);	
+	return (it->first);
 }
 
 std::string	Request::getField( std::string key )
@@ -82,7 +80,7 @@ std::string	Request::getField( std::string key )
 			return (it->second);
 		it++;
 	}
-	return (key);
+	return ("");
 }
 
 std::string	Request::getErrorBody() const

@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/01 17:07:14 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/03 14:32:57 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,30 +19,39 @@ int	beforeRequest(Client &clientInstance)
 	std::stringstream	ssrequest(request);
 	Request			requestInstance;
 	Response		responseInstance;
+	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 
+	std::cout << "Received Request:\n" << request << std::endl;
 	std::getline(ssrequest, line);
 
-	std::cout << "[ Request Line ] : " << line << std::endl;
-	if (ParseRequestLine(requestInstance, line) == -1)
+	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
 	{
-		sendErrorResponse(requestInstance, responseInstance);
+		std::cout << "Error in ParseRequestLine" << std::endl;
+		sendErrorResponse(requestInstance, responseInstance, clientInstance);
 		return (0);
 	}
-
+	
 	while (getline(ssrequest, line))
 	{
 		if (line == "\r" || line.empty())
 			break ;
 		if (tokeniseRequestField(requestInstance, line ) == -1 )
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 	}
-
-	if (parseTokenisedHeaderField(requestInstance) == -1)
+	if (requestInstance.getField("Host").empty())
 	{
-		sendErrorResponse(requestInstance, responseInstance);
+		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Bad Request: Host header is missing");
+		sendErrorResponse(requestInstance, responseInstance, clientInstance);
+		return (0);
+	}
+
+	if (parseTokenisedHeaderField(requestInstance, clientInstance) == -1)
+	{
+		sendErrorResponse(requestInstance, responseInstance, clientInstance);
 		return (0);
 	}
 
@@ -50,28 +59,28 @@ int	beforeRequest(Client &clientInstance)
 	{
 		if (fillContentLength(requestInstance, responseInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 		if (fillContentType(requestInstance, responseInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
-		if (requestInstance.getContentLength() > clientInstance.getMaxBodySize())
+		if (requestInstance.getContentLength() > maxBodySize)
 		{
 			requestInstance.setStatusCode(413);
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 		if (fillBody(requestInstance, request, clientInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 		if (parseBody(requestInstance, clientInstance, responseInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 		}
@@ -80,7 +89,7 @@ int	beforeRequest(Client &clientInstance)
 	{
 		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 	}
@@ -88,7 +97,7 @@ int	beforeRequest(Client &clientInstance)
 	{
 		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{
-			sendErrorResponse(requestInstance, responseInstance);
+			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
 	}
@@ -96,9 +105,11 @@ int	beforeRequest(Client &clientInstance)
 	{
 		requestInstance.setStatusCode(501);
 		requestInstance.setErrorBody("Not Implemented: Method not supported");
-		sendErrorResponse(requestInstance, responseInstance);
+		sendErrorResponse(requestInstance, responseInstance, clientInstance);
 		return (0);
 	}
+
+	makeResponse(requestInstance, responseInstance, clientInstance);
 
 	return (0);
 	

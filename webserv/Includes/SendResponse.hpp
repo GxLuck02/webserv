@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SendResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 11:40:13 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:46:28 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/02 12:01:17 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 #include "Response.hpp"
 #include "StatusCode.hpp"
 
-int	sendErrorResponse( Request& requestInstance, Response& responseInstance );
-int	makeResponse( Request& requestInstance, Response& responseInstance );
+int	sendErrorResponse( Request& requestInstance, Response& responseInstance, Client& clientInstance );
+void chunkedResponse(Response &responseInstance, Request &requestInstance, Client &clientInstance);
+int makeResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance);
 
 #endif

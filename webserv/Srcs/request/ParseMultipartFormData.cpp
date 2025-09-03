@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 14:30:55 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/02 11:59:27 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,19 +73,19 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 		Request tempRequest;
 		if (parseWwwFormUrlEncoded(tempRequest, body) == -1)
 			return (-1);
-		if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest) == -1)
+		if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest, filePath) == -1)
 			return (-1);
 	}
 	else if (contentType == "image/jpeg")
 	{
 		if (parseJpeg(requestInstance, body) == -1)
 			return (-1);
-		if (fillBodyJpeg(requestInstance) == -1)
+		if (fillBodyJpeg(requestInstance, body, filePath) == -1)
 			return (-1);
 	}
 	else if (contentType == "text/plain")
 	{
-		if (fillBodyTextPlain(requestInstance) == -1)
+		if (fillBodyTextPlain(requestInstance, body, filePath) == -1)
 			return (-1);
 	}
 	else
@@ -131,6 +131,7 @@ int parseContentDisposition(Request& requestInstance, const std::string &line,\
 int parseEachPart(Request &requestInstance, const std::string &part, Client& clientInstance)
 {
 	size_t pos = part.find("\r\n\r\n");
+	(void)clientInstance;
 	if (pos == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
@@ -184,7 +185,7 @@ int parseEachPart(Request &requestInstance, const std::string &part, Client& cli
 
 int parseMultipartFormData( Request &requestInstance, Client& clientInstance, Response& responseInstance )
 {
-	int maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
+	//int maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 	std::string body = requestInstance.getBodyStart();
 	std::string contentType = requestInstance.getField("Content-Type");
 	size_t bpos = contentType.find("boundary=");

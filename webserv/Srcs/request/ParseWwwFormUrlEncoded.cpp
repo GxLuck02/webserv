@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:05:06 by proton            #+#    #+#             */
-/*   Updated: 2025/09/01 16:55:47 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/02 11:38:15 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ void cureKeyValue(std::string &key, std::string &value)
 			if (pos + 2 < value.size() && isxdigit(value[pos + 1]) && isxdigit(value[pos + 2]))
 			{
 				std::string hex = value.substr(pos + 1, 2);
-				std::string hex = key.substr(pos + 1, 2);
 				std::stringstream ss(hex);
 				char decodedChar;
 
