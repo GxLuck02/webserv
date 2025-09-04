@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 13:24:04 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 13:10:19 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/04 17:48:18 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ int makeResponse(Request& requestInstance, Response& responseInstance, Client& c
     std::string contentType = responseInstance.getContentType();
     std::string body = responseInstance.getBody();
     (void)requestInstance;
-    (void)clientInstance;
 
     std::cout << "Response Body: " << body << std::endl;
     std::stringstream out;
@@ -80,6 +79,9 @@ int makeResponse(Request& requestInstance, Response& responseInstance, Client& c
     out << "Content-Length: " << body.length() << "\r\n";
     out << "\r\n";
     out << body;
+
+    std::cout << "Body is : " << body << std::endl;
+    std::cout << "out is : " << out.str() << std::endl;
 
     responseInstance.setResponse(out.str());
     send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);

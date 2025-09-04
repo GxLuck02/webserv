@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/09/02 11:59:27 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 00:53:48 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,14 +58,14 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 	if (access(filePath.c_str(), F_OK) == 0)
 	{
 		requestInstance.setStatusCode(409);
-		requestInstance.setErrorBody("File already exists: " + contentDispMap["filename"]);
+		requestInstance.setErrorBody("File already exists: " + contentDispMap["filename"] + "\n");
 		return (-1);
 	}
 
 	if (contentType.empty())
 	{
 		requestInstance.setStatusCode(400);
-		requestInstance.setErrorBody("Content-Type header is missing");
+		requestInstance.setErrorBody("Content-Type header is missing\n");
 		return (-1);
 	}
 	if (contentType == "x-www-form-urlencoded")
@@ -91,7 +91,7 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 	else
 	{
 		requestInstance.setStatusCode(415);
-		requestInstance.setErrorBody("Unsupported Content-Type: " + contentType);
+		requestInstance.setErrorBody("Unsupported Content-Type: " + contentType + "\n");
 		return (-1);
 	}
 
@@ -103,6 +103,7 @@ int parseContentDisposition(Request& requestInstance, const std::string &line,\
 {
 	std::istringstream ss(line);
 	std::string token;
+	(void)requestInstance;
 
 	while (std::getline(ss, token, ';'))
 	{
@@ -110,12 +111,13 @@ int parseContentDisposition(Request& requestInstance, const std::string &line,\
 		size_t eq_pos = token.find('=');
 		if (eq_pos == std::string::npos)
 			continue ;
-		if (ss.str() != "form-data")
-		{
-			requestInstance.setStatusCode(400);
-			requestInstance.setErrorBody("Invalid Content-Disposition format");
-			return (-1);
-		}
+		// if (ss.str() != "form-data")
+		// {
+		// 	std::cout << ss.str() << std::endl;
+		// 	requestInstance.setStatusCode(400);
+		// 	requestInstance.setErrorBody("Invalid Content-Disposition format");
+		// 	return (-1);
+		// }
 
 		std::string key = trim(token.substr(0, eq_pos));
 		std::string value = trim(token.substr(eq_pos + 1));
@@ -135,7 +137,7 @@ int parseEachPart(Request &requestInstance, const std::string &part, Client& cli
 	if (pos == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
-		requestInstance.setErrorBody("Invalid multipart part format");
+		requestInstance.setErrorBody("Invalid multipart part format\n");
 		return -1;
 	}
 
@@ -193,7 +195,7 @@ int parseMultipartFormData( Request &requestInstance, Client& clientInstance, Re
 	if (bpos == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
-		requestInstance.setErrorBody("No boundary found");
+		requestInstance.setErrorBody("No boundary found\n");
 		return -1;
 	}
 
@@ -220,8 +222,8 @@ int parseMultipartFormData( Request &requestInstance, Client& clientInstance, Re
 		body = body.substr(end);
 	}
 
-	requestInstance.setStatusCode(200);
-	responseInstance.setBody("Multipart form data successful");
+	responseInstance.setStatusCode(201);
+	responseInstance.setBody("upload successful\n");
 	responseInstance.setContentType("text/plain");
 
 	return 0;

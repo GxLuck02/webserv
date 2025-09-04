@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 16:50:14 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 00:29:54 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 int	fillContentType( Request& instance, Response& responseInstance )
 {
 	std::string	contentType;
+	(void)responseInstance;
 
 	std::cout << "in fill content" << std::endl;
 
@@ -69,17 +70,22 @@ int	fillContentType( Request& instance, Response& responseInstance )
 	if (contentType.empty())
 	{
 		instance.setStatusCode(415);
+		instance.setErrorBody("Content Type is empty");
 		return (-1);
 
 	}
-	if (contentType != "x-www-form-urlencoded\r" || contentType != "multipart/form-data\r")
+	if (contentType.find("multipart/form-data;boundary=") != std::string::npos)
+	{
+		instance.setContentType(contentType);
+		return (0);
+	}
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
 	{
 		instance.setStatusCode(415);
+		instance.setErrorBody("Not supported");
 		return (-1);
 	}
-
 	instance.setContentType(contentType);
-	responseInstance.setContentType(contentType);
 
 	return (0);
 }
@@ -165,9 +171,8 @@ int	parseBody( Request& requestInstance, Client& clientInstance, Response& respo
 {
 	std::string	body = requestInstance.getBodyStart();
 
-	std::cout << "parseBody" << std::endl;
-	
-	if (requestInstance.getContentType() == "multipart/form-data\r")
+
+	if (requestInstance.getContentType().find("multipart/form-data") != std::string::npos)
 	{
 		if (parseMultipartFormData(requestInstance, clientInstance, responseInstance) == -1)
 			return (-1);
@@ -178,6 +183,9 @@ int	parseBody( Request& requestInstance, Client& clientInstance, Response& respo
 	{
 		if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
 			return (-1);
+		responseInstance.setBody("Username created\n");
+		responseInstance.setContentType("text/plain");
+		responseInstance.setStatusCode(201);
 		return (0);
 	}
 
@@ -438,7 +446,16 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	// }
 
 	else
+	{
+		if (fieldArray[1].find("\r"))
+		{
+			std::string::iterator it = fieldArray[1].end();
+			--it;
+			if (*it == '\r')
+				fieldArray[1].erase(it);
+		}
 		instance.setField(fieldArray[0], fieldArray[1]);
+	}
 
 	delete[] fieldArray;
 

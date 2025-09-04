@@ -6,11 +6,39 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:05:06 by proton            #+#    #+#             */
-/*   Updated: 2025/09/02 11:38:15 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/04 21:21:51 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/ParseWwwFormUrlEncoded.hpp"
+
+// std::string createRandomUserId()
+// {
+//     std::string userId;
+//     const char charset[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+//     for (size_t i = 0; i < 8; ++i)
+//     {
+//         userId += charset[rand() % (sizeof(charset) - 1)];
+//     }
+//     return userId;
+// }
+
+// static int	putUserInFile(Request &requestInstance)
+// {
+// 	std::string userId = createRandomUserId();
+// 	std::ofstream file("user_data.txt");
+// 	if (!file)
+// 	{
+// 		std::cerr << "Error opening file" << std::endl;
+// 		return -1;
+// 	}
+
+// 	file << "Username: " << requestInstance.getBody("username") << std::endl;
+// 	file << "Password: " << requestInstance.getBody("password") << std::endl;
+// 	file.close();
+
+// 	return 0;
+// }
 
 void cureKeyValue(std::string &key, std::string &value)
 {
@@ -102,6 +130,8 @@ int parseWwwFormUrlEncoded(Request &requestInstance, const std::string &body)
 			requestInstance.setBody(key, value);
 		}
 	}
+
+	// putUserInFile(requestInstance);
 
 	return 0;
 }
