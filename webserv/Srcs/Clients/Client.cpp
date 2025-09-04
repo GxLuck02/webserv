@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 16:07:55 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/04 14:40:20 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ bool Client::isRequestComplete() const
 		    std::string body_buffer = _buffer.substr(header_end + 4, _buffer.size() - header_end - 4);
             try {
                 size_t content_length = len_str;
-                size_t total_expected_length = header_end + 6 + content_length;
+                size_t total_expected_length = header_end + 4 + content_length;
                 return _buffer.size() >= total_expected_length;
             }
             catch (const std::exception&)

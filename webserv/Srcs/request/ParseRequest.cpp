@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 14:53:57 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/04 16:50:14 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 	std::string	contentLength;
 	std::string chunked;
 	int			content = 0;
+
+	std::cout << "fill content Length" << std::endl;
 
 	contentLength = instance.getField("Content-Length");
 	chunked = instance.getField("Transfer-Encoding");
@@ -59,6 +61,8 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 int	fillContentType( Request& instance, Response& responseInstance )
 {
 	std::string	contentType;
+
+	std::cout << "in fill content" << std::endl;
 
 	contentType = instance.getField("Content-Type");
 
@@ -130,6 +134,8 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 	std::string	body;
 	(void)clientInstance;
 
+	std::cout << "fill body" << std::endl;
+
 	if (start == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
@@ -158,6 +164,8 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 int	parseBody( Request& requestInstance, Client& clientInstance, Response& responseInstance )
 {
 	std::string	body = requestInstance.getBodyStart();
+
+	std::cout << "parseBody" << std::endl;
 	
 	if (requestInstance.getContentType() == "multipart/form-data\r")
 	{
@@ -365,13 +373,14 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         uri = requestToken[1].substr(0, requestToken[1].find('?'));
     }
     else
-    {
         uri = requestToken[1];
-    }
 
     std::string root = clientInstance.getServConfig()->getRoot();
-    std::string fullPath = root + uri;
-
+	std::string fullPath;
+	if (uri == "/")
+		fullPath = root + uri + clientInstance.getServConfig()->getIndex();
+	else
+		fullPath = root + uri;
     if (access(fullPath.c_str(), R_OK) == -1)
     {
         instance.setStatusCode(404);
@@ -383,7 +392,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
     if (requestToken[2].empty())
     {
         instance.setStatusCode(400);
-		std::cout << "in token 2 empty" << std::endl;
         instance.setErrorBody("Bad Request");
         delete[] requestToken;
         return (-1);
@@ -413,6 +421,7 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	fieldArray = splitField(request, ':');
 	if (fieldArray == NULL)
 	{
+		std::cout << "filed array null" << std::endl;
 		instance.setStatusCode(400);
 		instance.setErrorBody("Bad Request in header field");
 		return (-1);
@@ -420,13 +429,13 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	if (fieldArray[0] == "Host" && countArrayStrings( fieldArray ) == 3 )
 		instance.setField(fieldArray[0], fieldArray[1] + ':' + fieldArray[2]);
 	
-	else if (countArrayStrings( fieldArray ) == 3)
-	{
-		instance.setStatusCode( 400 );
-		instance.setErrorBody("Bad Request in header field");
-		delete[] fieldArray;
-		return (-1);
-	}
+	// else if (countArrayStrings( fieldArray ) == 3)
+	// {
+	// 	instance.setStatusCode( 400 );
+	// 	instance.setErrorBody("Bad Request in header field");
+	// 	delete[] fieldArray;
+	// 	return (-1);
+	// }
 
 	else
 		instance.setField(fieldArray[0], fieldArray[1]);
@@ -541,17 +550,14 @@ int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 	size_t		i = 0;
 	std::string	key;
 
-	std::cout << "in parseTokenisedHeaderField" << fieldLength << std::endl;
-
-	std::cout << "fieldLength: " << fieldLength << std::endl;
 	while (i < fieldLength)
 	{
-		std::cout << "in loop parseTokenisedHeaderField i: " << i << std::endl;
 		key = instance.getField(i);
-		std::cout << "after getField key: " << key << std::endl;
+
 		if (parseEachTokens(instance, key, clientInstance) == -1)
 			return (-1);
 		i++;
 	}
+	std::cout << "End of parseTokenisedHeaderField" << std::endl;
 	return (0);
 }

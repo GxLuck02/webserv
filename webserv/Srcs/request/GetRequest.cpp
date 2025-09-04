@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/02 11:18:29 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/04 11:30:44 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,12 @@ static int searchQueryParameters(const std::string &query, const std::string &ur
 int handleGetRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     std::string uri = requestInstance.getUri();
+    std::cout << uri << std::endl;
     std::string fileExtension = uri.substr(uri.find_last_of('.'));
     (void)clientInstance;
-    
+    std::cout << "Handling GET request for URI: " << uri << std::endl;
+
+
     if (uri.empty())
     {
         requestInstance.setStatusCode(400);
@@ -72,6 +75,8 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
     }
     else
     {
+        std::cout << "File extension: " << fileExtension << std::endl;
+        
         if (fileExtension == ".html")
         {
             std::ifstream file(uri.c_str());
@@ -107,6 +112,7 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             return -1;
         }
     }
+    std::cout << "GET request handled successfully" << std::endl;
 
     responseInstance.setStatusCode(200);
     return 0;

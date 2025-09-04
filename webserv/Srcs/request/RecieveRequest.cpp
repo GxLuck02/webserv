@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 14:32:57 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/04 16:50:45 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ int	beforeRequest(Client &clientInstance)
 
 	if (requestInstance.getMethode() == "POST")
 	{
+		std::cout << "In POST method" << std::endl;
 		if (fillContentLength(requestInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance, clientInstance);
@@ -69,6 +70,7 @@ int	beforeRequest(Client &clientInstance)
 		}
 		if (requestInstance.getContentLength() > maxBodySize)
 		{
+			std::cout << "in error maxbody size POST method" << std::endl;
 			requestInstance.setStatusCode(413);
 			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
@@ -83,10 +85,12 @@ int	beforeRequest(Client &clientInstance)
 			sendErrorResponse(requestInstance, responseInstance, clientInstance);
 			return (0);
 		}
+		std::cout << "After post method" << std::endl;
 		}
 
 	else if (requestInstance.getMethode() == "GET")
 	{
+		std::cout << "In GET methode" << std::endl;
 		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance, clientInstance);
@@ -95,6 +99,7 @@ int	beforeRequest(Client &clientInstance)
 	}
 	else if (requestInstance.getMethode() == "DELETE")
 	{
+		std::cout << "In DELETE methode" << std::endl;
 		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance, clientInstance);
