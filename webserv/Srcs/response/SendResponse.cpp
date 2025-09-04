@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 13:24:04 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 17:48:18 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 01:09:17 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,16 +72,21 @@ int makeResponse(Request& requestInstance, Response& responseInstance, Client& c
     std::string body = responseInstance.getBody();
     (void)requestInstance;
 
-    std::cout << "Response Body: " << body << std::endl;
     std::stringstream out;
-    out << "HTTP/1.1 " << statusCode << " " << statusMsg << "\r\n";
-    out << "Content-Type: " << contentType << "\r\n";
-    out << "Content-Length: " << body.length() << "\r\n";
-    out << "\r\n";
-    out << body;
+    if (statusCode == 204)
+    {
+        out << "HTTP/1.1 " << statusCode << " " << statusMsg << "\r\n";
+        out << "\r\n";
+    }
 
-    std::cout << "Body is : " << body << std::endl;
-    std::cout << "out is : " << out.str() << std::endl;
+    else
+    {
+        out << "HTTP/1.1 " << statusCode << " " << statusMsg << "\r\n";
+        out << "Content-Type: " << contentType << "\r\n";
+        out << "Content-Length: " << body.length() << "\r\n";
+        out << "\r\n";
+        out << body;
+    }
 
     responseInstance.setResponse(out.str());
     send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
