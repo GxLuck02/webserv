@@ -1,28 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   GetRequest.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/03 15:04:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 15:48:27 by ttreichl         ###   ########.fr       */
+/*   Created: 2025/08/19 20:25:42 by proton            #+#    #+#             */
+/*   Updated: 2025/08/20 12:56:19 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
+#ifndef GETREQUEST_HPP
+#define GETREQUEST_HPP
 
-#include "Client.hpp"
 #include "Request.hpp"
-#include "ParseRequest.hpp"
 #include "Response.hpp"
-#include "SendResponse.hpp"
 #include "Client.hpp"
-#include "GetRequest.hpp"
-#include "DeleteRequest.hpp"
+#include <fstream>
+#include <sstream>
 
-int	beforeRequest(Client &ClientInstance);
-
+int handleGetRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance);
 
 #endif

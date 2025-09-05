@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/08/13 15:27:34 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/05 16:16:23 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,27 @@ int	findChar( std::string str, char c )
 int	fillContentLength( Request& instance, Response& responseInstance )
 {
 	std::string	contentLength;
+	std::string chunked;
 	int			content = 0;
 
-	contentLength = instance.getField("Content-Length");
+	std::cout << "fill content Length" << std::endl;
 
-	if (contentLength.empty())
+	contentLength = instance.getField("Content-Length");
+	chunked = instance.getField("Transfer-Encoding");
+
+	if (contentLength.empty() && chunked != "chunked\r")
 	{
 		instance.setStatusCode(411);
+		instance.setErrorBody("Content-Length header is missing");
 		return (-1);
 	}
+
+	else if (chunked == "chunked\r")
+	{
+		instance.setChunked(1);
+		return (0);
+	}
+	
 	content = atoi(contentLength.c_str());
 	if (content < 1)
 	{
@@ -49,23 +61,31 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 int	fillContentType( Request& instance, Response& responseInstance )
 {
 	std::string	contentType;
+	(void)responseInstance;
+
+	std::cout << "in fill content" << std::endl;
 
 	contentType = instance.getField("Content-Type");
 
 	if (contentType.empty())
 	{
 		instance.setStatusCode(415);
+		instance.setErrorBody("Content Type is empty");
 		return (-1);
 
 	}
-	if (contentType != "x-www-form-urlencoded\r")
+	if (contentType.find("multipart/form-data;boundary=") != std::string::npos)
+	{
+		instance.setContentType(contentType);
+		return (0);
+	}
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
 	{
 		instance.setStatusCode(415);
+		instance.setErrorBody("Not supported");
 		return (-1);
 	}
-
 	instance.setContentType(contentType);
-	responseInstance.setContentType(contentType);
 
 	return (0);
 }
@@ -81,45 +101,107 @@ size_t	findBodyStart( std::string request )
 	return (i);
 }
 
-int	fillBody( Request& requestInstance, std::string request )
+int	isHexadecimal(const std::string &str)
 {
-	int		start = findBodyStart(request);
-	std::string	body;
-	size_t		eqPos = 0;
-	size_t		ampPos = 0;
-	std::string	key;
-	std::string	value;
+	int value;
+	std::stringstream ss(str);
+	
+	ss << std::hex << str;
+	if (ss >> value)
+	{
+		if (ss.eof())
+			return 1;
+	}
+	return (0);
+}
 
-	if (start == -1)
+int	setChunkedBody(const std::string &body)
+{
+	std::string			chunk;
+	std::stringstream	ss(body);
+	std::string 		line;
+	std::string			newBody;
+
+	while(std::getline(ss, line))
+	{
+		if (line == "0\r\n")
+			break ;
+		else if (isHexadecimal(line))
+			continue ;
+		newBody += line;
+	}
+
+	return (0);
+}
+
+int	fillBody( Request& requestInstance, std::string request, Client& clientInstance )
+{
+	size_t		start = findBodyStart(request);
+	std::string	body;
+	(void)clientInstance;
+
+	std::cout << "fill body" << std::endl;
+
+	if (start == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Body not found");
 		return (-1);
 	}
 
 	body = request.substr(start + 4, request.length());
-	
-	while (start < start + requestInstance.getContentLength())
+	if (body.empty())
 	{
-		eqPos = body.find('=', start);
-		if (eqPos == std::string::npos)
-			break;
-
-		key = body.substr(start, eqPos - start);
-		
-		ampPos = body.find('&', eqPos + 1);
-
-		if (ampPos == std::string::npos)
-		{
-			value = body.substr(eqPos + 1);
-			start = body.length();
-		}
-		else 
-		{
-			value = body.substr(eqPos + 1, ampPos - eqPos - 1);
-			start = ampPos + 1;
-		}
-		requestInstance.setBody(key, value);
+		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Body is empty");
+		return (-1);
 	}
+
+	if (requestInstance.getChunked() == 1)
+	{
+		setChunkedBody(body);
+		return (0);
+	}
+	
+	requestInstance.setBodyStart(body);
+	return (0);
+}
+
+int	parseBody( Request& requestInstance, Client& clientInstance, Response& responseInstance )
+{
+	std::string	body = requestInstance.getBodyStart();
+
+
+	if (requestInstance.getContentType().find("multipart/form-data") != std::string::npos)
+	{
+		if (parseMultipartFormData(requestInstance, clientInstance, responseInstance) == -1)
+			return (-1);
+		return (0);
+	}
+
+	else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
+	{
+		if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
+			return (-1);
+		responseInstance.setBody("Username created\n");
+		responseInstance.setContentType("text/plain");
+		responseInstance.setStatusCode(201);
+		return (0);
+	}
+
+	else if (requestInstance.getContentType() == "image/jpeg\r")
+	{
+		if (parseJpeg(requestInstance, body) == -1)
+			return (-1);
+		return (0);
+	}
+	else
+	{
+		requestInstance.setStatusCode(415);
+		requestInstance.setErrorBody("Unsupported Content-Type");
+		return (-1);
+	}
+
 	return (0);
 }
 
@@ -247,67 +329,98 @@ std::string* splitField(std::string request, char separator)
 	return tokens;
 }
 
-
-int ParseRequestLine( Request& instance, std::string request )
+void setQuery(std::string uri, Request& instance)
 {
-	std::string	uri;
-	std::string	httpVersion;
-	std::string*	requestToken;
-	
-	if (!request.find("\r\n") && !request.find("\n"))
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
-	requestToken = splitRequest( request, ' ' );
-	if (requestToken == NULL)
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
-	
-	if (requestToken[0] != "GET" && requestToken[0] != "POST" && requestToken[0] != "DELETE")
-	{
-		instance.setStatusCode(405);
-		return (-1);
-	}	
-	
-	//if (findMarkPoint(requestToken[1]))
-	//{
-	//	// a faire plus tard
-	//	// parseQuery(requestToken[1]);
-	//}
+	size_t queryPos = uri.find('?');
 
+	if (queryPos != std::string::npos)
+	{
+		instance.setQuery(uri.substr(queryPos + 1));
+		instance.setUri(uri.substr(0, queryPos));
+	}
 	else
 	{
-		std::string filePath = "websites";
-		filePath.append(requestToken[1]);
-		if (access(filePath.c_str(), R_OK) == -1)
-		{
-			std::cout << "[ File not found ] : " << filePath << std::endl;
-			instance.setStatusCode(404);
-			return (-1);
-		}
+		instance.setQuery("");
 	}
-	if (requestToken[2].empty())
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
-	if (parseHttpVersion(requestToken[2]) == -1)
-	{
-		instance.setStatusCode(505);
-		return (-1);
-	}
-	
-	instance.setMethode(requestToken[0]);
-	instance.setUri(requestToken[1]);
-	instance.setHttpVersion(requestToken[2]);
-	instance.setStatusCode(200);
-
-	delete[] requestToken;
-	return (0);
 }
+
+
+int ParseRequestLine(Request& instance, std::string request, Client& clientInstance)
+{
+    std::string uri;
+    std::string httpVersion;
+    std::string* requestToken;
+
+    if (!request.find("\r\n") && !request.find("\n")) 
+	{ 
+		instance.setStatusCode(400);
+		instance.setErrorBody("Bad Request");
+		return (-1);
+	}
+
+    requestToken = splitRequest(request, ' ');
+    if (requestToken == NULL)
+    {
+		std::cout << "in token null" << std::endl;
+        instance.setStatusCode(400);
+        instance.setErrorBody("Bad Request");
+        return (-1);
+    }
+
+    if (requestToken[0] != "GET" && requestToken[0] != "POST" && requestToken[0] != "DELETE")
+    {
+        instance.setStatusCode(405);
+        instance.setErrorBody("Method Not Allowed");
+        delete[] requestToken;
+        return (-1);
+    }
+
+    if (requestToken[1].find('?') != std::string::npos)
+    {
+        setQuery(requestToken[1], instance);
+        uri = requestToken[1].substr(0, requestToken[1].find('?'));
+    }
+    else
+        uri = requestToken[1];
+
+    std::string root = clientInstance.getServConfig()->getRoot();
+	std::string fullPath;
+	if (uri == "/")
+		fullPath = root + uri + clientInstance.getServConfig()->getIndex();
+	else
+		fullPath = root + uri;
+    if (access(fullPath.c_str(), R_OK) == -1)
+    {
+        instance.setStatusCode(404);
+        instance.setErrorBody("Not Found: " + uri);
+        delete[] requestToken;
+        return (-1);
+    }
+
+    if (requestToken[2].empty())
+    {
+        instance.setStatusCode(400);
+        instance.setErrorBody("Bad Request");
+        delete[] requestToken;
+        return (-1);
+    }
+    if (parseHttpVersion(requestToken[2]) == -1)
+    {
+        instance.setStatusCode(505);
+        instance.setErrorBody("HTTP Version Not Supported");
+        delete[] requestToken;
+        return (-1);
+    }
+
+    instance.setMethode(requestToken[0]);
+    instance.setUri(fullPath);
+    instance.setHttpVersion(requestToken[2]);
+    instance.setStatusCode(200);
+
+    delete[] requestToken;
+    return (0);
+}
+
 
 int	tokeniseRequestField( Request& instance, std::string request ) // request doit etre seulement les lignes dont j ai besoin
 {
@@ -316,58 +429,96 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	fieldArray = splitField(request, ':');
 	if (fieldArray == NULL)
 	{
+		std::cout << "filed array null" << std::endl;
 		instance.setStatusCode(400);
+		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
 	if (fieldArray[0] == "Host" && countArrayStrings( fieldArray ) == 3 )
 		instance.setField(fieldArray[0], fieldArray[1] + ':' + fieldArray[2]);
 	
-	else if (countArrayStrings( fieldArray ) == 3)
-	{
-		instance.setStatusCode( 400 );
-		return (-1);
-	}
+	// else if (countArrayStrings( fieldArray ) == 3)
+	// {
+	// 	instance.setStatusCode( 400 );
+	// 	instance.setErrorBody("Bad Request in header field");
+	// 	delete[] fieldArray;
+	// 	return (-1);
+	// }
 
 	else
+	{
+		if (fieldArray[1].find("\r"))
+		{
+			std::string::iterator it = fieldArray[1].end();
+			--it;
+			if (*it == '\r')
+				fieldArray[1].erase(it);
+		}
 		instance.setField(fieldArray[0], fieldArray[1]);
+	}
 
 	delete[] fieldArray;
 
 	return (0);
 }
 
-int	findInConfigFile( std::string value, std::string key )
+int	findInConfigFile(std::string value, std::string key, Client& clientInstance)
 {
-	if (key == "Server-Name")
-	{
-		return (0);
-	}
-	if (key == "Port")
-	{
-		if (value != "8080\r")
-			return (-1);
-		return (0);
-	}
-	return (-1);
+    if (key == "Host")
+    {
+        std::string configHost = clientInstance.getServConfig()->getServName();
+		std::cout << "configHost: " << configHost << std::endl;
+        if (value != configHost && value != configHost + "\r")
+            return (-1);
+        return (0);
+    }
+    if (key == "Port")
+    {
+        int configPort = clientInstance.getServConfig()->getPort();
+		std::stringstream ss;
+		ss << configPort;
+		std::string portStr = ss.str();
+        if (value != portStr && value != portStr + "\r")
+            return (-1);
+        return (0);
+    }
+    return (-1);
 }
 
-int	parseServerNameAndPort( Request& instance, std::string fieldValue )
+int	parseServerNameAndPort(Request& instance, std::string fieldValue, Client& clientInstance)
 {
-	if (findInConfigFile(fieldValue, "Server-Name") == -1)
-	{
-		instance.setStatusCode(400);
-		return (-1);
-	}
+    size_t		colonPos = fieldValue.find(':');
+    std::string host;
+    std::string port;
 
-	if (findChar(fieldValue, ':'))
-	{
-		if (findInConfigFile(fieldValue.substr(fieldValue.find(':') + 1, fieldValue.length()), "Port") == -1)
-		{
-			instance.setStatusCode(400);
-			return (-1);
-		}
-	}
-	return (0);
+    if (colonPos != std::string::npos)
+    {
+        host = fieldValue.substr(0, colonPos);
+        port = fieldValue.substr(colonPos + 1);
+    }
+    else
+    {
+        host = fieldValue;
+        port = "";
+    }
+
+    if (findInConfigFile(host, "Host", clientInstance) == -1)
+    {
+        instance.setStatusCode(400);
+        instance.setErrorBody("Bad Request, host not found in config file");
+        return (-1);
+    }
+
+    if (!port.empty())
+    {
+        if (findInConfigFile(port, "Port", clientInstance) == -1)
+        {
+            instance.setStatusCode(400);
+            instance.setErrorBody("Bad Request, port not found in config file");
+            return (-1);
+        }
+    }
+    return (0);
 }
 
 int	parseConnection( Request& instance, std::string fieldValue )
@@ -378,7 +529,7 @@ int	parseConnection( Request& instance, std::string fieldValue )
 		return (-1);
 	}
 
-	if (fieldValue != "Keep-alive" && fieldValue != "Close")
+	if (fieldValue != "keep-alive" && fieldValue != "close")
 	{
 		instance.setStatusCode(400);
 		return (-1);
@@ -386,9 +537,11 @@ int	parseConnection( Request& instance, std::string fieldValue )
 	return (0);
 }
 
-int	parseEachTokens( Request& instance, std::string key )
+int	parseEachTokens( Request& instance, std::string key, Client& clientInstance )
 {
 	std::string	assignationKey;
+
+	std::cout << "in parseEachTokens with key: " << key << std::endl;
 
 	assignationKey = instance.getField(key);
 	if (assignationKey.empty())
@@ -396,8 +549,7 @@ int	parseEachTokens( Request& instance, std::string key )
 
 	if (key == "Host")
 	{
-		std::cout << "IN HOST" << std::endl;
-		if (parseServerNameAndPort(instance, assignationKey) == -1)
+		if (parseServerNameAndPort(instance, assignationKey, clientInstance) == -1)
 			return (-1);
 	}
 
@@ -406,31 +558,23 @@ int	parseEachTokens( Request& instance, std::string key )
 		if (parseConnection(instance, assignationKey) == -1)
 			return (-1);
 	}
-
-	else if (key == "Content-Length" || key == "Content-Type")
-		return (0);
-
-	else
-	{
-		instance.setStatusCode(501);
-		return (-1);
-	}
 	return (0);
 }
 
-int	parseTokenisedHeaderField( Request& instance )
+int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 {
 	size_t		fieldLength = instance.getFieldLength();
 	size_t		i = 0;
 	std::string	key;
 
-	while (i < fieldLength - 1)
+	while (i < fieldLength)
 	{
 		key = instance.getField(i);
 
-		if (parseEachTokens(instance, key) == -1)
+		if (parseEachTokens(instance, key, clientInstance) == -1)
 			return (-1);
 		i++;
 	}
+	std::cout << "End of parseTokenisedHeaderField" << std::endl;
 	return (0);
 }

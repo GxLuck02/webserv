@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 15:21:36 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/05 15:58:55 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "Client.hpp"
 #include "Server_configue.hpp"
+#include "Response.hpp"
 #include <cstdio>
 #include <poll.h>
 #include <sys/socket.h>

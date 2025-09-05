@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/04 14:39:26 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/05 16:20:59 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,16 @@ void Client::setClosed(bool closed)
 	_isClosed = closed;
 	if (closed && _fd != -1)
 		close(_fd);
+}
+
+Response& Client::getResponseInstance() const
+{
+    return (const_cast<Response &>(_responseInstance));
+}
+
+void Client::setResponseInstance(const Response& responseInstance)
+{
+    this->_responseInstance = responseInstance;
 }
 
 /************************************ Members functions ************************************/
