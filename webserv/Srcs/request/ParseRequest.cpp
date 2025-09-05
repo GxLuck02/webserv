@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 00:29:54 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 17:58:46 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data") // a check plus tard
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
