@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 15:26:58 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/05 15:56:26 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,7 +309,8 @@ void Server::handleClientWrite(int fd)
 		std::cerr << "No data to send to client fd: " << fd << std::endl;
 		return;
 	}
-	byte_sent = send(fd, current_Client->getBuffer().c_str(), current_Client->getBuffer().size(), 0);
+	std::string response = current_Client->getResponseInstance().getResponse();
+	byte_sent = send(fd, response.c_str(), response.size(), 0);
 	if (byte_sent < 0)
 	{
 		perror("send");

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 15:21:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/05 16:20:51 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <ctime>
 #include <unistd.h>
+#include "Response.hpp"
 #include "Server_configue.hpp"
 
 class Client
@@ -27,7 +28,8 @@ class Client
 		std::string 	_buffer;
 		bool			_isClosed;
 		time_t			_lastActivity;
-		
+		Response		_responseInstance;
+
 	public:
 		Client(int fd, int port, in_addr_t ip, Serv_config* serv_config);
 		~Client();
@@ -42,6 +44,8 @@ class Client
 		void setClosed(bool closed);
 		bool isClosed() const;
 		Serv_config* getServConfig() const;
+		Response& getResponseInstance() const;
+		void setResponseInstance(const Response& responseInstance);
 		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();		

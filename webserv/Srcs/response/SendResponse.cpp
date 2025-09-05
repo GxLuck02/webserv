@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 13:24:04 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 01:09:17 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 18:17:27 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Clie
     return 0;
 }
 
-int makeResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance)
+int makeResponse(Request& requestInstance, Response& responseInstance)
 {
     int statusCode = responseInstance.getStatusCode();
     std::string statusMsg = getStatusCodeMessage(statusCode);
@@ -89,6 +89,6 @@ int makeResponse(Request& requestInstance, Response& responseInstance, Client& c
     }
 
     responseInstance.setResponse(out.str());
-    send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
+    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
     return 0;
 }

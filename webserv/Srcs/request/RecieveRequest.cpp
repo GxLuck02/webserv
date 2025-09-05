@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 16:50:45 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 18:15:59 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ int	beforeRequest(Client &clientInstance)
 	std::stringstream	ssrequest(request);
 	Request			requestInstance;
 	Response		responseInstance;
+	
 	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 
 	std::cout << "Received Request:\n" << request << std::endl;
@@ -43,6 +44,7 @@ int	beforeRequest(Client &clientInstance)
 	}
 	if (requestInstance.getField("Host").empty())
 	{
+		std::cout << "Host header is missing" << std::endl;
 		requestInstance.setStatusCode(400);
 		requestInstance.setErrorBody("Bad Request: Host header is missing");
 		sendErrorResponse(requestInstance, responseInstance, clientInstance);
@@ -114,8 +116,10 @@ int	beforeRequest(Client &clientInstance)
 		return (0);
 	}
 
-	makeResponse(requestInstance, responseInstance, clientInstance);
+	makeResponse(requestInstance, responseInstance);
+	std::cout << "Response to be sent:\n" << responseInstance.getResponse() << std::endl;
+	clientInstance.setResponseInstance(responseInstance);
+	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	return (1);
 
-	return (0);
-	
 }

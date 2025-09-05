@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 17:28:27 by proton            #+#    #+#             */
-/*   Updated: 2025/08/21 12:55:25 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 18:16:37 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ Response&	Response::operator=( const Response& copy )
 	{
 		this->_statusCode = copy._statusCode;
 		this->_statusLine = copy._statusLine;
+		this->_httpVersion = copy._httpVersion;
+		this->_contentType = copy._contentType;
+		this->_contentLength = copy._contentLength;
+		this->_body = copy._body;
+		this->_fileType = copy._fileType;
+		this->_header = copy._header;
+		this->_response = copy._response;
 	}
 
 	return (*this);

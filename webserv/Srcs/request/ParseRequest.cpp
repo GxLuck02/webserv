@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 17:58:46 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/05 18:14:40 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data") // a check plus tard
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
@@ -529,7 +529,7 @@ int	parseConnection( Request& instance, std::string fieldValue )
 		return (-1);
 	}
 
-	if (fieldValue != "Keep-alive" && fieldValue != "Close")
+	if (fieldValue != "keep-alive" && fieldValue != "close")
 	{
 		instance.setStatusCode(400);
 		return (-1);
