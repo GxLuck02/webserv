@@ -110,7 +110,10 @@ void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t&
 	{
 		location_t loc;
 		LocationConfig ParsLoc = ParserConfig.locations[i];
-		loc.root = ParsLoc.directives["root"];
+		if (ParsLoc.directives.find("root") != ParsLoc.directives.end())
+			loc.root = ParsLoc.directives["root"];
+		else
+			loc.root = "";
 		loc.autoindex = (ParsLoc.directives["autoindex"] == "on" ? true : false);
 		loc.tryFile = ParsLoc.directives["try_file"];
 		loc.redirect = ParsLoc.directives["return"];
@@ -123,6 +126,10 @@ void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t&
 		loc.uploadTo = ParsLoc.directives["upload_to"];
 		if (ParsLoc.directives.find("allow_methods") != ParsLoc.directives.end())
 			tokenize(ParsLoc.directives["allow_methods"], loc.methods, ' ');
+		if (ParsLoc.directives.find("index") != ParsLoc.directives.end())
+			loc.index = ParsLoc.directives["index"];
+		else
+			loc.index = "";
 		ServerConfig.addLocation(ParsLoc.path, loc);
 	}
 }
@@ -130,11 +137,11 @@ void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t&
 //function for attribute value from keyWord
 bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
-	if (ParserConfig.directives.find(keyWords) == ParserConfig.directives.end())
-	{
-		std::cerr << "Error: " << keyWords << " not found in the configuration." << std::endl;
-		return false;
-	}
+	// if (ParserConfig.directives.find(keyWords) == ParserConfig.directives.end())
+	// {
+	// 	std::cerr << "Error: " << keyWords << " not found in the configuration." << std::endl;
+	// 	return false;
+	// }
 	std::string value = ParserConfig.directives[keyWords];
 	if (keyWords == "server_name" && hasThis("server_name", ParserConfig))
 	{

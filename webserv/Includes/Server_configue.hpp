@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 15:19:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/07 02:25:52 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 typedef struct location_s
 {
 	std::string					root;
+	std::string					index;
 	std::vector<std::string>	methods;
 	std::string					redirect;
 	bool						autoindex;
@@ -76,6 +77,11 @@ class Serv_config
 		int getMaxBodySize() const;
 		void setErrorPage(const std::string &error_page);
 		std::string getErrorPage() const;
+		std::string getIndexFromLocation(const std::string &location) const;
+		std::string getRootFromLocation(const std::string &location) const;
+		bool getAutoIndexFromLocation(const std::string &location) const;
+		int checkMethodInLocation(const std::string &location, const std::string &method) const;
+		bool isLocationValid(const std::string &location);
 		locationMap const &getLocations() const;
 		
 		//Member functions

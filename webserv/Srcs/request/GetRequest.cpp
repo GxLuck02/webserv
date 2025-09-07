@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 11:30:44 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/07 03:37:36 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,26 +43,19 @@ static int searchQueryParameters(const std::string &query, const std::string &ur
 int handleGetRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     std::string uri = requestInstance.getUri();
-    std::cout << uri << std::endl;
-    std::string fileExtension = uri.substr(uri.find_last_of('.'));
+    std::string fileExtension;
+    size_t         extensionFound = uri.find_last_of('.');
     (void)clientInstance;
+
+    if (extensionFound != std::string::npos)
+        fileExtension = uri.substr(extensionFound);
+
     std::cout << "Handling GET request for URI: " << uri << std::endl;
 
+    if (!responseInstance.getBody().empty() && !responseInstance.getContentType().empty())
+        return (0);
 
-    if (uri.empty())
-    {
-        requestInstance.setStatusCode(400);
-        requestInstance.setErrorBody("Bad Request: URI is empty");
-        return -1;
-    }
-    else if (access(uri.c_str(), F_OK) == -1)
-    {
-        requestInstance.setStatusCode(404);
-        requestInstance.setErrorBody("Not Found: The requested resource does not exist");
-        return -1;
-    }
-
-    else if (!requestInstance.getQuery().empty())
+    if (!requestInstance.getQuery().empty())
     {
         std::string query = requestInstance.getQuery();
         if (searchQueryParameters(query, uri, responseInstance) == -1)
@@ -71,11 +64,9 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             requestInstance.setErrorBody("Bad Request: Invalid query parameters");
             return -1;
         }
-
     }
-    else
+    else if (!fileExtension.empty())
     {
-        std::cout << "File extension: " << fileExtension << std::endl;
         
         if (fileExtension == ".html")
         {
@@ -103,6 +94,20 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             responseInstance.setBody(content);
             responseInstance.setContentType("image/jpeg");
+            file.close();
+        }
+        else if (fileExtension == ".ico")
+        {
+            std::ifstream file(uri.c_str(), std::ios::binary);
+            if (!file.is_open())
+            {
+                requestInstance.setStatusCode(404);
+                requestInstance.setErrorBody("Not Found: The requested resource does not exist");
+                return -1;
+            }
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            responseInstance.setBody(content);
+            responseInstance.setContentType("image/x-icon");
             file.close();
         }
         else

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/25 15:55:20 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/07 14:06:36 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,6 +205,31 @@ locationMap const &Serv_config::getLocations() const
 	return this->_locations;
 }
 
+std::string Serv_config::getIndexFromLocation(const std::string &location) const
+{
+	
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && !it->second.index.empty())
+		return it->second.index;
+	return this->_index;
+}
+
+std::string Serv_config::getRootFromLocation(const std::string &location) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && !it->second.root.empty())
+		return it->second.root;
+	return this->_root;
+}
+
+bool Serv_config::getAutoIndexFromLocation(const std::string &location) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && it->second.autoindex)
+		return (true);
+	return (false);
+}
+
 void Serv_config::addLocation(const std::string &path, const location_t &location)
 {
 	if (path.empty())
@@ -214,6 +239,34 @@ void Serv_config::addLocation(const std::string &path, const location_t &locatio
 	}
 	std::make_pair(path, location);
 	this->_locations.insert(std::make_pair(path, location));
+}
+
+/*return -1 if no methods are defined in the location (all methods are allowed)
+return 0 if the method is not allowed
+return 1 if the method is allowed*/
+int Serv_config::checkMethodInLocation(const std::string &location, const std::string &method) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+
+	const std::vector<std::string> &methods = it->second.methods;
+	if (it->second.methods.empty())
+		return -1;
+
+	for (size_t i = 0; i < methods.size(); ++i)
+	{
+		if (methods[i] == method)
+			return 1;
+	}
+	return 0;
+}
+
+bool Serv_config::isLocationValid(const std::string &location)
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+
+	if (it == this->_locations.end())
+		return (false);
+	return (true);
 }
 /**************************** Privates functions ************************************/
 

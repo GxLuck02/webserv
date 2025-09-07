@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 14:56:14 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/07 15:49:50 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,11 @@ int	Request::getChunked() const
 	return (this->_chunked);
 }
 
+std::string	Request::getLocation() const
+{
+	return (this->_location);
+}
+
 void	Request::setMethode( std::string methode )
 {
 	this->_methode = methode;
@@ -213,6 +218,41 @@ void	Request::setChunked( int chunked )
 void	Request::setQuery( std::string query )
 {
 	this->_query = query;
+}
+
+void	Request::setLocation( std::string location )
+{
+	this->_location = location;
+}
+
+void	Request::setAutoindexEntries( std::string &path )
+{
+	this->_autoIndexEntries.push_back(path);	
+}
+
+std::string Request::getAutoIndexEntries( size_t index )
+{
+	return (this->_autoIndexEntries[index]);
+}
+
+size_t	Request::getAutoIndexEntriesSize() const
+{
+	return (this->_autoIndexEntries.size());
+}
+
+void	Request::setIsFullPath( bool trueOrFalse )
+{
+	if (trueOrFalse == true)
+	{
+		this->_isFullPath = true;
+		return ;
+	}
+	this->_isFullPath = false;
+}
+
+bool	Request::getIsFullPath() const
+{
+	return (this->_isFullPath);
 }
 
 void	Request::eraseMap()
