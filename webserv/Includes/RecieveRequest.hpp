@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 15:04:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 15:48:27 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/08 19:38:02 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include "GetRequest.hpp"
 #include "DeleteRequest.hpp"
 
-int	beforeRequest(Client &ClientInstance);
+int	beforeRequest(Client &ClientInstance, Response &responseInstance);
 
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 16:16:23 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:05:49 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -351,13 +351,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
     std::string httpVersion;
     std::string* requestToken;
 
-    if (!request.find("\r\n") && !request.find("\n")) 
-	{ 
-		instance.setStatusCode(400);
-		instance.setErrorBody("Bad Request");
-		return (-1);
-	}
-
     requestToken = splitRequest(request, ' ');
     if (requestToken == NULL)
     {
@@ -381,14 +374,16 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         uri = requestToken[1].substr(0, requestToken[1].find('?'));
     }
     else
+	{	
         uri = requestToken[1];
-
+	}
     std::string root = clientInstance.getServConfig()->getRoot();
 	std::string fullPath;
 	if (uri == "/")
 		fullPath = root + uri + clientInstance.getServConfig()->getIndex();
 	else
 		fullPath = root + uri;
+	std::cout << "fullPath: " << fullPath << std::endl;
     if (access(fullPath.c_str(), R_OK) == -1)
     {
         instance.setStatusCode(404);
@@ -396,7 +391,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         delete[] requestToken;
         return (-1);
     }
-
     if (requestToken[2].empty())
     {
         instance.setStatusCode(400);

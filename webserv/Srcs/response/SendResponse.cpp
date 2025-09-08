@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 13:24:04 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 15:58:19 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/08 19:31:01 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void chunkedResponse(Response &responseInstance, Request &requestInstance, Clien
     send(clientSocket, "0\r\n\r\n", 5, 0);
 }
 
-int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance)
+int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
 {
     int statusCode = requestInstance.getStatusCode();
     std::string errorMessage = requestInstance.getErrorBody();
@@ -50,16 +50,17 @@ int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Clie
     //     return 0;
     // }
     std::cout << errorMessage << std::endl;
+    std::string htmlError = genereateHtmlErrorPage(statusCode, errorMessage);
 
     std::stringstream out;
     out << "HTTP/1.1 " << statusCode << " " << getStatusCodeMessage(statusCode) << "\r\n";
-    out << "Content-Type: text/plain\r\n";
-    out << "Content-Length: " << errorMessage.length() << "\r\n";
+    out << "Content-Type: text/html\r\n";
+    out << "Content-Length: " << htmlError.length() << "\r\n";
     out << "\r\n";
-    out << errorMessage;
+    out << htmlError;
 
     responseInstance.setResponse(out.str());
-    send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
+    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
 
     return 0;
 }
@@ -92,3 +93,71 @@ int makeResponse(Request& requestInstance, Response& responseInstance)
     //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
     return 0;
 }
+
+std::string genereateHtmlErrorPage(int statusCode, const std::string &errorMessage)
+{
+    
+    
+    std::stringstream body;
+    body << "<!DOCTYPE html>\n"
+         << "<html lang=\"fr\">\n"
+         << "<head>\n"
+         << "  <meta charset=\"UTF-8\" />\n"
+         << "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n"
+         << "  <title>Error " << statusCode << "</title>\n"
+         << "  <style>\n"
+         << "    body {\n"
+         << "      font-family: 'Segoe UI', sans-serif;\n"
+         << "      background-image: url('https://pbs.twimg.com/media/GHc9d1PWkAANtXl?format=jpg&name=4096x4096');\n"
+         << "      background-size: cover;\n"
+         << "      background-position: center;\n"
+         << "      background-repeat: no-repeat;\n"
+         << "      background-attachment: fixed;\n"
+         << "      color: white;\n"
+         << "      margin: 0;\n"
+         << "      padding: 0;\n"
+         << "      height: 100vh;\n"
+         << "      position: relative;\n"
+         << "    }\n"
+         << "    h1 {\n"
+         << "      position: absolute;\n"
+         << "      top: 20vh;\n"
+         << "      left: 50vw;\n"
+         << "      transform: translate(-50%, -50%);\n"
+         << "      font-size: 4rem;\n"
+         << "      font-weight: bolder;\n"
+         << "    }\n"
+         << "    button_link {\n"
+         << "      position: absolute;\n"
+         << "      top: 60vh;\n"
+         << "      left: 50vw;\n"
+         << "      transform: translate(-50%, -50%);\n"
+         << "      width: 300px;\n"
+         << "      padding: 9px;\n"
+         << "      font-size: 1.2rem;\n"
+         << "      background: #c00d07;\n"
+         << "      border: none;\n"
+         << "      color: rgb(255, 255, 255);\n"
+         << "      text-align: center;\n"
+         << "      border-radius: 15px;\n"
+         << "      cursor: pointer;\n"
+         << "      transition: background 0.4s ease;\n"
+         << "    }\n"
+         << "    button_link:hover { background: #f17522; }\n"
+         << "  </style>\n"
+         << "</head>\n"
+         << "<body>\n"
+         << "  <h1>Error " << statusCode << " " << errorMessage << "</h1>\n"
+         << "  <button_link onclick=\"location.href='index.html'\">Retour à l'accueil</button_link>\n"
+         << "  <script>\n"
+         << "    const params = new URLSearchParams(window.location.search);\n"
+         << "    const error = params.get(\"error\");\n"
+         << "    if (error) {\n"
+         << "      document.querySelector(\"h1\").textContent = `Error ${error}`;\n"
+         << "    }\n"
+         << "  </script>\n"
+         << "</body>\n"
+         << "</html>\n";
+    return body.str();
+}
+
