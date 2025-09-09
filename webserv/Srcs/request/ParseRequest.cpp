@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/08 18:05:49 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/09 03:08:43 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -379,11 +379,14 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
 	}
     std::string root = clientInstance.getServConfig()->getRoot();
 	std::string fullPath;
+	if (looksPercentEncoded(uri))
+		uri = urlDecode(uri);
 	if (uri == "/")
 		fullPath = root + uri + clientInstance.getServConfig()->getIndex();
 	else
 		fullPath = root + uri;
 	std::cout << "fullPath: " << fullPath << std::endl;
+	
     if (access(fullPath.c_str(), R_OK) == -1)
     {
         instance.setStatusCode(404);
@@ -571,4 +574,32 @@ int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 	}
 	std::cout << "End of parseTokenisedHeaderField" << std::endl;
 	return (0);
+}
+
+bool looksPercentEncoded(const std::string& s) {
+    for (size_t i = 0; i + 2 < s.size(); ++i) {
+        if (s[i] == '%' &&
+            isxdigit(s[i+1]) &&
+            isxdigit(s[i+2])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string urlDecode(const std::string str) {
+    std::string ret;
+    char ch;
+    int i, ii;
+    for (i = 0; i < (int)str.length(); i++) {
+        if (int(str[i]) == 37) { // '%'
+            sscanf(str.substr(i + 1, 2).c_str(), "%x", &ii);
+            ch = static_cast<char>(ii);
+            ret += ch;
+            i = i + 2;
+        } else {
+            ret += str[i];
+        }
+    }
+    return ret;
 }

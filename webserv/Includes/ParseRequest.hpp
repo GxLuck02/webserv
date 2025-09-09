@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 14:32:28 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 03:05:21 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ std::string*	splitField( std::string request, char separator );
 
 
 void	removeIfSpace( std::string* token );
-
+bool looksPercentEncoded(const std::string& s);
+std::string urlDecode(const std::string str);
 
 #endif

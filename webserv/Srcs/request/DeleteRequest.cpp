@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DeleteRequest.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:00:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 01:05:12 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 03:00:31 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ int handleDeleteRequest(Request &requestInstance, Response &responseInstance, Cl
         requestInstance.setErrorBody("Bad Request: URI is empty");
         return -1;
     }
-
     if (access(uri.c_str(), F_OK) == -1)
     {
         requestInstance.setStatusCode(404);
