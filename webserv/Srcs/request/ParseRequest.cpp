@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 20:11:31 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 20:50:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,15 +286,6 @@ std::string* splitRequest(std::string request, char separator)
 	}
 
 	return tokens;
-}
-
-int	countArrayStrings( std::string* array )
-{
-	int	i = 0;
-
-	while (!array[i].empty())
-		i++;
-	return (i);
 }
 
 int	searchWhiteSpaceInFieldName( std::string field )
@@ -580,20 +571,14 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
-	if (fieldArray[0] == "Host" && countArrayStrings( fieldArray ) == 3 )
-		instance.setField(fieldArray[0], fieldArray[1] + ':' + fieldArray[2]);
-
-	else
+	if (fieldArray[1].find("\r"))
 	{
-		if (fieldArray[1].find("\r"))
-		{
-			std::string::iterator it = fieldArray[1].end();
-			--it;
-			if (*it == '\r')
-				fieldArray[1].erase(it);
-		}
-		instance.setField(fieldArray[0], fieldArray[1]);
+		std::string::iterator it = fieldArray[1].end();
+		--it;
+		if (*it == '\r')
+			fieldArray[1].erase(it);
 	}
+	instance.setField(fieldArray[0], fieldArray[1]);
 
 	delete[] fieldArray;
 
