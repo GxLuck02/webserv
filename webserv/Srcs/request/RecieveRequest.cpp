@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/07 16:09:46 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 11:44:36 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ static int findIndexIfNeeded(Request &requestInstance, Client &clientInstance, R
 		return (0);
 	
 	std::string requestedLocation = requestInstance.getLocation();
+	std::cout << requestedLocation << std::endl;
 	std::string indexLocation = clientInstance.getServConfig()->getIndexFromLocation(requestedLocation);
 	if (indexLocation.empty()) // pas d index dans la location
 	{
@@ -108,6 +109,7 @@ static int findIndexIfNeeded(Request &requestInstance, Client &clientInstance, R
 				newUri = requestInstance.getUri() + "/" + indexLocation;
 			if (access(newUri.c_str(), F_OK) == -1)
 			{
+				std::cout << "in forbidden 1" << std::endl;
 				requestInstance.setStatusCode(403);
 				requestInstance.setErrorBody("Forbidden");
 				return (-1);
@@ -117,6 +119,7 @@ static int findIndexIfNeeded(Request &requestInstance, Client &clientInstance, R
 		}
 		if (autoindex == false)
 		{
+			std::cout << "in forbidden 2" << std::endl;
 			requestInstance.setStatusCode(403);
 			requestInstance.setErrorBody("Forbidden");
 			return (-1);
@@ -131,8 +134,10 @@ static int findIndexIfNeeded(Request &requestInstance, Client &clientInstance, R
 			newUri = "/" + indexLocation;
 		else
 			newUri = requestInstance.getUri() + "/" + indexLocation;
+		std::cout << " ,ASDFASDFASDFASDFSA " << newUri << std::endl;
 		if (access(newUri.c_str(), F_OK) == -1)
 		{
+			std::cout << "in forbidden 3" << std::endl;
 			requestInstance.setStatusCode(403);
 			requestInstance.setErrorBody("Forbidden");
 			return (-1);

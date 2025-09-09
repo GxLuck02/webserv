@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:22:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/07 15:42:15 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 12:00:51 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class	Request
 		std::string							_bodyStart;
 		std::map<std::string, std::string>	_body;
 		std::vector<std::string>			_autoIndexEntries;
+		bool								_isAutoindex;
 
 	public:
 
@@ -89,7 +90,8 @@ class	Request
 		size_t		getAutoIndexEntriesSize() const;
 		void		setIsFullPath( bool trueOrFalse );
 		bool		getIsFullPath() const;
-		void		eraseMap();
+		void		setIsAutoIndex( bool autoindex );
+		bool		getIsAutoIndex() const;
 
 		//std::map<std::string, std::string>::iterator	getFieldIterator( size_t num );
 };

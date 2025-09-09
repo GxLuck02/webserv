@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/07 15:49:50 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 12:00:55 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,16 +255,13 @@ bool	Request::getIsFullPath() const
 	return (this->_isFullPath);
 }
 
-void	Request::eraseMap()
+void	Request::setIsAutoIndex( bool autoindex )
 {
-	std::map<std::string, std::string>::iterator	it;
+	this->_isAutoindex = autoindex;
+}
 
-	it = this->_field.begin();
-
-	while (it != this->_field.end())
-	{
-		this->_field.erase(it);
-		it++;
-	}
+bool	Request::getIsAutoIndex() const
+{
+	return (this->_isAutoindex);
 }
 
