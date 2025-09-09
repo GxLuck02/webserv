@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 11:44:36 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 20:20:14 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,13 @@ void generateAutoIndex(const std::string &uri, Request &requestInstance, Respons
         size_t pos = name.find_last_of('/');
         if (pos != std::string::npos)
             displayName = name.substr(pos + 1);
-
-        if (isDirectory(name)) {
+		std::cout << "NAME ====== " << name << std::endl; 
+        if (isDirectory(name))
+		{
             displayName += "/";
         }
 
-        html << "<li><a href=\"" << name << "\">" << displayName << "</a></li>\n";
+        html << "<li><a href=\"" << displayName << "\">" << displayName << "</a></li>\n";
     }
 
     html << "</ul>\n</body>\n</html>\n";
@@ -59,8 +60,6 @@ static int handleAutoIndex(Request &requestInstance, Response &responseInstance,
 {
 	struct dirent	*currFile;
 	DIR*	directory =	opendir(currPath.c_str());
-
-	std::cout << " CURRENT PATH : " << currPath << std::endl;
 
 	if (!directory)
 	{
@@ -85,65 +84,6 @@ static int handleAutoIndex(Request &requestInstance, Response &responseInstance,
 	}
 	closedir(directory);
 	generateAutoIndex(requestInstance.getLocation(), requestInstance, responseInstance);
-	return (0);
-}
-
-static int findIndexIfNeeded(Request &requestInstance, Client &clientInstance, Response &responseInstance)
-{
-	if (!isDirectory(requestInstance.getUri()))
-		return (0);
-	
-	std::string requestedLocation = requestInstance.getLocation();
-	std::cout << requestedLocation << std::endl;
-	std::string indexLocation = clientInstance.getServConfig()->getIndexFromLocation(requestedLocation);
-	if (indexLocation.empty()) // pas d index dans la location
-	{
-		std::string	indexServer = clientInstance.getServConfig()->getIndex();
-		bool autoindex = clientInstance.getServConfig()->getAutoIndexFromLocation(requestedLocation);
-		if (!indexServer.empty()) // index serveur present
-		{
-			std::string newUri;
-			if (requestInstance.getUri() == "/")
-				newUri = "/" + indexLocation;
-			else
-				newUri = requestInstance.getUri() + "/" + indexLocation;
-			if (access(newUri.c_str(), F_OK) == -1)
-			{
-				std::cout << "in forbidden 1" << std::endl;
-				requestInstance.setStatusCode(403);
-				requestInstance.setErrorBody("Forbidden");
-				return (-1);
-			}
-			requestInstance.setUri(newUri);
-			return (0);
-		}
-		if (autoindex == false)
-		{
-			std::cout << "in forbidden 2" << std::endl;
-			requestInstance.setStatusCode(403);
-			requestInstance.setErrorBody("Forbidden");
-			return (-1);
-		}
-		if (handleAutoIndex(requestInstance, responseInstance, requestInstance.getUri()) == -1)
-			return (-1);
-	}
-	else // si un index est dans la location
-	{
-		std::string newUri;
-		if (requestInstance.getUri() == "/")
-			newUri = "/" + indexLocation;
-		else
-			newUri = requestInstance.getUri() + "/" + indexLocation;
-		std::cout << " ,ASDFASDFASDFASDFSA " << newUri << std::endl;
-		if (access(newUri.c_str(), F_OK) == -1)
-		{
-			std::cout << "in forbidden 3" << std::endl;
-			requestInstance.setStatusCode(403);
-			requestInstance.setErrorBody("Forbidden");
-			return (-1);
-		}
-		requestInstance.setUri(newUri);
-	}
 	return (0);
 }
 
@@ -196,7 +136,6 @@ int	beforeRequest(Client &clientInstance)
 	}
 	if (requestInstance.getField("Host").empty())
 	{
-		std::cout << "Host header is missing" << std::endl;
 		requestInstance.setStatusCode(400);
 		requestInstance.setErrorBody("Bad Request: Host header is missing");
 		sendErrorResponse(requestInstance, responseInstance, clientInstance);
@@ -208,12 +147,14 @@ int	beforeRequest(Client &clientInstance)
 		sendErrorResponse(requestInstance, responseInstance, clientInstance);
 		return (0);
 	}
+	std::cout << "BEFORE METHODE ALLOWED" << std::endl;
 
 	if (isMethodAllowed(requestInstance, clientInstance) == -1)
 	{
 		sendErrorResponse(requestInstance, responseInstance, clientInstance);
 		return (0);
 	}
+	std::cout << "AFTER METHOD ALLOWED" << std::endl;
 
 	if (requestInstance.getMethode() == "POST")
 	{
@@ -252,10 +193,13 @@ int	beforeRequest(Client &clientInstance)
 	else if (requestInstance.getMethode() == "GET")
 	{
 		std::cout << "In GET methode" << std::endl;
-		if (findIndexIfNeeded(requestInstance, clientInstance, responseInstance) == -1)
+		if (requestInstance.getIsAutoIndex() == true)
 		{
-			sendErrorResponse(requestInstance, responseInstance, clientInstance);
-			return (0);
+			if (handleAutoIndex(requestInstance, responseInstance, requestInstance.getUri()) == -1)
+			{
+				sendErrorResponse(requestInstance, responseInstance, clientInstance);
+				return (0);
+			}
 		}
 		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{

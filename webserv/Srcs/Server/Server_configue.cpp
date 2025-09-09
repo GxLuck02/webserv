@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/07 14:06:36 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 20:20:57 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,7 +211,7 @@ std::string Serv_config::getIndexFromLocation(const std::string &location) const
 	locationMap::const_iterator it = this->_locations.find(location);
 	if (it != this->_locations.end() && !it->second.index.empty())
 		return it->second.index;
-	return this->_index;
+	return "";
 }
 
 std::string Serv_config::getRootFromLocation(const std::string &location) const
@@ -219,7 +219,7 @@ std::string Serv_config::getRootFromLocation(const std::string &location) const
 	locationMap::const_iterator it = this->_locations.find(location);
 	if (it != this->_locations.end() && !it->second.root.empty())
 		return it->second.root;
-	return this->_root;
+	return "";
 }
 
 bool Serv_config::getAutoIndexFromLocation(const std::string &location) const
@@ -249,6 +249,7 @@ int Serv_config::checkMethodInLocation(const std::string &location, const std::s
 	locationMap::const_iterator it = this->_locations.find(location);
 
 	const std::vector<std::string> &methods = it->second.methods;
+
 	if (it->second.methods.empty())
 		return -1;
 

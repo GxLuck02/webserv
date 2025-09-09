@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 13:55:29 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 20:11:31 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -371,7 +371,6 @@ void setQuery(std::string uri, Request& instance)
 	{
 		instance.setQuery(uri.substr(queryPos));
 		instance.setUri(uri.substr(0, queryPos));
-		std::cout << "ASDFFASDFASD " << instance.getQuery() << std::endl;
 	}
 	else
 	{
@@ -384,33 +383,46 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	std::string uri;
 	std::string root;
 	std::string fullPath;
+	std::string	testPathQuery;
+
+	std::cout << "IS FILE <<<<<<<<<<<<<<<< " << token << std::endl;
 
 	if (token.find('?') != std::string::npos)
     {
         setQuery(token, requestInstance);
         uri = token.substr(0, token.find_first_of('?'));
 	}
-	removeFileFromLocation(token, requestInstance);
-	uri = requestInstance.getLocation();
-
-	requestInstance.setLocation(uri);
+	else
+		uri = token;
+	removeFileFromLocation(uri, requestInstance);
 
 	root = clientInstance.getServConfig()->getRootFromLocation(uri);
 
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
-
-	if (root[root.length() -1] == '/')
-		root.erase(root.length() - 1);
 	
 	fullPath = root + token;
-	
-	if (access(fullPath.c_str(), F_OK) == -1)
+
+	if (requestInstance.getQuery().empty())
 	{
-		requestInstance.setStatusCode(404);
-		requestInstance.setErrorBody("Not found : requested ressource not found\n");
-		return (-1);
+		if (access(fullPath.c_str(), F_OK) == -1)
+		{
+			requestInstance.setStatusCode(404);
+			requestInstance.setErrorBody("Not found : requested ressource not found\n");
+			return (-1);
+		}
 	}
+	else
+	{
+		testPathQuery = root + "/" + uri;
+		if (access(testPathQuery.c_str(), F_OK) == -1)
+		{
+			requestInstance.setStatusCode(404);
+			requestInstance.setErrorBody("Not found : requested ressource not found\n");
+			return (-1);
+		}
+	}
+	
 	requestInstance.setUri(fullPath);
 	return (0);
 }
@@ -424,6 +436,8 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 
 	uri = token;
 
+	std::cout << "IS DIR <<<<<<<<<<<<<<<< " << token << std::endl;
+
 	requestInstance.setLocation(uri);
 
 	root = clientInstance.getServConfig()->getRootFromLocation(uri);
@@ -431,14 +445,13 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
 
-	// if (root[root.length() -1] == '/')
-	// 	root.erase(root.length() - 1);
-
 	index = clientInstance.getServConfig()->getIndexFromLocation(uri);
+	std::cout << " FIRST CHECK INDEX LOCATION " << index << std::endl;
 
 	if (index.empty())
 	{
 		index = clientInstance.getServConfig()->getIndex();
+		std::cout << "SECOND CHECK INDEX SERVER " << index << std::endl;
 		if (index.empty())
 		{
 			if (clientInstance.getServConfig()->getAutoIndexFromLocation(uri) == false)
@@ -448,10 +461,16 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 				return (-1);
 			}
 			else
+			{
 				requestInstance.setIsAutoIndex(true);
+				fullPath = root + "/" + uri + index;
+			}
 		}
+		else
+			fullPath = root + "/" + index;
 	}
-	fullPath = root + uri + index;
+	else
+		fullPath = root + uri + "/" + index;
 
 	std::cout << "FULL PATH " << fullPath << std::endl;
 
@@ -465,74 +484,28 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	return (0);
 }
 
-static int	handlePaths(Request &requestInstance, Client& clientInstance, std::string token)
+int	handlePaths(Request &requestInstance, Client& clientInstance, std::string& token)
 {
 	std::string uri;
-	bool		isDir;
+	bool		isFile;
 
-	isDir = isDirectory(token);
-	if (isDir == true)
+	requestInstance.setIsAutoIndex(false);
+	if (token.find(".") != std::string::npos)
+		isFile = true;
+	else
+		isFile = false;
+	if (isFile == false)
 	{
-		std::cout << "IN DIRECTORY HANDLE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< " << std::endl;
-		std::cout << token << std::endl;
 		if (handleDirectoryRequest(requestInstance, clientInstance, token) == -1)
 			return (-1);
 	}
 	else
 	{
-		std::cout << "IN FILE HANDLE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< " << std::endl;
 		if (handleFileRequest(requestInstance, clientInstance, token) == -1)
 			return (-1);
 	}
 
 	return (0);
-
-
-	// if (token.find('?') != std::string::npos)
-    // {
-    //     setQuery(token, requestInstance);
-    //     uri = token.substr(0, token.find('?'));
-	// 	identifyRealLocation(uri, requestInstance);
-	// 	if (!isDirectory(uri))
-	// 		removeFileFromLocation(uri, requestInstance);
-	// 	else
-	// 		requestInstance.setLocation(uri);
-    // }
-    // else
-	// {
-    //     uri = token;
-		//identifyRealLocation(uri, requestInstance);
-	// 	if (!isDirectory(uri))
-	// 		removeFileFromLocation(uri, requestInstance); // je ne modifie pas uri ici
-	// 	else
-	// 		requestInstance.setLocation(uri);
-	// 	std::cout << " ADFADFFADFADSFF <<<<<<<<<<<<<<<<<<<<<<<,, " << uri << std::endl;
-	// }
-	// std::string location = requestInstance.getLocation();
-	// if ((clientInstance.getServConfig()->isLocationValid(location)) == false && requestInstance.getIsFullPath() == false)
-	// {
-	// 	requestInstance.setStatusCode(404);
-	// 	requestInstance.setErrorBody("Not Found: The requested resource does not exist");
-	// 	return ("");
-	// }
-	// std::string fullPath;
-	// std::string root = clientInstance.getServConfig()->getRootFromLocation(location);
-	// if (root.empty())
-	// 	root = clientInstance.getServConfig()->getRoot();
-	// else if (requestInstance.getIsFullPath() == true)
-	// 	fullPath = uri;
-	// else
-	// 	fullPath = root + uri;
-	// std::cout << "full PAth " << fullPath << std::endl;
-
-	// if (access(fullPath.c_str(), F_OK) == -1)
-	// {
-	// 	requestInstance.setStatusCode(404);
-	// 	requestInstance.setErrorBody("Not Found: The requested resource does not exist");
-	// 	return ("");
-	// }
-	// if (!requestInstance.getQuery().empty())
-	// fullPath += requestInstance.getQuery();
 }
 
 int ParseRequestLine(Request& instance, std::string request, Client& clientInstance)
@@ -565,7 +538,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         delete[] requestToken;
         return (-1);
     }
-	std::cout << requestToken[1] << std::endl;
 	if (handlePaths(instance, clientInstance, requestToken[1]) == -1)
 	{
 		delete[] requestToken;
