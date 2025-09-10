@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/09/05 00:53:48 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/10 21:01:44 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ std::string trim(const std::string& s)
 {
 	const std::string whitespace = " \t\r\n";
 	size_t start = s.find_first_not_of(whitespace);
-	if (start == std::string::npos) return "";
+	if (start == std::string::npos)
+		return "";
 	size_t end = s.find_last_not_of(whitespace);
 	return s.substr(start, end - start + 1);
 }
