@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/07 15:34:49 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/10 20:35:26 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,11 @@ bool    isDirectory(const std::string &path);
 
 
 std::string*	splitRequest( std::string request, char separator );
-std::string*	splitField( std::string request, char separator );
+std::pair<std::string, std::string> splitField(const std::string& request, char separator);
 
 
 void	removeIfSpace( std::string* token );
-
+bool looksPercentEncoded(const std::string& s);
+std::string urlDecode(const std::string str);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/05 15:56:26 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/08 19:38:46 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,7 +291,7 @@ void Server::handleClientRead(int fd)
 			std::cout << "Request complete for client fd: " << fd << std::endl;
 			this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
 			buffer[0] = '\0';
-			beforeRequest(*current_client);
+			beforeRequest(*current_client, current_client->getResponseInstance());
 		}
 	}
 	return ;
@@ -310,6 +310,7 @@ void Server::handleClientWrite(int fd)
 		return;
 	}
 	std::string response = current_Client->getResponseInstance().getResponse();
+	std::cout << "Sending response to client fd: " << fd << "\nResponse:\n" << response << std::endl;
 	byte_sent = send(fd, response.c_str(), response.size(), 0);
 	if (byte_sent < 0)
 	{

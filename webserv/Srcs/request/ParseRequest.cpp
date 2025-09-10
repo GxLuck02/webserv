@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 20:50:11 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/10 20:44:18 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,45 +313,33 @@ void	removeIfSpace( std::string& token )
 	token.erase(found);
 }
 
-std::string* splitField(std::string request, char separator)
+// Remplace la fonction splitField par :
+std::pair<std::string, std::string> splitField(const std::string& request, char separator)
 {
-	std::string*	tokens = new std::string[2];
-	size_t			sepPos = request.find(separator);
-	size_t			valueStart = sepPos + 1;
+    size_t sepPos = request.find(separator);
+    size_t valueStart = sepPos + 1;
 
-	if (sepPos == std::string::npos)
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (sepPos == std::string::npos)
+        return std::make_pair("", "");
 
-	tokens[0] = request.substr(0, sepPos);
-	if (findChar(tokens[0], ' ') || findChar(tokens[0], '\t'))
-	{
-		delete[] tokens;
-		return (NULL);
-	}
+    std::string key = request.substr(0, sepPos);
+    if (findChar(key, ' ') || findChar(key, '\t'))
+        return std::make_pair("", "");
 
-	if (valueStart < request.length() && request[valueStart] == ' ')
-		valueStart++;
+    if (valueStart < request.length() && request[valueStart] == ' ')
+        valueStart++;
 
-	tokens[1] = request.substr(valueStart);
+    std::string value = request.substr(valueStart);
 
-	if (tokens[0].empty() || tokens[1].empty())
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (key.empty() || value.empty())
+        return std::make_pair("", "");
 
-	if (searchWhiteSpaceInFieldName(tokens[0]) == -1)
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (searchWhiteSpaceInFieldName(key) == -1)
+        return std::make_pair("", "");
 
-	removeIfSpace(tokens[1]);
+    removeIfSpace(value);
 
-	return tokens;
+    return std::make_pair(key, value);
 }
 
 void setQuery(std::string uri, Request& instance)
@@ -561,26 +549,30 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
 
 int	tokeniseRequestField( Request& instance, std::string request ) // request doit etre seulement les lignes dont j ai besoin
 {
-	std::string*	fieldArray;
+	std::pair<std::string, std::string>	fieldArray;
 
 	fieldArray = splitField(request, ':');
-	if (fieldArray == NULL)
+	if (fieldArray.first.empty() || fieldArray.second.empty())
 	{
 		std::cout << "filed array null" << std::endl;
 		instance.setStatusCode(400);
 		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
-	if (fieldArray[1].find("\r"))
+	if (fieldArray.first == "Host")
 	{
-		std::string::iterator it = fieldArray[1].end();
-		--it;
-		if (*it == '\r')
-			fieldArray[1].erase(it);
+		// If Host header contains a port, it will be in fieldArray.second (e.g. "example.com:8080")
+		instance.setField(fieldArray.first, fieldArray.second);
 	}
-	instance.setField(fieldArray[0], fieldArray[1]);
-
-	delete[] fieldArray;
+	else
+	{
+		size_t pos = fieldArray.second.find("\r");
+		if (pos != std::string::npos)
+		{
+			fieldArray.second.erase(pos);
+		}
+		instance.setField(fieldArray.first, fieldArray.second);
+	}
 
 	return (0);
 }
@@ -698,4 +690,32 @@ int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 	}
 	std::cout << "End of parseTokenisedHeaderField" << std::endl;
 	return (0);
+}
+
+bool looksPercentEncoded(const std::string& s) {
+    for (size_t i = 0; i + 2 < s.size(); ++i) {
+        if (s[i] == '%' &&
+            isxdigit(s[i+1]) &&
+            isxdigit(s[i+2])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string urlDecode(const std::string str) {
+    std::string ret;
+    char ch;
+    int i, ii;
+    for (i = 0; i < (int)str.length(); i++) {
+        if (int(str[i]) == 37) { // '%'
+            sscanf(str.substr(i + 1, 2).c_str(), "%x", &ii);
+            ch = static_cast<char>(ii);
+            ret += ch;
+            i = i + 2;
+        } else {
+            ret += str[i];
+        }
+    }
+    return ret;
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseWwwFormUrlEncoded.cpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:05:06 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 21:21:51 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 02:54:11 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
