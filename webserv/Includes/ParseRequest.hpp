@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 03:05:21 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/10 18:17:27 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	    isHexadecimal(const std::string &str);
 
 
 std::string*	splitRequest( std::string request, char separator );
-std::string*	splitField( std::string request, char separator );
+std::pair<std::string, std::string> splitField(const std::string& request, char separator);
 
 
 void	removeIfSpace( std::string* token );

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 03:08:43 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/10 18:21:05 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,45 +288,33 @@ void	removeIfSpace( std::string& token )
 	token.erase(found);
 }
 
-std::string* splitField(std::string request, char separator)
+// Remplace la fonction splitField par :
+std::pair<std::string, std::string> splitField(const std::string& request, char separator)
 {
-	std::string*	tokens = new std::string[2];
-	size_t			sepPos = request.find(separator);
-	size_t			valueStart = sepPos + 1;
+    size_t sepPos = request.find(separator);
+    size_t valueStart = sepPos + 1;
 
-	if (sepPos == std::string::npos)
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (sepPos == std::string::npos)
+        return std::make_pair("", "");
 
-	tokens[0] = request.substr(0, sepPos);
-	if (findChar(tokens[0], ' ') || findChar(tokens[0], '\t'))
-	{
-		delete[] tokens;
-		return (NULL);
-	}
+    std::string key = request.substr(0, sepPos);
+    if (findChar(key, ' ') || findChar(key, '\t'))
+        return std::make_pair("", "");
 
-	if (valueStart < request.length() && request[valueStart] == ' ')
-		valueStart++;
+    if (valueStart < request.length() && request[valueStart] == ' ')
+        valueStart++;
 
-	tokens[1] = request.substr(valueStart);
+    std::string value = request.substr(valueStart);
 
-	if (tokens[0].empty() || tokens[1].empty())
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (key.empty() || value.empty())
+        return std::make_pair("", "");
 
-	if (searchWhiteSpaceInFieldName(tokens[0]) == -1)
-	{
-		delete[] tokens;
-		return NULL;
-	}
+    if (searchWhiteSpaceInFieldName(key) == -1)
+        return std::make_pair("", "");
 
-	removeIfSpace(tokens[1]);
+    removeIfSpace(value);
 
-	return tokens;
+    return std::make_pair(key, value);
 }
 
 void setQuery(std::string uri, Request& instance)
@@ -421,40 +409,30 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
 
 int	tokeniseRequestField( Request& instance, std::string request ) // request doit etre seulement les lignes dont j ai besoin
 {
-	std::string*	fieldArray;
+	std::pair<std::string, std::string>	fieldArray;
 
 	fieldArray = splitField(request, ':');
-	if (fieldArray == NULL)
+	if (fieldArray.first.empty() || fieldArray.second.empty())
 	{
 		std::cout << "filed array null" << std::endl;
 		instance.setStatusCode(400);
 		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
-	if (fieldArray[0] == "Host" && countArrayStrings( fieldArray ) == 3 )
-		instance.setField(fieldArray[0], fieldArray[1] + ':' + fieldArray[2]);
-	
-	// else if (countArrayStrings( fieldArray ) == 3)
-	// {
-	// 	instance.setStatusCode( 400 );
-	// 	instance.setErrorBody("Bad Request in header field");
-	// 	delete[] fieldArray;
-	// 	return (-1);
-	// }
-
+	if (fieldArray.first == "Host")
+	{
+		// If Host header contains a port, it will be in fieldArray.second (e.g. "example.com:8080")
+		instance.setField(fieldArray.first, fieldArray.second);
+	}
 	else
 	{
-		if (fieldArray[1].find("\r"))
+		size_t pos = fieldArray.second.find("\r");
+		if (pos != std::string::npos)
 		{
-			std::string::iterator it = fieldArray[1].end();
-			--it;
-			if (*it == '\r')
-				fieldArray[1].erase(it);
+			fieldArray.second.erase(pos);
 		}
-		instance.setField(fieldArray[0], fieldArray[1]);
+		instance.setField(fieldArray.first, fieldArray.second);
 	}
-
-	delete[] fieldArray;
 
 	return (0);
 }
