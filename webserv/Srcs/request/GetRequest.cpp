@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/08 02:12:46 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 10:52:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
 
     if (extensionFound != std::string::npos)
     {
-        size_t dotPos = uri.find_first_of('.');
+        size_t dotPos = uri.find_last_of('.');
         if (dotPos != std::string::npos)
         {
             size_t extensionEnd = uri.find_first_of("?#", dotPos);
@@ -42,7 +42,7 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
 
     else if (!fileExtension.empty())
     {
-        
+        std::cout << fileExtension << std::endl;
         if (fileExtension == ".html")
         {
             std::ifstream file;

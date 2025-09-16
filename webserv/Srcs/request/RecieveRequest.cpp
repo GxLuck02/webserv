@@ -6,102 +6,11 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:51:58 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 10:55:42 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/RecieveRequest.hpp"
-
-static int	isParentOrChildDir(std::string name)
-{
-	if (name == "." || name == "..")
-		return (1);
-	return (0);
-}
-
-void generateAutoIndex(const std::string &uri, Request &requestInstance, Response &responseInstance)
-{
-    std::ostringstream	html;
-
-	std::cout << " URI ========================= " << uri << std::endl;
-
-    html << "<!DOCTYPE html>\n<html>\n<head>\n";
-    html << "<meta charset=\"UTF-8\">\n";
-    html << "<title>Index of " << uri << "</title>\n";
-    html << "</head>\n<body>\n";
-    html << "<h1>Index of " << uri << "</h1>\n";
-    html << "<ul>\n";
-
-    for (size_t i = 0; i < requestInstance.getAutoIndexEntriesSize(); ++i)
-	{
-        std::string name = requestInstance.getAutoIndexEntries(i);
-        std::string displayName = name;
-
-        size_t pos = name.find_last_of('/');
-        if (pos != std::string::npos)
-            displayName = name.substr(pos + 1);
-		std::cout << "NAME ====== " << name << std::endl; 
-        if (isDirectory(name))
-		{
-            displayName += "/";
-        }
-
-        html << "<li><a href=\"" << displayName << "\">" << displayName << "</a></li>\n";
-    }
-
-    html << "</ul>\n</body>\n</html>\n";
-    responseInstance.setBody(html.str());
-	responseInstance.setStatusCode(200);
-	responseInstance.setContentType("text/html");
-}
-
-
-static int handleAutoIndex(Request &requestInstance, Response &responseInstance, std::string currPath)
-{
-	struct dirent	*currFile;
-	DIR*	directory =	opendir(currPath.c_str());
-
-	if (!directory)
-	{
-		requestInstance.setStatusCode(404);
-		requestInstance.setErrorBody("Not Found");
-		return -1;
-	}
-
-	while ((currFile = readdir(directory)) != NULL)
-	{
-		if (isParentOrChildDir(std::string(currFile->d_name)))
-			continue ;
-		
-		std::string fileName = currFile->d_name;
-		std::string	fullPath = currPath;
-
-		if (fullPath[fullPath.length() - 1] != '/')
-			fullPath += "/";
-		fullPath += fileName;
-
-		requestInstance.setAutoindexEntries(fullPath);
-	}
-	closedir(directory);
-	generateAutoIndex(requestInstance.getLocation(), requestInstance, responseInstance);
-	return (0);
-}
-
-static int isMethodAllowed(Request &requestInstance, Client &clientInstance)
-{
-	std::string method = requestInstance.getMethode();
-	std::string location = requestInstance.getLocation();
-	int foundMethode = clientInstance.getServConfig()->checkMethodInLocation(location, method);
-
-	if (foundMethode == 0)
-	{
-		requestInstance.setStatusCode(405);
-		requestInstance.setErrorBody("Method Not Allowed: The method is not allowed for the requested location");
-		return -1;
-	}
-	
-	return 0;
-}
 
 static int	isParentOrChildDir(std::string name)
 {
@@ -256,11 +165,13 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
+		std::cout << "after fill content length" << std::endl;
 		if (fillContentType(requestInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
+		std::cout << "after fill content type" << std::endl;
 		if (requestInstance.getContentLength() > maxBodySize)
 		{
 			std::cout << "in error maxbody size POST method" << std::endl;
@@ -268,11 +179,13 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
+		std::cout << "after max body size" << std::endl;
 		if (fillBody(requestInstance, request, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
+		std::cout << "after fille body" << std::endl;
 		if (parseBody(requestInstance, clientInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);

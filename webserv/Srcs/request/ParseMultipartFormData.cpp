@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 21:01:44 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 10:52:56 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 	std::string contentType = headersMap["Content-Type"];
 	std::string filePath = requestInstance.getUri() + "/" + contentDispMap["filename"];
 	
+	std::cout << "CONTENT TYPE IS : " << contentType << std::endl;
+
 	if (access(filePath.c_str(), F_OK) == 0)
 	{
 		requestInstance.setStatusCode(409);

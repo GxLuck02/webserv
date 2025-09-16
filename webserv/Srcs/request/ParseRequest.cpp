@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:44:18 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 13:26:38 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,13 +113,14 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data" && contentType != "image/jpeg")
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
 		return (-1);
 	}
 	instance.setContentType(contentType);
+	std::cout << "end of fill content" << std::endl;
 
 	return (0);
 }
@@ -406,6 +407,27 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	return (0);
 }
 
+static int handlePostFullPath(Request &requestInstance, Client &clientInstance)
+{
+	std::string fullPath;
+	std::string root;
+	std::string location = requestInstance.getLocation();
+
+	root = clientInstance.getServConfig()->getRootFromLocation(location);
+
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+	
+	fullPath = root + location;
+
+	if (access(fullPath.c_str(), F_OK) == -1)
+	    return (-1);
+
+	requestInstance.setUri(fullPath);
+	std::cout << "FULL PATH IN POST" << fullPath << std::endl;
+	return (0);
+}
+
 static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstance, std::string &token)
 {
 	std::string uri;
@@ -416,8 +438,21 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	uri = token;
 
 	std::cout << "IS DIR <<<<<<<<<<<<<<<< " << token << std::endl;
+	std::cout << "TOKEN IS : " << token << std::endl;
 
 	requestInstance.setLocation(uri);
+	
+	if (requestInstance.getMethode() == "POST")
+	{
+		std::cout << "IN POST " << std::endl;
+		if (handlePostFullPath(requestInstance, clientInstance) == -1)
+		{
+			requestInstance.setStatusCode(403);
+			requestInstance.setErrorBody("Forbidden");
+			return (-1);
+		}
+		return (0);
+	}
 
 	root = clientInstance.getServConfig()->getRootFromLocation(uri);
 
@@ -517,6 +552,7 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         delete[] requestToken;
         return (-1);
     }
+	instance.setMethode(requestToken[0]);
 	if (handlePaths(instance, clientInstance, requestToken[1]) == -1)
 	{
 		delete[] requestToken;
@@ -538,7 +574,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         return (-1);
     }
 
-    instance.setMethode(requestToken[0]);
     instance.setHttpVersion(requestToken[2]);
     instance.setStatusCode(200);
 
