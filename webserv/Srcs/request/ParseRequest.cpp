@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 13:26:38 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 15:32:42 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -407,6 +407,15 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	return (0);
 }
 
+static int cgiPath(Request &requestInstance, Client &clientInstance)
+{
+	std::string fullPath;
+	std::string location = requestInstance.getLocation();
+	
+	
+	
+}
+
 static int handlePostFullPath(Request &requestInstance, Client &clientInstance)
 {
 	std::string fullPath;
@@ -436,12 +445,20 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	std::string fullPath;
 
 	uri = token;
-
-	std::cout << "IS DIR <<<<<<<<<<<<<<<< " << token << std::endl;
 	std::cout << "TOKEN IS : " << token << std::endl;
 
 	requestInstance.setLocation(uri);
-	
+
+	if (uri.find("cgi-bin") != std::string::npos)
+	{
+		if (cgiPath(requestInstance, clientInstance) == -1)
+		{
+			requestInstance.setStatusCode(500);
+			requestInstance.setErrorBody("Internal Server Error");
+			return (-1);
+		}
+	}
+	std::cout << requestInstance.getMethode() << std::endl;
 	if (requestInstance.getMethode() == "POST")
 	{
 		std::cout << "IN POST " << std::endl;

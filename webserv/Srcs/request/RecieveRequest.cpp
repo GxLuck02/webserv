@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 10:55:42 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 14:55:54 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
 	{
 		std::cout << "Error in ParseRequestLine" << std::endl;
-		sendErrorResponse(requestInstance, responseInstance);
 		responseInstance.setStatusCode(requestInstance.getStatusCode());
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
