@@ -3,14 +3,48 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 18:21:05 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/16 13:26:38 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParseRequest.hpp"
+
+/*checks if the uri sent in the request a full path, from root */
+// static void identifyRealLocation(std::string &location, Request &requestInstance)
+// {
+// 	if (location != "/" && (access(location.c_str(), F_OK) != -1))
+// 	{
+// 		requestInstance.setIsFullPath(true);
+// 		return ;
+// 	}
+// 	requestInstance.setIsFullPath(false);
+// }
+
+static void removeFileFromLocation(std::string &location, Request &instance)
+{
+	std::string newLocation;
+
+	size_t pos = location.find_last_of('/');
+	if (pos != std::string::npos)
+	{
+		newLocation = location.substr(0, pos);
+		if (newLocation.empty())
+			newLocation = "/";
+	}
+	instance.setLocation(newLocation);
+}
+
+bool isDirectory(const std::string &path)
+{
+    struct stat s;
+    if (stat(path.c_str(), &s) == 0) {
+        return S_ISDIR(s.st_mode);
+    }
+    return false;
+}
 
 int	findChar( std::string str, char c )
 {
@@ -79,13 +113,14 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data")
+	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data" && contentType != "image/jpeg")
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
 		return (-1);
 	}
 	instance.setContentType(contentType);
+	std::cout << "end of fill content" << std::endl;
 
 	return (0);
 }
@@ -254,15 +289,6 @@ std::string* splitRequest(std::string request, char separator)
 	return tokens;
 }
 
-int	countArrayStrings( std::string* array )
-{
-	int	i = 0;
-
-	while (!array[i].empty())
-		i++;
-	return (i);
-}
-
 int	searchWhiteSpaceInFieldName( std::string field )
 {
 	int	value = 0;
@@ -323,7 +349,7 @@ void setQuery(std::string uri, Request& instance)
 
 	if (queryPos != std::string::npos)
 	{
-		instance.setQuery(uri.substr(queryPos + 1));
+		instance.setQuery(uri.substr(queryPos));
 		instance.setUri(uri.substr(0, queryPos));
 	}
 	else
@@ -332,12 +358,183 @@ void setQuery(std::string uri, Request& instance)
 	}
 }
 
+static int	handleFileRequest(Request &requestInstance, Client &clientInstance, std::string &token)
+{
+	std::string uri;
+	std::string root;
+	std::string fullPath;
+	std::string	testPathQuery;
+
+	std::cout << "IS FILE <<<<<<<<<<<<<<<< " << token << std::endl;
+
+	if (token.find('?') != std::string::npos)
+    {
+        setQuery(token, requestInstance);
+        uri = token.substr(0, token.find_first_of('?'));
+	}
+	else
+		uri = token;
+	removeFileFromLocation(uri, requestInstance);
+
+	root = clientInstance.getServConfig()->getRootFromLocation(uri);
+
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+	
+	fullPath = root + token;
+
+	if (requestInstance.getQuery().empty())
+	{
+		if (access(fullPath.c_str(), F_OK) == -1)
+		{
+			requestInstance.setStatusCode(404);
+			requestInstance.setErrorBody("Not found : requested ressource not found\n");
+			return (-1);
+		}
+	}
+	else
+	{
+		testPathQuery = root + "/" + uri;
+		if (access(testPathQuery.c_str(), F_OK) == -1)
+		{
+			requestInstance.setStatusCode(404);
+			requestInstance.setErrorBody("Not found : requested ressource not found\n");
+			return (-1);
+		}
+	}
+	
+	requestInstance.setUri(fullPath);
+	return (0);
+}
+
+static int handlePostFullPath(Request &requestInstance, Client &clientInstance)
+{
+	std::string fullPath;
+	std::string root;
+	std::string location = requestInstance.getLocation();
+
+	root = clientInstance.getServConfig()->getRootFromLocation(location);
+
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+	
+	fullPath = root + location;
+
+	if (access(fullPath.c_str(), F_OK) == -1)
+	    return (-1);
+
+	requestInstance.setUri(fullPath);
+	std::cout << "FULL PATH IN POST" << fullPath << std::endl;
+	return (0);
+}
+
+static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstance, std::string &token)
+{
+	std::string uri;
+	std::string index;
+	std::string	root;
+	std::string fullPath;
+
+	uri = token;
+
+	std::cout << "IS DIR <<<<<<<<<<<<<<<< " << token << std::endl;
+	std::cout << "TOKEN IS : " << token << std::endl;
+
+	requestInstance.setLocation(uri);
+	
+	if (requestInstance.getMethode() == "POST")
+	{
+		std::cout << "IN POST " << std::endl;
+		if (handlePostFullPath(requestInstance, clientInstance) == -1)
+		{
+			requestInstance.setStatusCode(403);
+			requestInstance.setErrorBody("Forbidden");
+			return (-1);
+		}
+		return (0);
+	}
+
+	root = clientInstance.getServConfig()->getRootFromLocation(uri);
+
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+
+	index = clientInstance.getServConfig()->getIndexFromLocation(uri);
+	std::cout << " FIRST CHECK INDEX LOCATION " << index << std::endl;
+
+	if (index.empty())
+	{
+		index = clientInstance.getServConfig()->getIndex();
+		std::cout << "SECOND CHECK INDEX SERVER " << index << std::endl;
+		if (index.empty())
+		{
+			if (clientInstance.getServConfig()->getAutoIndexFromLocation(uri) == false)
+			{
+				requestInstance.setStatusCode(403);
+				requestInstance.setErrorBody("Forbidden");
+				return (-1);
+			}
+			else
+			{
+				requestInstance.setIsAutoIndex(true);
+				fullPath = root + "/" + uri + index;
+			}
+		}
+		else
+			fullPath = root + "/" + index;
+	}
+	else
+		fullPath = root + uri + "/" + index;
+
+	std::cout << "FULL PATH " << fullPath << std::endl;
+
+	if (access(fullPath.c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(404);
+		requestInstance.setErrorBody("Not found : requested ressource not found\n");
+		return (-1);
+	}
+	requestInstance.setUri(fullPath);
+	return (0);
+}
+
+int	handlePaths(Request &requestInstance, Client& clientInstance, std::string& token)
+{
+	std::string uri;
+	bool		isFile;
+
+	requestInstance.setIsAutoIndex(false);
+	if (token.find(".") != std::string::npos)
+		isFile = true;
+	else
+		isFile = false;
+	if (isFile == false)
+	{
+		if (handleDirectoryRequest(requestInstance, clientInstance, token) == -1)
+			return (-1);
+	}
+	else
+	{
+		if (handleFileRequest(requestInstance, clientInstance, token) == -1)
+			return (-1);
+	}
+
+	return (0);
+}
 
 int ParseRequestLine(Request& instance, std::string request, Client& clientInstance)
 {
     std::string uri;
     std::string httpVersion;
     std::string* requestToken;
+	std::string fullPath;
+
+    if (!request.find("\r\n") && !request.find("\n")) 
+	{ 
+		instance.setStatusCode(400);
+		instance.setErrorBody("Bad Request");
+		return (-1);
+	}
 
     requestToken = splitRequest(request, ' ');
     if (requestToken == NULL)
@@ -355,33 +552,13 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         delete[] requestToken;
         return (-1);
     }
-
-    if (requestToken[1].find('?') != std::string::npos)
-    {
-        setQuery(requestToken[1], instance);
-        uri = requestToken[1].substr(0, requestToken[1].find('?'));
-    }
-    else
-	{	
-        uri = requestToken[1];
+	instance.setMethode(requestToken[0]);
+	if (handlePaths(instance, clientInstance, requestToken[1]) == -1)
+	{
+		delete[] requestToken;
+		return (-1);
 	}
-    std::string root = clientInstance.getServConfig()->getRoot();
-	std::string fullPath;
-	if (looksPercentEncoded(uri))
-		uri = urlDecode(uri);
-	if (uri == "/")
-		fullPath = root + uri + clientInstance.getServConfig()->getIndex();
-	else
-		fullPath = root + uri;
-	std::cout << "fullPath: " << fullPath << std::endl;
-	
-    if (access(fullPath.c_str(), R_OK) == -1)
-    {
-        instance.setStatusCode(404);
-        instance.setErrorBody("Not Found: " + uri);
-        delete[] requestToken;
-        return (-1);
-    }
+
     if (requestToken[2].empty())
     {
         instance.setStatusCode(400);
@@ -397,8 +574,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
         return (-1);
     }
 
-    instance.setMethode(requestToken[0]);
-    instance.setUri(fullPath);
     instance.setHttpVersion(requestToken[2]);
     instance.setStatusCode(200);
 
@@ -515,8 +690,6 @@ int	parseConnection( Request& instance, std::string fieldValue )
 int	parseEachTokens( Request& instance, std::string key, Client& clientInstance )
 {
 	std::string	assignationKey;
-
-	std::cout << "in parseEachTokens with key: " << key << std::endl;
 
 	assignationKey = instance.getField(key);
 	if (assignationKey.empty())

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 18:19:11 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:50:17 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,11 @@ int	Request::getChunked() const
 	return (this->_chunked);
 }
 
+std::string	Request::getLocation() const
+{
+	return (this->_location);
+}
+
 void	Request::setMethode( std::string methode )
 {
 	this->_methode = methode;
@@ -215,16 +220,48 @@ void	Request::setQuery( std::string query )
 	this->_query = query;
 }
 
-void	Request::eraseMap()
+void	Request::setLocation( std::string location )
 {
-	std::map<std::string, std::string>::iterator	it;
+	this->_location = location;
+}
 
-	it = this->_field.begin();
+void	Request::setAutoindexEntries( std::string &path )
+{
+	this->_autoIndexEntries.push_back(path);	
+}
 
-	while (it != this->_field.end())
+std::string Request::getAutoIndexEntries( size_t index )
+{
+	return (this->_autoIndexEntries[index]);
+}
+
+size_t	Request::getAutoIndexEntriesSize() const
+{
+	return (this->_autoIndexEntries.size());
+}
+
+void	Request::setIsFullPath( bool trueOrFalse )
+{
+	if (trueOrFalse == true)
 	{
-		this->_field.erase(it);
-		it++;
+		this->_isFullPath = true;
+		return ;
 	}
+	this->_isFullPath = false;
+}
+
+bool	Request::getIsFullPath() const
+{
+	return (this->_isFullPath);
+}
+
+void	Request::setIsAutoIndex( bool autoindex )
+{
+	this->_isAutoindex = autoindex;
+}
+
+bool	Request::getIsAutoIndex() const
+{
+	return (this->_isAutoindex);
 }
 

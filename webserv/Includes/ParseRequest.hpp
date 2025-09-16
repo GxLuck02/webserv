@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 18:17:27 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:35:26 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <sys/stat.h>
 
 
 int	    parseHttpVersion( std::string httpVersion );
@@ -37,6 +38,7 @@ int	    fillBody( Request& requestInstance, std::string request, Client& clientI
 int	    parseBody( Request& requestInstance, Client& clientInstance, Response& responseInstance );
 int	    findInConfigFile( std::string value, std::string key, Client& clientInstance );
 int	    isHexadecimal(const std::string &str);
+bool    isDirectory(const std::string &path);
 
 
 std::string*	splitRequest( std::string request, char separator );

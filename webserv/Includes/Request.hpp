@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:22:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/19 17:57:38 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/09 12:00:51 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <map>
+#include <vector>
 #include "Client.hpp"
 
 enum	e_map
@@ -34,14 +35,18 @@ class	Request
 		std::string							_uri;
 		std::string							_query;
 		std::string							_httpVersion;
+		std::string							_location;
 		std::map<std::string, std::string>	_field;
 		int									_statusCode;
 		int									_contentLength;
 		int 								_chunked;
+		bool								_isFullPath;
 		std::string							_contentType;
 		std::string							_errorBody;
 		std::string							_bodyStart;
 		std::map<std::string, std::string>	_body;
+		std::vector<std::string>			_autoIndexEntries;
+		bool								_isAutoindex;
 
 	public:
 
@@ -65,6 +70,7 @@ class	Request
 		size_t		getBodyLength() const;
 		int			getStatusCode() const;
 		int			getFieldLength();
+		std::string	getLocation() const;
 		int			getChunked() const;
 		void		setMethode( std::string methode );
 		void		setUri( std::string uri );
@@ -78,7 +84,14 @@ class	Request
 		void		setBody( std::string key, std::string value );
 		void		setBodyStart( std::string bodyStart );
 		void		setQuery( std::string query );
-		void		eraseMap();
+		void		setLocation( std::string location );
+		void		setAutoindexEntries( std::string &path );
+		std::string getAutoIndexEntries( size_t index );
+		size_t		getAutoIndexEntriesSize() const;
+		void		setIsFullPath( bool trueOrFalse );
+		bool		getIsFullPath() const;
+		void		setIsAutoIndex( bool autoindex );
+		bool		getIsAutoIndex() const;
 
 		//std::map<std::string, std::string>::iterator	getFieldIterator( size_t num );
 };

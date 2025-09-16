@@ -6,80 +6,56 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/04 11:30:44 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/16 10:52:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/GetRequest.hpp"
 
-static int searchQueryParameters(const std::string &query, const std::string &uri, Response &responseInstance)
-{
-    std::ifstream file(uri.c_str());
-    (void)query;
-    if (!file.is_open())
-        return -1;
-
-    std::string pair;
-    while (std::getline(file, pair, ':'))
-    {
-        size_t pos = pair.find('=');
-        if (pos == std::string::npos)
-            continue;
-
-        std::string key = pair.substr(0, pos);
-        std::string value = pair.substr(pos + 1);
-        std::string line;
-        std::getline(file, line);
-
-        responseInstance.setBody(line);
-        responseInstance.setContentType("x-www-form-urlencoded");
-        file.close();
-        return 0;
-    }
-    file.close();
-    return -1;
-}
-
 int handleGetRequest(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     std::string uri = requestInstance.getUri();
-    std::cout << uri << std::endl;
-    std::string fileExtension = uri.substr(uri.find_last_of('.'));
+    std::string fileExtension;
+    size_t      extensionFound = uri.find_last_of('.');
     (void)clientInstance;
-    std::cout << "Handling GET request for URI: " << uri << std::endl;
 
-
-    if (uri.empty())
+    if (extensionFound != std::string::npos)
     {
-        requestInstance.setStatusCode(400);
-        requestInstance.setErrorBody("Bad Request: URI is empty");
-        return -1;
-    }
-    else if (access(uri.c_str(), F_OK) == -1)
-    {
-        requestInstance.setStatusCode(404);
-        requestInstance.setErrorBody("Not Found: The requested resource does not exist");
-        return -1;
-    }
-
-    else if (!requestInstance.getQuery().empty())
-    {
-        std::string query = requestInstance.getQuery();
-        if (searchQueryParameters(query, uri, responseInstance) == -1)
+        size_t dotPos = uri.find_last_of('.');
+        if (dotPos != std::string::npos)
         {
-            requestInstance.setStatusCode(400);
-            requestInstance.setErrorBody("Bad Request: Invalid query parameters");
-            return -1;
+            size_t extensionEnd = uri.find_first_of("?#", dotPos);
+            
+            if (extensionEnd != std::string::npos)
+                fileExtension = uri.substr(dotPos, extensionEnd - dotPos);
+            else
+                fileExtension = uri.substr(dotPos);
+            
+            std::cout << "Extension: " << fileExtension << std::endl;
         }
-
+        else
+            fileExtension = uri.substr(extensionFound);
     }
-    else
+
+    if (!responseInstance.getBody().empty() && !responseInstance.getContentType().empty())
+        return (0);
+
+    else if (!fileExtension.empty())
     {
-        std::cout << "File extension: " << fileExtension << std::endl;
-        
+        std::cout << fileExtension << std::endl;
         if (fileExtension == ".html")
         {
-            std::ifstream file(uri.c_str());
+            std::ifstream file;
+            if (!requestInstance.getQuery().empty())
+            {
+                size_t queryPos = requestInstance.getUri().find_first_of("?#");
+                std::string uriWithoutQuery = requestInstance.getUri().substr(0, queryPos - 0);
+                std::cout << uriWithoutQuery << std::endl;
+                file.open(uriWithoutQuery.c_str());
+            }
+            else
+                file.open(uri.c_str());
+            
             if (!file.is_open())
             {
                 requestInstance.setStatusCode(404);
@@ -103,6 +79,20 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             responseInstance.setBody(content);
             responseInstance.setContentType("image/jpeg");
+            file.close();
+        }
+        else if (fileExtension == ".ico")
+        {
+            std::ifstream file(uri.c_str(), std::ios::binary);
+            if (!file.is_open())
+            {
+                requestInstance.setStatusCode(404);
+                requestInstance.setErrorBody("Not Found: The requested resource does not exist");
+                return -1;
+            }
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            responseInstance.setBody(content);
+            responseInstance.setContentType("image/x-icon");
             file.close();
         }
         else
