@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestionaire d'image</title>
+  <style>
+    body {
+		font-family: 'Segoe UI', sans-serif;
+		height: auto;
+		background-image: url('https://unblast.com/wp-content/uploads/2021/01/Space-Background-Image-8.jpg');
+		background-size: cover;         /* Pour que l’image prenne tout l’espace */
+		background-position: center;    /* Centrer l’image */
+		background-repeat: no-repeat;   /* Ne pas répéter l’image */
+		background-attachment: fixed;
+    color: white;
+		margin: 0px;
+		padding: 0px;
+    height: 100vh;
+    position: relative;
+    }
+
+		h1 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-size: 2.2em;
+			position: relative;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+			text-align: center;
+    }
+	
+		form {
+			margin: 30px auto;
+			margin-top: 30px;
+			width: 700px;
+			background: #2e1d7a;
+			padding: 25px 30px;
+			border-radius: 15px;
+			box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+			text-align: center;
+			position: relative;
+		}
+
+
+		input[type="file"] {
+			margin-top: 15px;
+			width: 340px;
+			padding: 12px;
+			font-size: 1.2rem;
+			text-align: center;
+			border-radius: 15px;
+			background: #6f45be;
+			color: white;
+			cursor: pointer;
+			border: none;
+			transition: background 0.4s ease;
+		}
+
+		input[type="file"]:hover {
+			background: #c50ef3;
+		}
+
+		.button_upload {
+			margin-right: 15px;
+			width: 300px;
+			padding: 15px;
+			font-size: 1.2rem;
+			background: #6f45be;
+			border: none;
+			color: white;
+			text-align: center;
+			border-radius: 15px;
+			cursor: pointer;
+			transition: background 0.4s ease;
+		}
+
+		.button_upload:hover {
+			background: #c50ef3;
+		}
+
+  </style>
+</head>
+
+<body style>
+	<h1>✨ Quelle belle galerie photo ✨</h1>
+	<form action="/cgi-bin/upload.cgi" method="post" enctype="multipart/form-data">
+  	<input type="file" name="image" accept="image/*" required>
+		<button class="button_upload" type="submit">Uploader</button_upload>
+	</form>
+</body>
+</html>
