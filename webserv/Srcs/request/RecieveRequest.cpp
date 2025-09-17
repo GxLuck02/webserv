@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 14:55:54 by bproton          ###   ########.fr       */
+/*   Updated: 2025/09/17 10:25:34 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,15 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
+	}
+
+	if (requestInstance.getIsStaticCgi() == false)
+	{
+		if (executeCgi(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
 	}
 
 	if (requestInstance.getMethode() == "POST")

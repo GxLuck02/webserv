@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:50:17 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/17 10:03:42 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,5 +263,14 @@ void	Request::setIsAutoIndex( bool autoindex )
 bool	Request::getIsAutoIndex() const
 {
 	return (this->_isAutoindex);
+}
+
+void	Request::setIsStaticCgi( bool isStaticCgi )
+{
+	this->_isStaticCgi = isStaticCgi;
+}
+bool	Request::getIsStaticCgi() const
+{
+	return (this->_isStaticCgi);
 }
 

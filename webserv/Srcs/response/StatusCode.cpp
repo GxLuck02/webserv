@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:06:27 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 13:19:16 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/17 10:13:37 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ std::string	getStatusCodeMessage( int statusCode )
 
 		case 400:
 			return ("Bad Request");
+
+		case 403:
+			return ("Forbidden");
 
 		case 404:
 			return ("Not Found");
