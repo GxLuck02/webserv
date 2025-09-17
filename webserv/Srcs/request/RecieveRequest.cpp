@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/17 10:25:34 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/17 10:38:10 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,6 +160,11 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		if (executeCgi(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		else
+		{
+			// renvoyer la reponse au client
 			return (0);
 		}
 	}
