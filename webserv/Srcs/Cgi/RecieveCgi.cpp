@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 11:31:11 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 15:35:41 by bproton          ###   ########.fr       */
+/*   Updated: 2025/09/18 17:33:50 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
     return (myEnv);
 }
 
-int executeCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance)
+int handleCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     char        **myEnv;
     int         fd[2];
@@ -130,7 +130,8 @@ int executeCgi(Request &requestInstance, Response &responseInstance, Client &cli
         close(fd[0]);
         dup2(fd[1], STDOUT_FILENO);
         close(fd[1]);
-        execve(requestInstance.getUri().c_str(), NULL, myEnv);
+        char *args[2] = {const_cast<char *>(requestInstance.getUri().c_str()), NULL};
+        execve(requestInstance.getUri().c_str(), args, myEnv);
         exit(1);
     }
     else
@@ -147,6 +148,7 @@ int executeCgi(Request &requestInstance, Response &responseInstance, Client &cli
                     close(fd[0]);
                     requestInstance.setStatusCode(500);
                     requestInstance.setErrorBody("Internal Server Error");
+                    delete[] myEnv;
                     return (-1);
                 }
                 body += (std::string)buffer;
@@ -164,8 +166,11 @@ int executeCgi(Request &requestInstance, Response &responseInstance, Client &cli
             close(fd[0]);
             requestInstance.setStatusCode(502);
             requestInstance.setErrorBody("Bad Gateway");
+            delete[] myEnv;
             return (-1);
         }
+        delete[] myEnv;
+        close(fd[0]);
         return (0);
     }
     

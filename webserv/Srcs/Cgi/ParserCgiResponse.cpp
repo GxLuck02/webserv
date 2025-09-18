@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParserCgiResponse.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:00:37 by bproton           #+#    #+#             */
-/*   Updated: 2025/09/17 15:10:19 by bproton          ###   ########.fr       */
+/*   Updated: 2025/09/18 17:13:36 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ static int parseHeaders(Request requestInstance, Response &responseInstance, std
 	return (0);
 }
 
-int parseResponseCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance, std::string &response)
+int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::string &response)
 {
     std::stringstream   ss;
     std::string         line;
@@ -85,4 +85,5 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, Clien
 		if (parseHeaders(requestInstance, responseInstance, line ) == -1 )
             return (-1);
 	}
+    return (0);
 }
