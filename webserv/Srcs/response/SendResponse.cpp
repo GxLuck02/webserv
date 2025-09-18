@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 13:24:04 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:50:35 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 08:49:17 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,6 @@ int makeResponse(Request& requestInstance, Response& responseInstance)
 
 std::string genereateHtmlErrorPage(int statusCode, const std::string &errorMessage)
 {
-    
-    
     std::stringstream body;
     body << "<!DOCTYPE html>\n"
          << "<html lang=\"fr\">\n"

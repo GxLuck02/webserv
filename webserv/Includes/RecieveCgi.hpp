@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 11:31:30 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 11:35:12 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 08:33:54 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <cstring>
+#include <sstream>
+
+#define BUFFER_SIZE 1024
 
 int executeCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance);
 
