@@ -6,45 +6,11 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 17:43:00 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 18:02:40 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParseRequest.hpp"
-
-/*checks if the uri sent in the request a full path, from root */
-// static void identifyRealLocation(std::string &location, Request &requestInstance)
-// {
-// 	if (location != "/" && (access(location.c_str(), F_OK) != -1))
-// 	{
-// 		requestInstance.setIsFullPath(true);
-// 		return ;
-// 	}
-// 	requestInstance.setIsFullPath(false);
-// }
-
-static void removeFileFromLocation(std::string &location, Request &instance)
-{
-	std::string newLocation;
-
-	size_t pos = location.find_last_of('/');
-	if (pos != std::string::npos)
-	{
-		newLocation = location.substr(0, pos);
-		if (newLocation.empty())
-			newLocation = "/";
-	}
-	instance.setLocation(newLocation);
-}
-
-bool isDirectory(const std::string &path)
-{
-    struct stat s;
-    if (stat(path.c_str(), &s) == 0) {
-        return S_ISDIR(s.st_mode);
-    }
-    return false;
-}
 
 /*checks if the uri sent in the request a full path, from root */
 // static void identifyRealLocation(std::string &location, Request &requestInstance)
@@ -616,14 +582,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
     std::string uri;
     std::string httpVersion;
     std::string* requestToken;
-	std::string fullPath;
-
-    if (!request.find("\r\n") && !request.find("\n")) 
-	{ 
-		instance.setStatusCode(400);
-		instance.setErrorBody("Bad Request");
-		return (-1);
-	}
 	std::string fullPath;
 
     if (!request.find("\r\n") && !request.find("\n")) 

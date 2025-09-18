@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:44:35 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 18:03:21 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,6 @@ void	Request::setQuery( std::string query )
 	this->_query = query;
 }
 
-void	Request::setLocation( std::string location )
 void	Request::setLocation( std::string location )
 {
 	this->_location = location;
