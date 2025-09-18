@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/16 11:31:11 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 08:47:32 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 15:35:41 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,13 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
 
 int executeCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
-    char    **myEnv;
-    int     fd[2];
-    pid_t   pid;
-    int     status;
-    int     bytesRead = -1;
-    char    buffer[BUFFER_SIZE + 1];
+    char        **myEnv;
+    int         fd[2];
+    pid_t       pid;
+    int         status;
+    int         bytesRead = -1;
+    char        buffer[BUFFER_SIZE + 1];
+    std::string body;
 
     myEnv = makeEnv(requestInstance, clientInstance);
     
@@ -148,8 +149,15 @@ int executeCgi(Request &requestInstance, Response &responseInstance, Client &cli
                     requestInstance.setErrorBody("Internal Server Error");
                     return (-1);
                 }
-                buffer[bytesRead] = '\0';
+                body += (std::string)buffer;
             }
+            if (requestInstance.getMethode() == "POST")
+                responseInstance.setStatusCode(201);
+            else
+                responseInstance.setStatusCode(200);
+            responseInstance.setContentType("text/html");
+            responseInstance.setContentLength(body.length());
+            responseInstance.setBody(body);
         }
         else
         {
@@ -158,6 +166,7 @@ int executeCgi(Request &requestInstance, Response &responseInstance, Client &cli
             requestInstance.setErrorBody("Bad Gateway");
             return (-1);
         }
+        return (0);
     }
     
 }

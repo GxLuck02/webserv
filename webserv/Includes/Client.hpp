@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/05 16:20:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/18 11:06:19 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class Client
 		void setResponseInstance(const Response& responseInstance);
 		
 		void appendToBuffer(const std::string& data);
-		void clearBuffer();		
+		void clearBuffer();
 		bool isRequestComplete() const;
 		bool checkTransferEncodingChunked() const;
 		bool searchChunkedEnd(size_t header_end) const;

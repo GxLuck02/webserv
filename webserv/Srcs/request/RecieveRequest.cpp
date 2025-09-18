@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/17 10:38:10 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 15:52:44 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ static int isMethodAllowed(Request &requestInstance, Client &clientInstance)
 		requestInstance.setErrorBody("Method Not Allowed: The method is not allowed for the requested location");
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -164,7 +164,8 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		}
 		else
 		{
-			// renvoyer la reponse au client
+			makeResponse(requestInstance, responseInstance);
+			clientInstance.setResponseInstance(responseInstance);
 			return (0);
 		}
 	}
