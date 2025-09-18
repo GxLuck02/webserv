@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:22:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/17 10:03:27 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 17:39:09 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <map>
+#include <vector>
 #include <vector>
 #include "Client.hpp"
 
@@ -36,10 +37,12 @@ class	Request
 		std::string							_query;
 		std::string							_httpVersion;
 		std::string							_location;
+		std::string							_location;
 		std::map<std::string, std::string>	_field;
 		int									_statusCode;
 		int									_contentLength;
 		int 								_chunked;
+		bool								_isFullPath;
 		bool								_isFullPath;
 		std::string							_contentType;
 		std::string							_errorBody;
@@ -71,6 +74,7 @@ class	Request
 		size_t		getBodyLength() const;
 		int			getStatusCode() const;
 		int			getFieldLength();
+		std::string	getLocation() const;
 		std::string	getLocation() const;
 		int			getChunked() const;
 		void		setMethode( std::string methode );

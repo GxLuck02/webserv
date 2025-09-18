@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/17 10:03:42 by proton           ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/09/18 17:44:35 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Request.hpp"
 
@@ -220,6 +221,7 @@ void	Request::setQuery( std::string query )
 	this->_query = query;
 }
 
+void	Request::setLocation( std::string location )
 void	Request::setLocation( std::string location )
 {
 	this->_location = location;

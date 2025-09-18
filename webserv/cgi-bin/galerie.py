@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+
+import os
+
+def create_header_html():
+	html = """<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -13,22 +18,22 @@
 		background-position: center;    /* Centrer l’image */
 		background-repeat: no-repeat;   /* Ne pas répéter l’image */
 		background-attachment: fixed;
-    color: white;
+    		color: white;
 		margin: 0px;
 		padding: 0px;
-    height: 100vh;
-    position: relative;
+    		height: 100vh;
+    		position: relative;
     }
 
 	h1 {
-      color: #ffffff;
-      margin-bottom: 20px;
-      font-size: 2.2em;
-	  position: relative;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-	  text-align: center;
-    }
-	
+			color: #ffffff;
+			margin-bottom: 20px;
+			font-size: 2.2em;
+		position: relative;
+			text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+		text-align: center;
+		}
+
 	form {
 		margin: 30px auto;
 		margin-top: 30px;
@@ -76,25 +81,6 @@
 	}
 
 	.button_upload:hover {
-		background: #c50ef3;
-	}
-
-	.button_delete {
-		margin-bottom: 15px;
-		margin-right: 15px;
-		width: 300px;
-		padding: 15px;
-		font-size: 1.2rem;
-		background: #6f45be;
-		border: none;
-		color: white;
-		text-align: center;
-		border-radius: 15px;
-		cursor: pointer;
-		transition: background 0.4s ease;
-	}
-
-	.button_delete:hover {
 		background: #c50ef3;
 	}
 
@@ -149,7 +135,7 @@
 	#id1:target ~ .slider-css-target .slider-css-target-images{
 		transform:translate3d(0,0,0)
 	}
-	
+
 	#id2:target ~ .slider-css-target .slider-css-target-images{
 		transform:translate3d(-25%,0,0)
 	}
@@ -157,7 +143,7 @@
 	#id3:target ~ .slider-css-target .slider-css-target-images{
 		transform:translate3d(-50%,0,0)
 	}
-	
+
 	#id4:target ~ .slider-css-target .slider-css-target-images{
 		transform:translate3d(-75%,0,0)
 	}
@@ -166,7 +152,7 @@
 		flex:0 1 100%;
 		overflow: hidden;
 		}
-	
+
 	.thumbnails-wrapper {
 		display: flex;
 		align-items: center;
@@ -225,59 +211,66 @@
 		<form action="/cgi-bin/upload.cgi" method="post" enctype="multipart/form-data">
 		<input type="file" name="image" accept="image/*" required>
 		<button class="button_upload" type="submit">Uploader</button>
-		
 		</form>
 
 		<div class="slider-css-target">
 
 		<div class="thumbnails-wrapper">
 			<button class="thumb-nav left">‹</button>
-			<div class="thumbnails">
-			<img src="/webserv/websites/upload/kéta.jpeg" alt="kéta" onclick="showImage(0)">
-			<img src="/webserv/websites/upload/haha.jpg" alt="haha" onclick="showImage(1)">
-			<img src="/webserv/websites/upload/woaw.jpg" alt="woaw" onclick="showImage(2)">
-			<img src="/webserv/websites/upload/téléchargement.jpeg" alt="téléchargement" onclick="showImage(3)">
-			<img src="/webserv/websites/upload/eau.jpeg" alt="eau" onclick="showImage(4)">
-			<img src="/webserv/websites/upload/elep.jpeg" alt="elep" onclick="showImage(5)">
-			<img src="/webserv/websites/upload/femme.jpeg" alt="femme" onclick="showImage(6)">
-			</div>
+			<div class="thumbnails">"""
+	print("Content-Type: text/html\n")
+	print(html)
+
+def create_galerie():
+	images = os.listdir("websites/upload")
+	for i, img in enumerate(images):
+		name = os.path.splitext(img)[0]
+		html = f'			<img src="/websites/upload/{img}" alt="{name}" onclick="showImage({i})">'
+		print(html);
+	html = """			</div>
 			<button class="thumb-nav right">›</button>
 		</div>
 
-		<div class="slider-css-target-images">
-			<div class="description"><img src="/webserv/websites/upload/kéta.jpeg" alt="kéta"></div>
-			<div class="description"><img src="/webserv/websites/upload/haha.jpg" alt="haha"></div>
-			<div class="description"><img src="/webserv/websites/upload/woaw.jpg" alt="woaw"></div>
-			<div class="description"><img src="/webserv/websites/upload/téléchargement.jpeg" alt="téléchargement"></div>
-			<div class="description"><img src="/webserv/websites/upload/eau.jpeg" alt="eau"></div>
-			<div class="description"><img src="/webserv/websites/upload/elep.jpeg" alt="elep"></div>
-			<div class="description"><img src="/webserv/websites/upload/femme.jpeg" alt="femme"></div>
+		<div class="slider-css-target-images">"""
+	print(html)
+	for i, img in enumerate(images):
+		name = os.path.splitext(img)[0]
+		html = f'			<div class="description"><img src="/websites/upload/{img}" alt="{name}"></div>'
+		print(html);
+		html = """			</div>
+
 		</div>
 
-	</div>
+		<script>
+		let currentImage = 0;
+		const slider = document.querySelector('.slider-css-target-images');
+		const thumbnails = document.querySelectorAll('.thumbnails img');
 
-	<script>
-	let currentImage = 0;
-	const slider = document.querySelector('.slider-css-target-images');
-	const thumbnails = document.querySelectorAll('.thumbnails img');
-
-	function showImage(index) {
-		currentImage = index;
-		const totalImages = slider.children.length;
-		slider.style.transform = `translateX(-${100 * currentImage}%)`;
-		thumbnails.forEach((thumb, i) => {
-			thumb.classList.toggle('active', i === currentImage);
-		});
-	}
-	showImage(0);
-	document.querySelector('.thumb-nav.left').onclick = () => {
-		const wrapper = document.querySelector('.thumbnails');
-		wrapper.scrollBy({ left: -130, behavior: 'smooth' });
-	};
-	document.querySelector('.thumb-nav.right').onclick = () => {
-		const wrapper = document.querySelector('.thumbnails');
-		wrapper.scrollBy({ left: 130, behavior: 'smooth' });
-	};
+		function showImage(index) {
+			currentImage = index;
+			const totalImages = slider.children.length;
+			slider.style.transform = `translateX(-${100 * currentImage}%)`;
+			thumbnails.forEach((thumb, i) => {
+				thumb.classList.toggle('active', i === currentImage);
+			});
+		}
+		showImage(0);
+		document.querySelector('.thumb-nav.left').onclick = () => {
+			const wrapper = document.querySelector('.thumbnails');
+			wrapper.scrollBy({ left: -130, behavior: 'smooth' });
+		};
+		document.querySelector('.thumb-nav.right').onclick = () => {
+			const wrapper = document.querySelector('.thumbnails');
+			wrapper.scrollBy({ left: 130, behavior: 'smooth' });
+		};
 	</script>
 </body>
-</html>
+</html>"""
+	print(html)
+
+images = os.listdir("websites/upload")
+print("Images dans dossiers Upload: ", images)
+
+create_header_html()
+if (images):
+	create_galerie()

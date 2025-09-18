@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/05 18:13:17 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 17:41:58 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,7 @@ bool Client::isRequestComplete() const
         {
             std::string value_str = _buffer.substr(value_start, value_end - value_start);
 			std::cout << "[ Content-Length Value ] : " << value_str << std::endl;
+            std::cout << "[ actual buffer size ] : " << _buffer.size() - (header_end + 4) << std::endl;
             
             size_t len_str = atoi(value_str.c_str());
 		    std::string body_buffer = _buffer.substr(header_end + 4, _buffer.size() - header_end - 4);
