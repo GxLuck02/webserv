@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/18 11:06:19 by bproton          ###   ########.fr       */
+/*   Updated: 2025/09/19 18:56:56 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ class Client
 		bool checkTransferEncodingChunked() const;
 		bool searchChunkedEnd(size_t header_end) const;
 		void updateLastActivity();
+		void clearResponseInstance();
 }; 
 
 #endif

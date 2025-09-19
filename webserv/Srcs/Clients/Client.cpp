@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/18 17:41:58 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 18:57:08 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,3 +227,9 @@ bool Client::searchChunkedEnd(size_t header_end) const
 
     return false;
 }
+
+void Client::clearResponseInstance()
+{
+    Response n;
+    this->_responseInstance = n;
+}   
