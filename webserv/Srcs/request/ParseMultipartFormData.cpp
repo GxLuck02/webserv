@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 10:52:56 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 15:55:37 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 		if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest, filePath) == -1)
 			return (-1);
 	}
-	else if (contentType == "image/jpeg")
+	else if (contentType == "image/jpeg" || contentType == "image/jpg")
 	{
 		if (parseJpeg(requestInstance, body) == -1)
 			return (-1);

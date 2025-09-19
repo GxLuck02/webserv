@@ -233,7 +233,7 @@ def create_galerie():
 	images = os.listdir("websites/upload")
 	for i, img in enumerate(images):
 		name = os.path.splitext(img)[0]
-		html = f'			<img src="/websites/upload/{img}" alt="{name}" onclick="showImage({i})">'
+		html = f'			<img src="/upload/{img}" alt="{name}" onclick="showImage({i})">'
 		print(html);
 	html = """			</div>
 			<button class="thumb-nav right">›</button>
@@ -243,7 +243,7 @@ def create_galerie():
 	print(html)
 	for i, img in enumerate(images):
 		name = os.path.splitext(img)[0]
-		html = f'			<div class="description"><img src="/websites/upload/{img}" alt="{name}"></div>'
+		html = f'			<div class="description"><img src="/upload/{img}" alt="{name}"></div>'
 		print(html);
 		html = """			</div>
 
