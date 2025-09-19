@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:44:00 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 16:49:44 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,7 +244,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	}
 
 	makeResponse(requestInstance, responseInstance);
-	std::cout << "Response to be sent:\n" << responseInstance.getResponse() << std::endl;
 	clientInstance.setResponseInstance(responseInstance);
 	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
