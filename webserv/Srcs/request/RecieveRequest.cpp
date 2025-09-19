@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 10:55:42 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 18:45:20 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,11 +227,10 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-
 	makeResponse(requestInstance, responseInstance);
-	std::cout << "Response to be sent:\n" << responseInstance.getResponse() << std::endl;
+	//std::cout << "Response to be sent:\n" << responseInstance.getResponse() << std::endl;
 	clientInstance.setResponseInstance(responseInstance);
-	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	//std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
 
 }

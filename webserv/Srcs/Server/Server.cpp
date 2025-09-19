@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/08 19:38:46 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/19 18:41:51 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,6 +330,7 @@ void Server::handleClientWrite(int fd)
 		current_Client->updateLastActivity();
 		std::cout << "Sent " << byte_sent << " bytes to client fd: " << fd << std::endl;
 		current_Client->clearBuffer();
+		current_Client->clearResponseInstance();
 		this->_poll_fds[this->getIndexPollFd(fd)].events = POLLIN; // Switch back to read mode
 	}
 	return ;

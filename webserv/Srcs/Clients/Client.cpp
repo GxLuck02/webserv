@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/16 15:02:17 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/19 18:43:03 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,3 +227,9 @@ bool Client::searchChunkedEnd(size_t header_end) const
 
     return false;
 }
+
+void Client::clearResponseInstance()
+{
+    Response n;
+    this->_responseInstance = n;
+}   
