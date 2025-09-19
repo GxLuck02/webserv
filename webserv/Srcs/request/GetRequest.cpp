@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 10:52:11 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 12:47:54 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             
             std::cout << "Extension: " << fileExtension << std::endl;
         }
-        else
-            fileExtension = uri.substr(extensionFound);
     }
 
     if (!responseInstance.getBody().empty() && !responseInstance.getContentType().empty())

@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 17:55:54 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 12:00:37 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,8 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
 int handleCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
     char        **myEnv;
-    int         fd[2];
+    int         out_fd[2];
+    int         in_fd[2];
     pid_t       pid;
     int         status;
     int         bytesRead = -1;
@@ -111,41 +112,75 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
 
     myEnv = makeEnv(requestInstance, clientInstance);
     
-    if (pipe(fd) == -1)
+    if (pipe(out_fd) == -1) // pour recuperer la reponse du script
     {
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Internal Server Error");
+        delete[] myEnv;
+        return (-1);
+    }
+    if (pipe(in_fd) == -1) // pour passer le body au script cgi
+    {
+        close(out_fd[0]);
+        close(out_fd[1]);
+        requestInstance.setStatusCode(500);
+        requestInstance.setErrorBody("Internal Server Error");
+        delete[] myEnv;
         return (-1);
     }
 
     pid = fork();
     if (pid == -1)
     {
+        close(out_fd[0]);
+        close(out_fd[1]);
+        close(in_fd[0]);
+        close(in_fd[1]);
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Internal Server Error");
+        delete[] myEnv;
         return (-1);
     }
     else if (pid == 0)
     {
-        close(fd[0]);
-        dup2(fd[1], STDOUT_FILENO);
-        close(fd[1]);
+        close(out_fd[0]);
+        close(in_fd[1]);
+        if (requestInstance.getMethode() == "POST")
+            dup2(in_fd[0], STDIN_FILENO);
+        dup2(out_fd[1], STDOUT_FILENO);
         char *args[2] = {const_cast<char *>(requestInstance.getUri().c_str()), NULL};
         execve(requestInstance.getUri().c_str(), args, myEnv);
         exit(1);
     }
     else
     {
-        close(fd[1]);
+        close(out_fd[1]);
+        close(in_fd[0]);
+        if (requestInstance.getMethode() == "POST")
+        {
+            if (write(in_fd[1], requestInstance.getBodyStart().c_str(), requestInstance.getBodyStart().length()) == -1)
+            {
+                close(in_fd[1]);
+                close(out_fd[0]);
+                requestInstance.setStatusCode(500);
+                requestInstance.setErrorBody("Internal Server Error");
+                delete[] myEnv;
+                return (-1);
+            }
+            close(in_fd[1]);
+        }
+        else
+            close(in_fd[1]);
+
         waitpid(pid, &status, 0);
         if (WIFEXITED(status))
         {
             while (bytesRead != 0)
             {
-                bytesRead = read(fd[0], buffer, BUFFER_SIZE);
+                bytesRead = read(out_fd[0], buffer, BUFFER_SIZE);
                 if (bytesRead == -1)
                 {
-                    close(fd[0]);
+                    close(out_fd[0]);
                     requestInstance.setStatusCode(500);
                     requestInstance.setErrorBody("Internal Server Error");
                     delete[] myEnv;
@@ -163,15 +198,14 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
         }
         else
         {
-            close(fd[0]);
+            close(out_fd[0]);
             requestInstance.setStatusCode(502);
             requestInstance.setErrorBody("Bad Gateway");
             delete[] myEnv;
             return (-1);
         }
         delete[] myEnv;
-        close(fd[0]);
+        close(out_fd[0]);
         return (0);
     }
-    
 }

@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 
 import os
+import sys
+import cgi
+
+method = os.environ.get("REQUEST_METHOD", "GET")
+
+if method == "POST":
+	form = cgi.FieldStorage()
+
 
 def create_header_html():
 	html = """<!DOCTYPE html>
@@ -208,7 +216,7 @@ def create_header_html():
 	<body>
 		<h1>✨ Quelle belle galerie photos ✨</h1>
 
-		<form action="/cgi-bin/upload.cgi" method="post" enctype="multipart/form-data">
+		<form action="/cgi-bin/galerie.py" method="POST" enctype="multipart/form-data">
 		<input type="file" name="image" accept="image/*" required>
 		<button class="button_upload" type="submit">Uploader</button>
 		</form>

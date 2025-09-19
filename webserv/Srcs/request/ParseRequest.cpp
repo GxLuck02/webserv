@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 18:02:40 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 12:36:28 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -350,7 +350,6 @@ void setQuery(std::string uri, Request& instance)
 	if (queryPos != std::string::npos)
 	{
 		instance.setQuery(uri.substr(queryPos));
-		instance.setQuery(uri.substr(queryPos));
 		instance.setUri(uri.substr(0, queryPos));
 	}
 	else
@@ -395,7 +394,12 @@ static int cgiPath(Request &requestInstance, Client &clientInstance, std::string
 		root = clientInstance.getServConfig()->getRoot();
 	
 	isExtensionValid(token, cgiExt, requestInstance);
-	fullPath = root + token;
+	if (token.find('?') != std::string::npos)
+		fullPath = root + token.substr(0, token.find_first_of('?'));
+	else
+		fullPath = root + token;
+	std::cout << "FULL PATH " << fullPath << std::endl;
+	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
 	if (access(fullPath.c_str(), F_OK) == -1)
 	{
 		requestInstance.setStatusCode(403);
@@ -419,6 +423,7 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
     {
         setQuery(token, requestInstance);
         uri = token.substr(0, token.find_first_of('?'));
+		std::cout << "QUERY IN GET REQUEST = " << requestInstance.getQuery() << std::endl;
 	}
 	else
 		uri = token;
@@ -437,7 +442,7 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 		root = clientInstance.getServConfig()->getRoot();
 	
 	fullPath = root + token;
-
+	std::cout << "FULL PATH IN FILE " << fullPath << std::endl;
 	if (requestInstance.getQuery().empty())
 	{
 		if (access(fullPath.c_str(), F_OK) == -1)
