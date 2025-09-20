@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/20 08:01:14 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 18:21:27 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,6 +410,58 @@ static int cgiPath(Request &requestInstance, Client &clientInstance, std::string
 	return (0);
 }
 
+static void isExtensionValid(std::string &token, const std::string &cgiExt, Request &requestInstance)
+{
+	std::string ext;
+	size_t pos = token.find_last_of('.');
+	if (pos == std::string::npos)
+		return ;
+	ext = token.substr(pos);
+	if (ext != cgiExt)
+		requestInstance.setIsStaticCgi(true);
+	else
+		requestInstance.setIsStaticCgi(false);
+}
+
+static int cgiPath(Request &requestInstance, Client &clientInstance, std::string &token)
+{
+	std::string cgiExt = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiExtension;
+	std::string cgiPath = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiPath;
+	std::string root = clientInstance.getServConfig()->getRootFromLocation(requestInstance.getLocation());
+	std::string fullPath;
+
+	if (cgiExt.empty())
+	{
+		requestInstance.setStatusCode(500);
+		requestInstance.setErrorBody("Internal Server Error");
+		return (-1);
+	}
+	if (access(cgiPath.c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(500);
+		requestInstance.setErrorBody("Internal Server Error");
+		return (-1);
+	}
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+	
+	isExtensionValid(token, cgiExt, requestInstance);
+	if (token.find('?') != std::string::npos)
+		fullPath = root + token.substr(0, token.find_first_of('?'));
+	else
+		fullPath = root + token;
+	std::cout << "FULL PATH " << fullPath << std::endl;
+	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
+	if (access(fullPath.c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(403);
+		requestInstance.setErrorBody("Forbidden");
+		return (-1);
+	}
+	requestInstance.setUri(fullPath);
+	return (0);
+}
+
 static int	handleFileRequest(Request &requestInstance, Client &clientInstance, std::string &token)
 {
 	std::string uri;
@@ -417,6 +469,11 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	std::string fullPath;
 	std::string	testPathQuery;
 
+	//check for fonction with query
+	if (looksPercentEncoded(token) == true)
+	{
+		token = urlDecode(token);
+	}
 	std::cout << "IS FILE <<<<<<<<<<<<<<<< " << token << std::endl;
 
 	if (token.find('?') != std::string::npos)

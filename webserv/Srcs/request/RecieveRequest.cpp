@@ -6,9 +6,10 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/20 07:57:51 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 18:21:59 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 
 #include "../../Includes/RecieveRequest.hpp"
@@ -243,9 +244,10 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
+
 	makeResponse(requestInstance, responseInstance);
 	clientInstance.setResponseInstance(responseInstance);
-	//std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
 
 }
