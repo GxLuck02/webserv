@@ -1,31 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveCgi.hpp                                     :+:      :+:    :+:   */
+/*   ParserCgiResponse.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/18 17:56:14 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 17:56:56 by proton           ###   ########.fr       */
+/*   Created: 2025/09/17 13:00:53 by bproton           #+#    #+#             */
+/*   Updated: 2025/09/17 13:40:59 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RECIEVECGI_HPP
-#define RECIEVECGI_HPP
+#ifndef PARSERCGIRESPONSE_HPP
+#define PARSERCGIRESPONSE_HPP
 
-#include "Client.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Client.hpp"
 #include "StatusCode.hpp"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <cstring>
-#include <sstream>
+#include "ParseRequest.hpp"
+#include "SendResponse.hpp"
 
-#define BUFFER_SIZE 1024
-
-int handleCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance);
+int parseResponseCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance, std::string &response);
 
 #endif

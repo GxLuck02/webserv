@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/19 18:43:03 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/19 19:06:21 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,4 +232,4 @@ void Client::clearResponseInstance()
 {
     Response n;
     this->_responseInstance = n;
-}   
+}

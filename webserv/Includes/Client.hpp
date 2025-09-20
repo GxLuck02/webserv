@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/19 18:43:20 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/19 19:05:58 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class Client
 		void setResponseInstance(const Response& responseInstance);
 		
 		void appendToBuffer(const std::string& data);
-		void clearBuffer();		
+		void clearBuffer();
 		bool isRequestComplete() const;
 		bool checkTransferEncodingChunked() const;
 		bool searchChunkedEnd(size_t header_end) const;

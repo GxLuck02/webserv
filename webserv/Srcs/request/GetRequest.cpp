@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetRequest.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 18:53:57 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/19 16:50:40 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,7 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
                 fileExtension = uri.substr(dotPos, extensionEnd - dotPos);
             else
                 fileExtension = uri.substr(dotPos);
-            
-            std::cout << "Extension: " << fileExtension << std::endl;
         }
-        else
-            fileExtension = uri.substr(extensionFound);
     }
 
     if (!responseInstance.getBody().empty() && !responseInstance.getContentType().empty())
@@ -42,7 +38,6 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
 
     else if (!fileExtension.empty())
     {
-        std::cout << fileExtension << std::endl;
         if (fileExtension == ".html")
         {
             std::ifstream file;

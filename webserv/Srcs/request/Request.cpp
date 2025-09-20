@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:50:17 by proton           ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/09/18 18:03:21 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Request.hpp"
 
@@ -263,5 +264,14 @@ void	Request::setIsAutoIndex( bool autoindex )
 bool	Request::getIsAutoIndex() const
 {
 	return (this->_isAutoindex);
+}
+
+void	Request::setIsStaticCgi( bool isStaticCgi )
+{
+	this->_isStaticCgi = isStaticCgi;
+}
+bool	Request::getIsStaticCgi() const
+{
+	return (this->_isStaticCgi);
 }
 

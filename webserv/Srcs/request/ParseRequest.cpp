@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/16 13:26:38 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/19 19:33:29 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -358,6 +358,58 @@ void setQuery(std::string uri, Request& instance)
 	}
 }
 
+static void isExtensionValid(std::string &token, const std::string &cgiExt, Request &requestInstance)
+{
+	std::string ext;
+	size_t pos = token.find_last_of('.');
+	if (pos == std::string::npos)
+		return ;
+	ext = token.substr(pos);
+	if (ext != cgiExt)
+		requestInstance.setIsStaticCgi(true);
+	else
+		requestInstance.setIsStaticCgi(false);
+}
+
+static int cgiPath(Request &requestInstance, Client &clientInstance, std::string &token)
+{
+	std::string cgiExt = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiExtension;
+	std::string cgiPath = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiPath;
+	std::string root = clientInstance.getServConfig()->getRootFromLocation(requestInstance.getLocation());
+	std::string fullPath;
+
+	if (cgiExt.empty())
+	{
+		requestInstance.setStatusCode(500);
+		requestInstance.setErrorBody("Internal Server Error");
+		return (-1);
+	}
+	if (access(cgiPath.c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(500);
+		requestInstance.setErrorBody("Internal Server Error");
+		return (-1);
+	}
+	if (root.empty())
+		root = clientInstance.getServConfig()->getRoot();
+	
+	isExtensionValid(token, cgiExt, requestInstance);
+	if (token.find('?') != std::string::npos)
+		fullPath = root + token.substr(0, token.find_first_of('?'));
+	else
+		fullPath = root + token;
+	std::cout << "FULL PATH " << fullPath << std::endl;
+	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
+	if (access(fullPath.c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(403);
+		requestInstance.setErrorBody("Forbidden");
+		return (-1);
+	}
+	requestInstance.setUri(fullPath);
+	return (0);
+}
+
 static int	handleFileRequest(Request &requestInstance, Client &clientInstance, std::string &token)
 {
 	std::string uri;
@@ -365,12 +417,18 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	std::string fullPath;
 	std::string	testPathQuery;
 
+	//check for fonction with query
+	if (looksPercentEncoded(token) == true)
+	{
+		token = urlDecode(token);
+	}
 	std::cout << "IS FILE <<<<<<<<<<<<<<<< " << token << std::endl;
 
 	if (token.find('?') != std::string::npos)
     {
         setQuery(token, requestInstance);
         uri = token.substr(0, token.find_first_of('?'));
+		std::cout << "QUERY IN GET REQUEST = " << requestInstance.getQuery() << std::endl;
 	}
 	else
 		uri = token;
@@ -378,11 +436,18 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 
 	root = clientInstance.getServConfig()->getRootFromLocation(uri);
 
+	if (token.find("/cgi-bin") != std::string::npos)
+	{
+		if (cgiPath(requestInstance, clientInstance, token) == -1)
+			return (-1);
+		return (0);
+	}
+
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
 	
 	fullPath = root + token;
-
+	std::cout << "FULL PATH IN FILE " << fullPath << std::endl;
 	if (requestInstance.getQuery().empty())
 	{
 		if (access(fullPath.c_str(), F_OK) == -1)
@@ -436,12 +501,12 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	std::string fullPath;
 
 	uri = token;
-
-	std::cout << "IS DIR <<<<<<<<<<<<<<<< " << token << std::endl;
 	std::cout << "TOKEN IS : " << token << std::endl;
 
 	requestInstance.setLocation(uri);
-	
+	requestInstance.setIsStaticCgi(true); // je dois le traiter comme static si c est un dossier
+
+	std::cout << requestInstance.getMethode() << std::endl;
 	if (requestInstance.getMethode() == "POST")
 	{
 		std::cout << "IN POST " << std::endl;

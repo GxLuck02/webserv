@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StatusCode.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:06:27 by proton            #+#    #+#             */
-/*   Updated: 2025/09/03 13:19:16 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/17 14:09:02 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ std::string	getStatusCodeMessage( int statusCode )
 
 		case 400:
 			return ("Bad Request");
+
+		case 403:
+			return ("Forbidden");
 
 		case 404:
 			return ("Not Found");
@@ -51,6 +54,9 @@ std::string	getStatusCodeMessage( int statusCode )
 
 		case 501:
 			return ("Not Implemented");
+
+		case 502:
+			return ("Bad Gateway");
 		
 		case 505:
 			return ("HTTP Version Not Supported");

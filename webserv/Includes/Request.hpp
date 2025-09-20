@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:22:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/09 12:00:51 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/18 18:00:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <map>
+#include <vector>
 #include <vector>
 #include "Client.hpp"
 
@@ -47,6 +48,7 @@ class	Request
 		std::map<std::string, std::string>	_body;
 		std::vector<std::string>			_autoIndexEntries;
 		bool								_isAutoindex;
+		bool								_isStaticCgi;
 
 	public:
 
@@ -92,6 +94,8 @@ class	Request
 		bool		getIsFullPath() const;
 		void		setIsAutoIndex( bool autoindex );
 		bool		getIsAutoIndex() const;
+		void		setIsStaticCgi( bool isStaticCgi );
+		bool		getIsStaticCgi() const;
 
 		//std::map<std::string, std::string>::iterator	getFieldIterator( size_t num );
 };

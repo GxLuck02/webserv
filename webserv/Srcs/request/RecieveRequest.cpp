@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 18:45:20 by ttreichl         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/09/19 16:49:44 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "../../Includes/RecieveRequest.hpp"
 
@@ -99,7 +100,7 @@ static int isMethodAllowed(Request &requestInstance, Client &clientInstance)
 		requestInstance.setErrorBody("Method Not Allowed: The method is not allowed for the requested location");
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -119,7 +120,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
 	{
 		std::cout << "Error in ParseRequestLine" << std::endl;
-		sendErrorResponse(requestInstance, responseInstance);
 		responseInstance.setStatusCode(requestInstance.getStatusCode());
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
@@ -154,6 +154,21 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
+	}
+
+	if (requestInstance.getIsStaticCgi() == false)
+	{
+		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		else
+		{
+			makeResponse(requestInstance, responseInstance);
+			clientInstance.setResponseInstance(responseInstance);
+			return (0);
+		}
 	}
 
 	if (requestInstance.getMethode() == "POST")
@@ -227,10 +242,10 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
+
 	makeResponse(requestInstance, responseInstance);
-	//std::cout << "Response to be sent:\n" << responseInstance.getResponse() << std::endl;
 	clientInstance.setResponseInstance(responseInstance);
-	//std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
 
 }
