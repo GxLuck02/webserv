@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 12:00:37 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 18:17:46 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
     {
         myEnv = new char*[10];
         myEnv[0] = new char[16 + methode.length() + 1]; // 15 is REQUEST_METHODE=
-        std::strcpy(myEnv[0], ("REQUEST_METHODE=" + methode + '\0').c_str());
+        std::strcpy(myEnv[0], ("REQUEST_METHOD=" + methode + '\0').c_str());
         myEnv[1] = new char[12 + requestInstance.getUri().length() + 1];
         std::strcpy(myEnv[1], ("SCRIPT_NAME=" + requestInstance.getUri() + '\0').c_str());
         myEnv[2] = new char[16 + requestInstance.getHttpVersion().length() + 1];
