@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/19 18:58:01 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 07:57:51 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,7 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	if (requestInstance.getIsStaticCgi() == false)
 	{
+		std::cout << "IN STATIC CGI " << std::endl;
 		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);

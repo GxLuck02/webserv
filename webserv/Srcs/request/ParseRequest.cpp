@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 12:36:28 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 08:01:14 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -437,6 +437,7 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 			return (-1);
 		return (0);
 	}
+	requestInstance.setIsStaticCgi(true);
 
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
@@ -518,6 +519,13 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
+	
+	if (access((root + uri).c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(404);
+		requestInstance.setErrorBody("Not found");
+		return (-1);
+	}
 
 	index = clientInstance.getServConfig()->getIndexFromLocation(uri);
 	std::cout << " FIRST CHECK INDEX LOCATION " << index << std::endl;
