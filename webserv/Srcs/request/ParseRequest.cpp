@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 19:33:29 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/21 16:45:10 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -717,12 +717,12 @@ int	parseServerNameAndPort(Request& instance, std::string fieldValue, Client& cl
         port = "";
     }
 
-    if (findInConfigFile(host, "Host", clientInstance) == -1)
-    {
-        instance.setStatusCode(400);
-        instance.setErrorBody("Bad Request, host not found in config file");
-        return (-1);
-    }
+    // if (findInConfigFile(host, "Host", clientInstance) == -1)
+    // {
+    //     instance.setStatusCode(400);
+    //     instance.setErrorBody("Bad Request, host not found in config file");
+    //     return (-1);
+    // }
 
     if (!port.empty())
     {

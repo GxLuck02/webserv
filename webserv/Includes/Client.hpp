@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/19 19:05:58 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/21 16:06:15 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Client
 		Serv_config* getServConfig() const;
 		Response& getResponseInstance() const;
 		void setResponseInstance(const Response& responseInstance);
+		void setServConfig(Serv_config* serv_config);
 		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();
