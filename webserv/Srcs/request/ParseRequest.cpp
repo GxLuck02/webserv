@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/20 18:21:27 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/22 10:53:21 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,15 +175,12 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 	std::string	body;
 	(void)clientInstance;
 
-	std::cout << "fill body" << std::endl;
-
 	if (start == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
 		requestInstance.setErrorBody("Body not found");
 		return (-1);
 	}
-
 	body = request.substr(start + 4, request.length());
 	if (body.empty())
 	{
@@ -356,58 +353,6 @@ void setQuery(std::string uri, Request& instance)
 	{
 		instance.setQuery("");
 	}
-}
-
-static void isExtensionValid(std::string &token, const std::string &cgiExt, Request &requestInstance)
-{
-	std::string ext;
-	size_t pos = token.find_last_of('.');
-	if (pos == std::string::npos)
-		return ;
-	ext = token.substr(pos);
-	if (ext != cgiExt)
-		requestInstance.setIsStaticCgi(true);
-	else
-		requestInstance.setIsStaticCgi(false);
-}
-
-static int cgiPath(Request &requestInstance, Client &clientInstance, std::string &token)
-{
-	std::string cgiExt = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiExtension;
-	std::string cgiPath = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiPath;
-	std::string root = clientInstance.getServConfig()->getRootFromLocation(requestInstance.getLocation());
-	std::string fullPath;
-
-	if (cgiExt.empty())
-	{
-		requestInstance.setStatusCode(500);
-		requestInstance.setErrorBody("Internal Server Error");
-		return (-1);
-	}
-	if (access(cgiPath.c_str(), F_OK) == -1)
-	{
-		requestInstance.setStatusCode(500);
-		requestInstance.setErrorBody("Internal Server Error");
-		return (-1);
-	}
-	if (root.empty())
-		root = clientInstance.getServConfig()->getRoot();
-	
-	isExtensionValid(token, cgiExt, requestInstance);
-	if (token.find('?') != std::string::npos)
-		fullPath = root + token.substr(0, token.find_first_of('?'));
-	else
-		fullPath = root + token;
-	std::cout << "FULL PATH " << fullPath << std::endl;
-	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
-	if (access(fullPath.c_str(), F_OK) == -1)
-	{
-		requestInstance.setStatusCode(403);
-		requestInstance.setErrorBody("Forbidden");
-		return (-1);
-	}
-	requestInstance.setUri(fullPath);
-	return (0);
 }
 
 static void isExtensionValid(std::string &token, const std::string &cgiExt, Request &requestInstance)

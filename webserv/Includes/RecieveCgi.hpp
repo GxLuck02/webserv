@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:56:14 by proton            #+#    #+#             */
-/*   Updated: 2025/09/18 17:56:56 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/22 09:36:41 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "StatusCode.hpp"
+#include "ParserCgiResponse.hpp"
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>

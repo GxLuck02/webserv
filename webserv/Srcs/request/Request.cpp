@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 18:03:21 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/22 10:51:46 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 Request::Request()
 {
+	this->_chunked = 0;
 	std::cout << "request base constructor" << std::endl;
 }
 
