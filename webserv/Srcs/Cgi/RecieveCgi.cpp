@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/09/28 15:30:24 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/28 15:50:25 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     int         bytesRead = -1;
     char        buffer[BUFFER_SIZE + 1];
     std::string body;
-    std::string root = "/home/proton/Bureau/webserv/webserv" + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
+    std::string root = "." + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
     char *newRoot = const_cast<char *>(root.c_str());
 
     if (requestInstance.getMethode() == "POST")
