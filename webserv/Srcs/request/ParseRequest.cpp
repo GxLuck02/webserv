@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/21 16:45:10 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/28 15:32:00 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,15 +175,12 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 	std::string	body;
 	(void)clientInstance;
 
-	std::cout << "fill body" << std::endl;
-
 	if (start == std::string::npos)
 	{
 		requestInstance.setStatusCode(400);
 		requestInstance.setErrorBody("Body not found");
 		return (-1);
 	}
-
 	body = request.substr(start + 4, request.length());
 	if (body.empty())
 	{
@@ -442,6 +439,7 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 			return (-1);
 		return (0);
 	}
+	requestInstance.setIsStaticCgi(true);
 
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
@@ -523,6 +521,13 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 
 	if (root.empty())
 		root = clientInstance.getServConfig()->getRoot();
+	
+	if (access((root + uri).c_str(), F_OK) == -1)
+	{
+		requestInstance.setStatusCode(404);
+		requestInstance.setErrorBody("Not found");
+		return (-1);
+	}
 
 	index = clientInstance.getServConfig()->getIndexFromLocation(uri);
 	std::cout << " FIRST CHECK INDEX LOCATION " << index << std::endl;

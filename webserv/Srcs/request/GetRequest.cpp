@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 16:50:40 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 18:20:38 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
 {
     std::string uri = requestInstance.getUri();
     std::string fileExtension;
-    size_t      extensionFound = uri.find_last_of('.');
+    size_t      extensionFound = uri.find_first_of('.', 1);
     (void)clientInstance;
 
     if (extensionFound != std::string::npos)
     {
-        size_t dotPos = uri.find_last_of('.');
+        size_t dotPos = uri.find_first_of('.', 1);
         if (dotPos != std::string::npos)
         {
             size_t extensionEnd = uri.find_first_of("?#", dotPos);

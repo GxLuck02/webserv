@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:00:37 by bproton           #+#    #+#             */
-/*   Updated: 2025/09/18 17:13:36 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/22 10:07:12 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,15 @@ static int parseHeaders(Request requestInstance, Response &responseInstance, std
     std::string contentLength;
     std::string status;
 
+    if (line[line.length() - 1] == '\r')
+    {
+        line.erase(line.length() - 1, 1);
+    }
 	fieldArray = splitField(line, ':');
 	if (fieldArray.first.empty() || fieldArray.second.empty())
 	{
-		std::cout << "filed array null" << std::endl;
-		requestInstance.setStatusCode(400);
-		requestInstance.setErrorBody("Bad Request in header field");
+		requestInstance.setStatusCode(502);
+		requestInstance.setErrorBody("Bad Gateway");
 		return (-1);
 	}
     if (fieldArray.first == "Content-Type")
@@ -75,6 +78,7 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
 {
     std::stringstream   ss;
     std::string         line;
+    std::string         body;
     
     ss << response;
     
@@ -85,5 +89,14 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
 		if (parseHeaders(requestInstance, responseInstance, line ) == -1 )
             return (-1);
 	}
+    while (getline(ss, line))
+        body += line + "\n";
+    responseInstance.setBody(body);
+    if (requestInstance.getMethode() == "POST")
+        responseInstance.setStatusCode(201);
+    else
+        responseInstance.setStatusCode(200);
+    if (responseInstance.getContentLength().empty())
+        responseInstance.setContentLength(body.length());
     return (0);
 }

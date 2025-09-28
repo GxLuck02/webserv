@@ -6,9 +6,10 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/19 16:49:44 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/20 18:21:59 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 
 #include "../../Includes/RecieveRequest.hpp"
@@ -158,6 +159,7 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	if (requestInstance.getIsStaticCgi() == false)
 	{
+		std::cout << "IN STATIC CGI " << std::endl;
 		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
