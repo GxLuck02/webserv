@@ -71,8 +71,6 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 		throw std::runtime_error("IP address not specified in the configuration.");
 	if (!attributeValue("root", ServerConfig, ParserConfig))
 		throw std::runtime_error("Root directory not specified in the configuration.");
-	if (!attributeValue("index", ServerConfig, ParserConfig))
-		throw std::runtime_error("Index file not specified in the configuration.");
 	if (!attributeValue("client_max_body_size", ServerConfig, ParserConfig))
 		throw std::runtime_error("Max body size not specified in the configuration.");
 }
@@ -80,6 +78,8 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 //fill the Serve_configue of the server with optrional values
 void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
+	if (hasThis("index", ParserConfig))
+		ServerConfig.setIndex(ParserConfig.directives["index"]);
 	if (hasThis("error_page", ParserConfig))
 		ServerConfig.setErrorPage(ParserConfig.directives["error_page"]);
 	else
@@ -137,11 +137,11 @@ void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t&
 //function for attribute value from keyWord
 bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
-	// if (ParserConfig.directives.find(keyWords) == ParserConfig.directives.end())
-	// {
-	// 	std::cerr << "Error: " << keyWords << " not found in the configuration." << std::endl;
-	// 	return false;
-	// }
+	if (ParserConfig.directives.find(keyWords) == ParserConfig.directives.end())
+	{
+		std::cerr << "Error: " << keyWords << " not found in the configuration." << std::endl;
+		return false;
+	}
 	std::string value = ParserConfig.directives[keyWords];
 	if (keyWords == "server_name" && hasThis("server_name", ParserConfig))
 	{
@@ -161,11 +161,6 @@ bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& Serve
 	else if (keyWords == "root" && hasThis("root", ParserConfig))
 	{
 		ServerConfig.setRoot(value);
-		return true;
-	}
-	else if (keyWords == "index" && hasThis("index", ParserConfig))
-	{
-		ServerConfig.setIndex(value);
 		return true;
 	}
 	else if (keyWords == "client_max_body_size" && hasThis("client_max_body_size", ParserConfig))
