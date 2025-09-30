@@ -49,6 +49,7 @@ class Serv_config
 		int 			_listen_fd;
 		size_t			_max_body_size;
 		locationMap		_locations;
+		int 			_cgiTimeout;
 		
 		size_t _getConvertedMaxSize(std::string const &size);
 		
@@ -83,6 +84,7 @@ class Serv_config
 		int checkMethodInLocation(const std::string &location, const std::string &method) const;
 		bool isLocationValid(const std::string &location);
 		locationMap const &getLocations() const;
+		void setCgiTimeout(const std::string &timeoutStr);
 		
 		//Member functions
 		void addLocation(const std::string &path, const location_t &location);

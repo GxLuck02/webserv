@@ -57,6 +57,12 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 
 /**************************** Geters and Setters ***********************************/
 
+
+void setCgiTimeout(const std::string &timeoutStr)
+{
+	_cgiTimeout = std::atoi(timeoutStr.c_str());
+}
+
 void Serv_config::setPort(std::string string_port)
 {
 	int port = std::atoi(string_port.c_str());

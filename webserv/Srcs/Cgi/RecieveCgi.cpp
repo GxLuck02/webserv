@@ -102,7 +102,7 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     int         bytesRead = -1;
     char        buffer[BUFFER_SIZE + 1];
     std::string body;
-    std::string root = "/home/proton/Bureau/webserv/webserv" + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
+    std::string root = "/home/tmontani/42_cursus/webserv/webserv" + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
     char *newRoot = const_cast<char *>(root.c_str());
 
     if (requestInstance.getMethode() == "POST")
