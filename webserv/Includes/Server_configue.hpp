@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/07 02:25:52 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/01 14:28:58 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ class Serv_config
 		bool isLocationValid(const std::string &location);
 		locationMap const &getLocations() const;
 		void setCgiTimeout(const std::string &timeoutStr);
+		int getCgiTimeout() const;
 		
 		//Member functions
 		void addLocation(const std::string &path, const location_t &location);

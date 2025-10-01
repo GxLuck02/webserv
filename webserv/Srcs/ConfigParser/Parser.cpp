@@ -75,8 +75,9 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 		throw std::runtime_error("Index file not specified in the configuration.");
 	if (!attributeValue("client_max_body_size", ServerConfig, ParserConfig))
 		throw std::runtime_error("Max body size not specified in the configuration.");
-	if (!attributeValue("CgiTimeout", ServerConfig, ParserConfig))
-    throw std::runtime_error("CGI timeout not specified in the configuration.");
+	
+	// CGI timeout est optionnel, utilise la valeur par défaut si non spécifié
+	attributeValue("cgi_timeout", ServerConfig, ParserConfig);
 }
 
 //fill the Serve_configue of the server with optrional values
@@ -175,11 +176,11 @@ bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& Serve
 		ServerConfig.setMaxBodySize(value);
 		return true;
 	}
-	else if (keyWords == "CgiTimeout" && hasThis("CgiTimeout", ParserConfig))
-{
-    ServerConfig.setCgiTimeout(value); // Ajoute la méthode setCgiTimeout dans ta classe Serv_config
-    return true;
-}
+	else if (keyWords == "cgi_timeout" && hasThis("cgi_timeout", ParserConfig))
+	{
+		ServerConfig.setCgiTimeout(value);
+		return true;
+	}
 	return false;
 }
 

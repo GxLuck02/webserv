@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/09 20:20:57 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/01 14:28:55 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 Serv_config::Serv_config()
 {
+	this->_cgiTimeout = CGI_TIMEOUT; // Initialiser avec la valeur par défaut de 5 secondes
 	std::cout << "Serv_config constructor called." << std::endl;
 }
 
@@ -37,6 +38,7 @@ Serv_config::Serv_config(const Serv_config &other)
 		this->_listen_fd = other._listen_fd;
 		this->_max_body_size = other._max_body_size;
 		this->_locations = other._locations;
+		this->_cgiTimeout = other._cgiTimeout;
 	}
 	std::cout << "Serv_config copy constructor called." << std::endl;
 }
@@ -50,6 +52,7 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 		this->_ip = other._ip;
 		this->_timeout = other._timeout;
 		this->_listen_fd = other._listen_fd;
+		this->_cgiTimeout = other._cgiTimeout;
 		std::cout << "Serv_config assignment operator called." << std::endl;
 	}
 	return *this;
@@ -58,9 +61,21 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 /**************************** Geters and Setters ***********************************/
 
 
-void setCgiTimeout(const std::string &timeoutStr)
+void Serv_config::setCgiTimeout(const std::string &timeoutStr)
 {
-	_cgiTimeout = std::atoi(timeoutStr.c_str());
+	int timeout = std::atoi(timeoutStr.c_str());
+	if (timeout <= 0)
+	{
+		std::cerr << "Error: CGI timeout must be a positive integer. Using default value." << std::endl;
+		this->_cgiTimeout = CGI_TIMEOUT; // Valeur par défaut
+		return;
+	}
+	this->_cgiTimeout = timeout;
+}
+
+int Serv_config::getCgiTimeout() const
+{
+	return this->_cgiTimeout;
 }
 
 void Serv_config::setPort(std::string string_port)
@@ -321,6 +336,7 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 	out << "Index: " << server.getIndex() << std::endl;
 	out << "ClientMaxBodySize: " << server.getMaxBodySize() << std::endl;
 	out << "ErrorPage: " << server.getErrorPage() << std::endl;
+	out << "CGI Timeout: " << server.getCgiTimeout() << " seconds" << std::endl;
 	
 	for (locationMap::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); it++)
 	{
