@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/09/22 10:53:21 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/01 15:00:25 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -395,6 +395,12 @@ static int cgiPath(Request &requestInstance, Client &clientInstance, std::string
 		fullPath = root + token.substr(0, token.find_first_of('?'));
 	else
 		fullPath = root + token;
+	
+	// Nettoyer les double slashes
+	size_t pos = 0;
+	while ((pos = fullPath.find("//", pos)) != std::string::npos) {
+		fullPath.replace(pos, 2, "/");
+	}
 	std::cout << "FULL PATH " << fullPath << std::endl;
 	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
 	if (access(fullPath.c_str(), F_OK) == -1)

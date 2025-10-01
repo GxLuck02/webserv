@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/09/22 10:31:05 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/01 15:01:28 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,11 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     int         bytesRead = -1;
     char        buffer[BUFFER_SIZE + 1];
     std::string body;
-    std::string root = "/home/tmontani/42_cursus/webserv/webserv" + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
+    std::string root = requestInstance.getUri();  // Utiliser directement l'URI qui contient déjà le bon chemin
+    
+    // Debug: afficher l'URI et le chemin construit
+    std::cout << "URI: [" << requestInstance.getUri() << "]" << std::endl;
+    std::cout << "Constructed root: [" << root << "]" << std::endl;
     char *newRoot = const_cast<char *>(root.c_str());
 
     if (requestInstance.getMethode() == "POST")
@@ -112,6 +116,10 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     }
 
     myEnv = makeEnv(requestInstance, clientInstance);
+
+    std::cout << "=== CGI DEBUG ===" << std::endl;
+    std::cout << "CGI script path: " << root << std::endl;
+    std::cout << "Method: " << requestInstance.getMethode() << std::endl;
 
     for (size_t i = 0; myEnv[i] != NULL; ++i) {
         std::cout << "argv[" << i << "] = " << myEnv[i] << std::endl;
@@ -179,11 +187,20 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
         close(in_fd[1]);
 
         waitpid(pid, &status, 0);
+        std::cout << "CGI process exited with status: " << status << std::endl;
+        std::cout << "WIFEXITED: " << WIFEXITED(status) << std::endl;
+        std::cout << "WEXITSTATUS: " << WEXITSTATUS(status) << std::endl;
         if (WIFEXITED(status))
         {
+            std::cout << "Reading CGI output..." << std::endl;
             while ((bytesRead = read(out_fd[0], buffer, BUFFER_SIZE)) > 0)
+            {
+                std::cout << "Read " << bytesRead << " bytes from CGI" << std::endl;
                 body.append(buffer, bytesRead);
+            }
             close(out_fd[0]);
+            std::cout << "CGI body length: " << body.length() << std::endl;
+            std::cout << "CGI body content: [" << body << "]" << std::endl;
             if (bytesRead == -1)
             {
                 close(out_fd[0]);
