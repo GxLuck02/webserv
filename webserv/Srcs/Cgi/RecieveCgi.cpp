@@ -6,11 +6,14 @@
 /*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/10/01 15:01:28 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/01 15:39:06 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../Includes/RecieveCgi.hpp"
+#include <ctime>
+#include <signal.h>
+#include <unistd.h>
 
 int handlePostCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance)
 {
@@ -103,6 +106,7 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     char        buffer[BUFFER_SIZE + 1];
     std::string body;
     std::string root = requestInstance.getUri();  // Utiliser directement l'URI qui contient déjà le bon chemin
+                                                // fonctionne sur toutes les machines au contraire de hardcoder le chemin
     
     // Debug: afficher l'URI et le chemin construit
     std::cout << "URI: [" << requestInstance.getUri() << "]" << std::endl;
@@ -186,11 +190,58 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
         }
         close(in_fd[1]);
 
-        waitpid(pid, &status, 0);
+        // Gestion du timeout CGI
+        int cgiTimeout = clientInstance.getServConfig()->getCgiTimeout();
+        time_t startTime = time(NULL);
+        bool timedOut = false;
+        
+        std::cout << "CGI timeout set to: " << cgiTimeout << " seconds" << std::endl;
+        
+        // Attendre le processus avec timeout
+        while (true)
+        {
+            int result = waitpid(pid, &status, WNOHANG);
+            
+            if (result > 0)
+            {
+                // Le processus s'est terminé
+                std::cout << "CGI process finished normally" << std::endl;
+                break;
+            }
+            else if (result == -1)
+            {
+                // Erreur
+                std::cout << "CGI waitpid error" << std::endl;
+                break;
+            }
+            
+            // Vérifier le timeout
+            if (time(NULL) - startTime >= cgiTimeout)
+            {
+                std::cout << "CGI timeout reached! Killing process..." << std::endl;
+                kill(pid, SIGKILL);
+                waitpid(pid, &status, 0); // Nettoyer le processus zombi
+                timedOut = true;
+                break;
+            }
+            
+            // Attendre un peu avant de vérifier à nouveau
+            usleep(100000); // 100ms
+        }
         std::cout << "CGI process exited with status: " << status << std::endl;
         std::cout << "WIFEXITED: " << WIFEXITED(status) << std::endl;
         std::cout << "WEXITSTATUS: " << WEXITSTATUS(status) << std::endl;
-        if (WIFEXITED(status))
+        
+        if (timedOut)
+        {
+            std::cout << "CGI timed out - returning 504 Gateway Timeout" << std::endl;
+            close(out_fd[0]);
+            requestInstance.setStatusCode(504);
+            requestInstance.setErrorBody("Gateway Timeout");
+            freeEnv(myEnv);
+            return (-1);
+        }
+        else if (WIFEXITED(status))
         {
             std::cout << "Reading CGI output..." << std::endl;
             while ((bytesRead = read(out_fd[0], buffer, BUFFER_SIZE)) > 0)
