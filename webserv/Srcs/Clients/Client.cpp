@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/20 18:20:20 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/28 15:31:50 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,11 @@ Response& Client::getResponseInstance() const
 void Client::setResponseInstance(const Response& responseInstance)
 {
     this->_responseInstance = responseInstance;
+}
+
+void Client::setServConfig(Serv_config* serv_config)
+{
+    this->_serv_config = serv_config;
 }
 
 /************************************ Members functions ************************************/
@@ -232,4 +237,10 @@ void Client::clearResponseInstance()
 {
     Response n;
     this->_responseInstance = n;
+}
+
+// Get the server configuration for the client
+Serv_config* Client::getServConfig() const
+{
+	return this->_serv_config;
 }

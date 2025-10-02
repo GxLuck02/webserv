@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/10/01 15:39:06 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/02 09:29:32 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,12 +105,7 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     int         bytesRead = -1;
     char        buffer[BUFFER_SIZE + 1];
     std::string body;
-    std::string root = requestInstance.getUri();  // Utiliser directement l'URI qui contient déjà le bon chemin
-                                                // fonctionne sur toutes les machines au contraire de hardcoder le chemin
-    
-    // Debug: afficher l'URI et le chemin construit
-    std::cout << "URI: [" << requestInstance.getUri() << "]" << std::endl;
-    std::cout << "Constructed root: [" << root << "]" << std::endl;
+    std::string root = "." + requestInstance.getUri().substr(1, requestInstance.getUri().length() -1);
     char *newRoot = const_cast<char *>(root.c_str());
 
     if (requestInstance.getMethode() == "POST")

@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/19 19:06:08 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/21 16:29:58 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,21 +57,15 @@ Server::~Server()
 }
 
 Server::Server(const Server &other)
-	: _servs(other._servs), _clients(other._clients), 
-		_poll_fds(other._poll_fds)
 {
-	std::cout << "Server copy constructor called." << std::endl;
+	(void)other;
+	throw std::runtime_error("Server is non-copyable");
 }
 
 Server &Server::operator=(const Server &other)
 {
-	if (this != &other)
-	{
-		this->_servs = other._servs;
-		this->_clients = other._clients;
-		this->_poll_fds = other._poll_fds;
-		std::cout << "Server assignment operator called." << std::endl;
-	}
+	(void)other;
+	throw std::runtime_error("Server is non-assignable");
 	return *this;
 }
 
@@ -103,23 +97,75 @@ int Server::getIndexPollFd(int fd) const
 
 // Initialize the server
 // This function creates a socket, sets it to non-blocking mode, binds it to the specified IP and port, and starts listening for incoming connections.
-void	Server::initServer()
+struct PortIp {
+    int port;
+    in_addr_t ip;
+    int fd;
+};
+
+
+void Server::initServer()
 {
-	for (size_t i = 0; i < this->_servs.size(); ++i)
-	{
-		this->_servs[i].setListenFd(socket(AF_INET, SOCK_STREAM, 0));
-		if (this->_servs[i].getListenFd() < 0)
-			throw std::runtime_error("Error: error in creation of serversocket.");
-		int opt = 1;
-		if (setsockopt(this->_servs[i].getListenFd(), SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) 
-		{
-			close(this->_servs[i].getListenFd());
-			throw std::runtime_error("Error: setsockopt failed.");
-		}
-		this->setSocketNonBlocking(i);
-		this->bindSocket(i);
-		this->listenSocket(i);
-	}
+    std::vector<PortIp> existingSockets;
+
+    for (size_t i = 0; i < this->_servs.size(); ++i)
+    {
+        // Cherche un fd existant pour ce port/ip
+        int reuse_fd = -1;
+        for (size_t j = 0; j < existingSockets.size(); ++j)
+        {
+            if (existingSockets[j].port == this->_servs[i].getPort() &&
+                existingSockets[j].ip   == this->_servs[i].getIp())
+            {
+                reuse_fd = existingSockets[j].fd;
+                break;
+            }
+        }
+
+        if (reuse_fd != -1)
+        {
+            // On réutilise le socket déjà écoutant
+            this->_servs[i].setListenFd(reuse_fd);
+            std::cout << "Server socket already listening on port "
+                      << this->_servs[i].getPort() << std::endl;
+            continue;
+        }
+
+        // Sinon on crée un nouveau socket
+        int fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0)
+            throw std::runtime_error("Error: cannot create socket");
+
+        this->_servs[i].setListenFd(fd);
+
+        int opt = 1;
+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+            throw std::runtime_error("Error: setsockopt failed");
+
+        setSocketNonBlocking(i);
+
+        // bind
+        sockaddr_in address;
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = this->_servs[i].getIp();
+        address.sin_port = htons(this->_servs[i].getPort());
+        if (bind(fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+            throw std::runtime_error("Error: bind failed");
+
+        // listen
+        if (listen(fd, SOMAXCONN) < 0)
+            throw std::runtime_error("Error: listen failed");
+
+        std::cout << "Server number: " << i << " initialized on port "
+                  << this->_servs[i].getPort() << std::endl;
+
+        // Enregistre ce fd pour les futurs serveurs partageant ce port/ip
+        PortIp entry;
+        entry.port = this->_servs[i].getPort();
+        entry.ip = this->_servs[i].getIp();
+        entry.fd = fd;
+        existingSockets.push_back(entry);
+    }
 }
 
 // Run the server
@@ -211,11 +257,17 @@ void Server::bindSocket(int index)
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = this->_servs[index].getIp();
 	address.sin_port = htons(this->_servs[index].getPort());
-	if  (bind(this->_servs[index].getListenFd(), (struct sockaddr *)&address, sizeof(address)) < 0)
+
+	// Only bind if no other server is already bound to this IP:port
+	if (!checkIfServeSocketAlreadyExists(this->_servs, index))
 	{
-		close(this->_servs[index].getListenFd());
-		throw std::runtime_error("Error: error in bind of serversocket .");
+		if (bind(this->_servs[index].getListenFd(), (struct sockaddr *)&address, sizeof(address)) < 0)
+		{
+			close(this->_servs[index].getListenFd());
+			throw std::runtime_error("Error: error in bind of serversocket.");
+		}
 	}
+	// Otherwise, do not reset listenFd, just use the already bound fd
 	std::cout << "Server number: " << index << " initialized on port " << this->_servs[index].getPort() << std::endl;
 	std::cout << "Server IP: " << inet_ntoa(address.sin_addr) << std::endl;
 }
@@ -224,23 +276,43 @@ void Server::bindSocket(int index)
 // This function sets the server socket to listen for incoming connections with a maximum queue size of SOM
 void Server::listenSocket(int index)
 {
-	if (listen(this->_servs[index].getListenFd(), SOMAXCONN) < 0)
+	// Check if another server with the same IP:port has already called listen()
+	int listen_fd = this->_servs[index].getListenFd();
+	for (size_t i = 0; i < this->_servs.size(); ++i)
 	{
-		close(this->_servs[index].getListenFd());
-		throw std::runtime_error("Error: error in listen of serversocket .");
+		if (i != static_cast<size_t>(index) &&
+			this->_servs[i].getPort() == this->_servs[index].getPort() &&
+			this->_servs[i].getIp() == this->_servs[index].getIp() &&
+			this->_servs[i].getListenFd() == listen_fd)
+		{
+			std::cout << "Server socket already listening on port " << this->_servs[index].getPort() << std::endl;
+			return;
+		}
+	}
+
+	// If no one is listening yet -> call listen()
+	if (listen(listen_fd, SOMAXCONN) < 0)
+	{
+		close(listen_fd);
+		throw std::runtime_error("Error: error in listen of serversocket.");
 	}
 }
 
 // Add the server to the poll file descriptors
 void Server::addServerToPollFds()
 {
+	std::set<int> added;
 	for (size_t i = 0; i < this->_servs.size(); ++i)
 	{
+		int fd = this->_servs[i].getListenFd();
+        if (added.find(fd) != added.end())
+            continue;
 		struct pollfd serv_poll_fd;
 		serv_poll_fd.fd = this->_servs[i].getListenFd();
 		serv_poll_fd.events = POLLIN;
 		serv_poll_fd.revents = 0;
 		this->_poll_fds.push_back(serv_poll_fd);
+		added.insert(fd);
 		std::cout << "Server added to poll_fds with fd: " << serv_poll_fd.fd << std::endl;
 	}
 }
@@ -289,6 +361,7 @@ void Server::handleClientRead(int fd)
 		if (current_client->isRequestComplete())
 		{
 			std::cout << "Request complete for client fd: " << fd << std::endl;
+			setRealServConfig(*current_client, hadHostHeader(current_client->getBuffer()));
 			this->_poll_fds[this->getIndexPollFd(fd)].events = POLLOUT;
 			buffer[0] = '\0';
 			beforeRequest(*current_client, current_client->getResponseInstance());
@@ -342,6 +415,9 @@ void Server::acceptNewClient(int index)
 {
 	sockaddr_in client_address;
 	socklen_t client_address_len = sizeof(client_address);
+
+	int server_fd = this->_poll_fds[index].fd;
+
 	
 	int new_client_socket = accept(this->_servs[index].getListenFd(), (struct sockaddr *)&client_address, &client_address_len);
 	if (new_client_socket < 0)
@@ -349,9 +425,24 @@ void Server::acceptNewClient(int index)
 		std::cerr << "Error accepting new connection" << std::endl;
 		return;
 	}
+	Serv_config* serv_conf = NULL;
+    for (size_t i = 0; i < this->_servs.size(); ++i)
+    {
+        if (this->_servs[i].getListenFd() == server_fd && this->_servs[i].getServName() == this->_servs[index].getServName())
+        {
+            serv_conf = &this->_servs[i];
+            break;
+        } 
+    }
+    if (!serv_conf)
+    {
+        std::cerr << "Error: no Serv_config found for server_fd" << std::endl;
+        close(new_client_socket);
+        return;
+    }
 	std::cout << "New client connected: " << new_client_socket << std::endl;
 	this->setClientNonBlocking(new_client_socket);
-	this->addClientToPollFds(new_client_socket, client_address, index);
+	this->addClientToPollFds(new_client_socket, client_address, serv_conf);
 }
 
 // Remove a client from the server
@@ -409,20 +500,76 @@ void Server::setClientNonBlocking(int fd)
 }
 
 // Add a new client to the poll_fds and clients vector
-void Server::addClientToPollFds(int new_client_socket, sockaddr_in &client_address, int index)
+void Server::addClientToPollFds(int new_client_socket, sockaddr_in &client_address, Serv_config *serv_conf)
 {
 	struct pollfd new_client_poll_fd;
 	new_client_poll_fd.fd = new_client_socket;
 	new_client_poll_fd.events = POLLIN;
 	new_client_poll_fd.revents = 0;
-	Client* new_client = new Client(new_client_socket, this->_servs[index].getPort(), ntohl(client_address.sin_addr.s_addr), &this->_servs[index]);
+	Client* new_client = new Client(new_client_socket, serv_conf->getPort(), ntohl(client_address.sin_addr.s_addr), serv_conf);
 	this->_clients.push_back(new_client);
 	this->_poll_fds.push_back(new_client_poll_fd);
 	std::cout << "New client added to poll_fds with fd: " << new_client_socket << std::endl;
 }
 
-// Get the server configuration for the client
-Serv_config* Client::getServConfig() const
+
+bool Server::checkIfServeSocketAlreadyExists(std::vector<Serv_config> &servs, int index)
 {
-	return this->_serv_config;
+	for (size_t i = 0; i < servs.size(); ++i)
+	{
+		if (i != static_cast<size_t>(index) && servs[i].getPort() == servs[index].getPort() && servs[i].getIp() == servs[index].getIp())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string Server::hadHostHeader(std::string const &buffer)
+{
+    size_t pos = buffer.find("Host:");
+    if (pos == std::string::npos)
+        return "";
+    
+    size_t start = pos + 5; // Length of "Host:"
+    size_t end = buffer.find("\r\n", start);
+    if (end == std::string::npos)
+        end = buffer.length();
+
+    std::string host = buffer.substr(start, end - start);
+
+    // Trim whitespace
+    size_t first = host.find_first_not_of(" \t");
+    size_t last = host.find_last_not_of(" \t");
+    if (first == std::string::npos || last == std::string::npos)
+        return "";
+
+    host = host.substr(first, last - first + 1);
+
+    // Supprimer le port s'il y en a
+    size_t colon = host.find(':');
+    if (colon != std::string::npos)
+        host = host.substr(0, colon);
+
+    return host;
+}
+
+void Server::setRealServConfig(Client &client, std::string const &host)
+{
+    Serv_config* matched = client.getServConfig(); // déjà initialisé à acceptNewClient()
+    
+    if (!host.empty())
+    {
+        for (size_t i = 0; i < _servs.size(); ++i)
+        {
+            if (_servs[i].getListenFd() == matched->getListenFd() &&
+                _servs[i].getServName() == host)
+            {
+                matched = &_servs[i];
+                break;
+            }
+        }
+    }
+
+    client.setServConfig(matched);
 }

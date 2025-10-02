@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/01 15:00:25 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/02 09:30:03 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -728,12 +728,12 @@ int	parseServerNameAndPort(Request& instance, std::string fieldValue, Client& cl
         port = "";
     }
 
-    if (findInConfigFile(host, "Host", clientInstance) == -1)
-    {
-        instance.setStatusCode(400);
-        instance.setErrorBody("Bad Request, host not found in config file");
-        return (-1);
-    }
+    // if (findInConfigFile(host, "Host", clientInstance) == -1)
+    // {
+    //     instance.setStatusCode(400);
+    //     instance.setErrorBody("Bad Request, host not found in config file");
+    //     return (-1);
+    // }
 
     if (!port.empty())
     {

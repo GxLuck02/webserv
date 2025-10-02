@@ -7,7 +7,7 @@ import sys
 # Enable debug (prints tracebacks in browser if error)
 cgitb.enable()
 
-UPLOAD_DIR = "/home/tmontani/42_cursus/webserv/webserv/websites/upload"  # make sure this exists and is writable
+UPLOAD_DIR = "./websites/upload"  # make sure this exists and is writable
 
 def print_html(file_list, message=""):
     print("Content-Type: text/html")

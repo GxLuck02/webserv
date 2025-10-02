@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/20 18:19:24 by proton           ###   ########.fr       */
+/*   Updated: 2025/09/28 15:29:37 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Client
 		Serv_config* getServConfig() const;
 		Response& getResponseInstance() const;
 		void setResponseInstance(const Response& responseInstance);
+		void setServConfig(Serv_config* serv_config);
 		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();
