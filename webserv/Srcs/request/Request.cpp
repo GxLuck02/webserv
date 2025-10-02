@@ -3,17 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/20 12:27:02 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:49:09 by ttreichl         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/10/02 10:03:15 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "Request.hpp"
 
 Request::Request()
 {
+	this->_chunked = 0;
+	this->_query = "";
+	this->_httpVersion = "HTTP/1.1";
 	std::cout << "request base constructor" << std::endl;
 }
 
@@ -59,15 +63,13 @@ std::string	Request::getField( size_t loopRound )
 {
 	std::map<std::string, std::string>::iterator	it = this->_field.begin();
 	size_t						i = 0;
-	
-	it++;
 
 	while (i < loopRound && it != this->_field.end())
 	{
 		it++;
 		i++;
 	}
-	return (it->first);	
+	return (it->first);
 }
 
 std::string	Request::getField( std::string key )
@@ -82,25 +84,41 @@ std::string	Request::getField( std::string key )
 			return (it->second);
 		it++;
 	}
-	return (key);
+	return ("");
 }
 
-std::string	Request::getBody( std::string key, enum e_map keyOrValue )
+std::string	Request::getErrorBody() const
+{
+	return (this->_errorBody);
+}
+
+std::string	Request::getBody( size_t index, enum e_map keyOrValue )
 {
 	std::map<std::string, std::string>::iterator it = this->_body.begin();
 
-	while (it != this->_body.end())
+	for(size_t i = 0; i < index && it != this->_body.end(); i++, it++)
 	{
-		if (it->first == key)
-		{
-			if (keyOrValue == KEY)
-				return (it->first);
-			else
-				return (it->second);
-		}
-		it++;
+		if (keyOrValue == KEY)
+			return (it->first);
+		else
+			return (it->second);
 	}
 	return ("");
+}
+
+std::string	Request::getQuery() const
+{
+	return (this->_query);
+}
+
+size_t	Request::getBodyLength() const
+{
+	return (this->_body.size());
+}
+
+std::string	Request::getBodyStart() const
+{
+	return (this->_bodyStart);
 }
 
 int	Request::getStatusCode() const
@@ -130,6 +148,16 @@ std::string	Request::getContentType() const
 int	Request::getContentLength() const
 {
 	return (this->_contentLength);
+}
+
+int	Request::getChunked() const
+{
+	return (this->_chunked);
+}
+
+std::string	Request::getLocation() const
+{
+	return (this->_location);
 }
 
 void	Request::setMethode( std::string methode )
@@ -169,6 +197,11 @@ void	Request::setContentType( std::string type )
 	this->_contentType = type;
 }
 
+void	Request::setErrorBody( std::string body )
+{
+	this->_errorBody = body;
+}
+
 void	Request::setBody( std::string key, std::string value )
 {
 	if (key.empty() || value.empty())
@@ -176,16 +209,72 @@ void	Request::setBody( std::string key, std::string value )
 	this->_body.insert(std::pair<std::string, std::string>(key, value));
 }
 
-void	Request::eraseMap()
+void	Request::setBodyStart( std::string bodyStart )
 {
-	std::map<std::string, std::string>::iterator	it;
+	this->_bodyStart = bodyStart;
+}
 
-	it = this->_field.begin();
+void	Request::setChunked( int chunked )
+{
+	this->_chunked = chunked;
+}
 
-	while (it != this->_field.end())
+void	Request::setQuery( std::string query )
+{
+	this->_query = query;
+}
+
+void	Request::setLocation( std::string location )
+{
+	this->_location = location;
+}
+
+void	Request::setAutoindexEntries( std::string &path )
+{
+	this->_autoIndexEntries.push_back(path);	
+}
+
+std::string Request::getAutoIndexEntries( size_t index )
+{
+	return (this->_autoIndexEntries[index]);
+}
+
+size_t	Request::getAutoIndexEntriesSize() const
+{
+	return (this->_autoIndexEntries.size());
+}
+
+void	Request::setIsFullPath( bool trueOrFalse )
+{
+	if (trueOrFalse == true)
 	{
-		this->_field.erase(it);
-		it++;
+		this->_isFullPath = true;
+		return ;
 	}
+	this->_isFullPath = false;
+}
+
+bool	Request::getIsFullPath() const
+{
+	return (this->_isFullPath);
+}
+
+void	Request::setIsAutoIndex( bool autoindex )
+{
+	this->_isAutoindex = autoindex;
+}
+
+bool	Request::getIsAutoIndex() const
+{
+	return (this->_isAutoindex);
+}
+
+void	Request::setIsStaticCgi( bool isStaticCgi )
+{
+	this->_isStaticCgi = isStaticCgi;
+}
+bool	Request::getIsStaticCgi() const
+{
+	return (this->_isStaticCgi);
 }
 

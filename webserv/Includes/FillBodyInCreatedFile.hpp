@@ -1,34 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   FillBodyInCreatedFile.hpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:37:11 by proton           ###   ########.fr       */
+/*   Created: 2025/08/15 13:06:15 by proton            #+#    #+#             */
+/*   Updated: 2025/09/02 11:59:45 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef FILLBODYINCREATEDFILE_HPP
+#define FILLBODYINCREATEDFILE_HPP
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include "Client.hpp"
 #include "Request.hpp"
-#include "ParseRequest.hpp"
-#include "Response.hpp"
-#include "SendResponse.hpp"
-#include "Client.hpp"
-#include "GetRequest.hpp"
-#include "RecieveCgi.hpp"
-#include "DeleteRequest.hpp"
+#include <fstream>
+#include <string>
+#include <map>
 
-int	beforeRequest(Client &ClientInstance, Response &responseInstance);
-
+int fillBodyJpeg( Request &requestInstance, std::string& body, std::string& filepath );
+int fillBodyTextPlain( Request &requestInstance, std::string& body, std::string& filepath );
+int fillBodyWwwFormUrlEncoded( Request &requestInstance, Request &tempRequest, std::string& filepath );
 
 #endif

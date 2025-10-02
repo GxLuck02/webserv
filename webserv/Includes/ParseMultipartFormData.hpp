@@ -1,34 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   ParseMultipartFormData.hpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:37:11 by proton           ###   ########.fr       */
+/*   Created: 2025/08/06 11:01:50 by proton            #+#    #+#             */
+/*   Updated: 2025/09/02 11:05:10 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef PARSEMULTIPARTFORMDATA_HPP
+#define PARSEMULTIPARTFORMDATA_HPP
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include "Client.hpp"
 #include "Request.hpp"
-#include "ParseRequest.hpp"
 #include "Response.hpp"
-#include "SendResponse.hpp"
-#include "Client.hpp"
-#include "GetRequest.hpp"
-#include "RecieveCgi.hpp"
-#include "DeleteRequest.hpp"
+#include "FillBodyInCreatedFile.hpp"
+#include "ParseWwwFormUrlEncoded.hpp"
+#include "ParseJpeg.hpp"
+#include <fstream>
+#include <vector>
 
-int	beforeRequest(Client &ClientInstance, Response &responseInstance);
-
+int parseMultipartFormData( Request &requestInstance, Client& client, Response& responseInstance );
 
 #endif

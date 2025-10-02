@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:40:26 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/15 17:43:40 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/21 16:22:34 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,13 @@
 
 #include "Client.hpp"
 #include "Server_configue.hpp"
+#include "Response.hpp"
 #include <cstdio>
-#include <vector>
 #include <poll.h>
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <cerrno>
+#include <set>
 
 class Server
 {
@@ -55,9 +56,12 @@ class Server
 		void removeClient(int fd);
 		void checkTimeouts();
 		void setClientNonBlocking(int fd);
-		void addClientToPollFds(int fd, sockaddr_in &client_address, int index);
+		void addClientToPollFds(int new_client_socket, sockaddr_in &client_address, Serv_config *serv_conf);
 		
 		std::vector<Serv_config> _test_serv_servers();
+		bool checkIfServeSocketAlreadyExists(std::vector<Serv_config> &servs, int index);
+		std::string hadHostHeader(std::string const &buffer);
+		void setRealServConfig(Client &client, std::string const &host);
 };
 
 #endif

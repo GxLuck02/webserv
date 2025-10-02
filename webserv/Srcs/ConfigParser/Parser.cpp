@@ -16,7 +16,7 @@ ConfigParser::ConfigParser(const std::string& path)
 
 /******************************** Getters and Setters ********************************/
 std::vector<ServerConfig> ConfigParser::getServers() const
-{ 
+{
 	return _servers;
 }
 
@@ -26,6 +26,8 @@ std::vector<Serv_config> ConfigParser::getConfigs() const
 }
 
 /******************************** Public Methods ********************************/
+
+//check if file extension is same as const extension argument
 bool ConfigParser::checkExtension(const std::string& filename, const std::string& extension) const
 {
 	if (filename.length() < extension.length())
@@ -55,6 +57,7 @@ void ConfigParser::fillClassServers()
 	}
 }
 
+//fill the Serve_configue of the server with obligatory values
 void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
 	std::string servName = ParserConfig.directives["server_name"];
@@ -68,14 +71,18 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 		throw std::runtime_error("IP address not specified in the configuration.");
 	if (!attributeValue("root", ServerConfig, ParserConfig))
 		throw std::runtime_error("Root directory not specified in the configuration.");
-	if (!attributeValue("index", ServerConfig, ParserConfig))
-		throw std::runtime_error("Index file not specified in the configuration.");
 	if (!attributeValue("client_max_body_size", ServerConfig, ParserConfig))
 		throw std::runtime_error("Max body size not specified in the configuration.");
+	
+	// CGI timeout est optionnel, utilise la valeur par défaut si non spécifié
+	attributeValue("cgi_timeout", ServerConfig, ParserConfig);
 }
 
+//fill the Serve_configue of the server with optrional values
 void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
+	if (hasThis("index", ParserConfig))
+		ServerConfig.setIndex(ParserConfig.directives["index"]);
 	if (hasThis("error_page", ParserConfig))
 		ServerConfig.setErrorPage(ParserConfig.directives["error_page"]);
 	else
@@ -83,6 +90,7 @@ void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& 
 	ServerConfig.setTimeout(TIMEOUT_DEF);
 	ServerConfig.setListenFd(-1);
 }
+
 
 void tokenize(const std::string& str, std::vector<std::string>& tokens, char delimiter)
 {
@@ -98,13 +106,17 @@ void tokenize(const std::string& str, std::vector<std::string>& tokens, char del
 	}
 }
 
+//find end fill the location value
 void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
 	for (size_t i = 0; i <ParserConfig.locations.size(); i++)
 	{
 		location_t loc;
 		LocationConfig ParsLoc = ParserConfig.locations[i];
-		loc.root = ParsLoc.directives["root"];
+		if (ParsLoc.directives.find("root") != ParsLoc.directives.end())
+			loc.root = ParsLoc.directives["root"];
+		else
+			loc.root = "";
 		loc.autoindex = (ParsLoc.directives["autoindex"] == "on" ? true : false);
 		loc.tryFile = ParsLoc.directives["try_file"];
 		loc.redirect = ParsLoc.directives["return"];
@@ -116,15 +128,16 @@ void ConfigParser::fillLocationValues(Serv_config& ServerConfig, ServerConfig_t&
 			loc.hasCGI = false;
 		loc.uploadTo = ParsLoc.directives["upload_to"];
 		if (ParsLoc.directives.find("allow_methods") != ParsLoc.directives.end())
-		{
 			tokenize(ParsLoc.directives["allow_methods"], loc.methods, ' ');
-		}
-		
+		if (ParsLoc.directives.find("index") != ParsLoc.directives.end())
+			loc.index = ParsLoc.directives["index"];
+		else
+			loc.index = "";
 		ServerConfig.addLocation(ParsLoc.path, loc);
 	}
 }
 
-
+//function for attribute value from keyWord
 bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
 	if (ParserConfig.directives.find(keyWords) == ParserConfig.directives.end())
@@ -153,26 +166,26 @@ bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& Serve
 		ServerConfig.setRoot(value);
 		return true;
 	}
-	else if (keyWords == "index" && hasThis("index", ParserConfig))
-	{
-		ServerConfig.setIndex(value);
-		return true;
-	}
 	else if (keyWords == "client_max_body_size" && hasThis("client_max_body_size", ParserConfig))
 	{
 		ServerConfig.setMaxBodySize(value);
 		return true;
 	}
+	else if (keyWords == "cgi_timeout" && hasThis("cgi_timeout", ParserConfig))
+	{
+		ServerConfig.setCgiTimeout(value);
+		return true;
+	}
 	return false;
 }
 
-
-
+//check if ServerConfig have the value (keyWords)
 bool ConfigParser::hasThis(std::string const keyWords, ServerConfig& server)
 {
 	return (server.directives.find(keyWords) != server.directives.end());
 }
 
+//check if the Name of server is already use or not
 bool ConfigParser::checkName(std::string servName) const
 {
 	for (size_t i = 0; i < _configs.size(); i++)
@@ -180,11 +193,10 @@ bool ConfigParser::checkName(std::string servName) const
        if (_configs[i].getServName() == servName)
 	   {
 		   std::cerr << "Error: Server name '" << servName << "' already exists." << std::endl;
-		   return false; // nom déjà utilisé
+		   return false;
 	   }
     }
-    return true; // nom libre
-
+    return true;
 }
 
 
@@ -233,36 +245,31 @@ void ConfigParser::parseServers(std::istream& stream)
 void ConfigParser::parseBlock(std::istream& stream, ServerConfig& server)
 {
 	std::string token;
-	stream >> token; // should be '{'
+	stream >> token;
+	
 	if (token != "{")
-	{
 		throw std::runtime_error("Expected '{' after server");
-	}
 	while (stream >> token)
 	{
 		if (token == "}")
-		break;
+			break;
 		if (token == "location")
 		{
 			LocationConfig loc;
 			stream >> loc.path;
-			stream >> token; // should be '{'
+			stream >> token;
 			if (token != "{")
-			{
 				throw std::runtime_error("Expected '{' after location path");
-			}
 			while (stream >> token && token != "}")
 			{
 				std::string value;
 				std::string temp;
 
-				// Lire tous les mots jusqu'au point-virgule ;
 				while (stream >> temp)
 				{
-					// Si ce mot contient un ; à la fin → fin de la directive
 					if (!temp.empty() && temp[temp.length() - 1] == ';')
 					{
-						temp = temp.substr(0, temp.length() - 1); // enlève le ;
+						temp = temp.substr(0, temp.length() - 1);
 						if (!temp.empty())
 						{
 							if (!value.empty()) value += " ";
@@ -272,8 +279,8 @@ void ConfigParser::parseBlock(std::istream& stream, ServerConfig& server)
         			}
 					else
 					{
-					if (!value.empty()) value += " ";
-					value += temp;
+						if (!value.empty()) value += " ";
+						value += temp;
 					}
     			}
 			loc.directives[token] = value;

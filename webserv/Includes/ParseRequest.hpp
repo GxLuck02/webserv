@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:47:38 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/10 20:35:26 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,38 @@
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "ParseMultipartFormData.hpp"
+#include "ParseWwwFormUrlEncoded.hpp"
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <sys/stat.h>
 
 
-int	parseHttpVersion( std::string httpVersion );
-int	findMarkPoint( std::string uriRequest );
+int	    parseHttpVersion( std::string httpVersion );
+int	    findMarkPoint( std::string uriRequest );
 size_t	findBodyStart( std::string request);
-int	countArrayStrings( std::string* array );
-int	searchWhiteSpaceInFieldName( std::string field );
-int	ParseRequestLine( Request& instance, std::string request );
-int	tokeniseRequestField( Request& instance, std::string request );
-int	parseTokenisedHeaderField( Request& instance );
-int	fillContentLength( Request& instance, Response& reponseInstance );
-int	fillContentType( Request& instance, Response& responseInstance );
-int	findChar( std::string str, char c );
-int	fillBody( Request& requestInstance, std::string request );
-int	findInConfigFile( std::string value, std::string key );
+int	    countArrayStrings( std::string* array );
+int	    searchWhiteSpaceInFieldName( std::string field );
+int	    ParseRequestLine( Request& instance, std::string request, Client& clientInstance );
+int	    tokeniseRequestField( Request& instance, std::string request );
+int	    parseTokenisedHeaderField( Request& instance, Client& clientInstance );
+int	    fillContentLength( Request& instance, Response& reponseInstance );
+int	    fillContentType( Request& instance, Response& responseInstance );
+int	    findChar( std::string str, char c );
+int	    fillBody( Request& requestInstance, std::string request, Client& clientInstance );
+int	    parseBody( Request& requestInstance, Client& clientInstance, Response& responseInstance );
+int	    findInConfigFile( std::string value, std::string key, Client& clientInstance );
+int	    isHexadecimal(const std::string &str);
+bool    isDirectory(const std::string &path);
 
 
 std::string*	splitRequest( std::string request, char separator );
-std::string*	splitField( std::string request, char separator );
+std::pair<std::string, std::string> splitField(const std::string& request, char separator);
 
 
 void	removeIfSpace( std::string* token );
-
+bool looksPercentEncoded(const std::string& s);
+std::string urlDecode(const std::string str);
 
 #endif

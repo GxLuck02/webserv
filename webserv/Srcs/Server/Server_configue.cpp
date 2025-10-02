@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/08/20 15:33:51 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/01 14:28:55 by tmontani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server_configue.hpp"
 #include "Define.hpp"
 
-//a VOirrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 Serv_config::Serv_config()
 {
+	this->_cgiTimeout = CGI_TIMEOUT; // Initialiser avec la valeur par défaut de 5 secondes
 	std::cout << "Serv_config constructor called." << std::endl;
 }
 
@@ -38,6 +38,7 @@ Serv_config::Serv_config(const Serv_config &other)
 		this->_listen_fd = other._listen_fd;
 		this->_max_body_size = other._max_body_size;
 		this->_locations = other._locations;
+		this->_cgiTimeout = other._cgiTimeout;
 	}
 	std::cout << "Serv_config copy constructor called." << std::endl;
 }
@@ -51,12 +52,31 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 		this->_ip = other._ip;
 		this->_timeout = other._timeout;
 		this->_listen_fd = other._listen_fd;
+		this->_cgiTimeout = other._cgiTimeout;
 		std::cout << "Serv_config assignment operator called." << std::endl;
 	}
 	return *this;
 }
 
 /**************************** Geters and Setters ***********************************/
+
+
+void Serv_config::setCgiTimeout(const std::string &timeoutStr)
+{
+	int timeout = std::atoi(timeoutStr.c_str());
+	if (timeout <= 0)
+	{
+		std::cerr << "Error: CGI timeout must be a positive integer. Using default value." << std::endl;
+		this->_cgiTimeout = CGI_TIMEOUT; // Valeur par défaut
+		return;
+	}
+	this->_cgiTimeout = timeout;
+}
+
+int Serv_config::getCgiTimeout() const
+{
+	return this->_cgiTimeout;
+}
 
 void Serv_config::setPort(std::string string_port)
 {
@@ -206,6 +226,31 @@ locationMap const &Serv_config::getLocations() const
 	return this->_locations;
 }
 
+std::string Serv_config::getIndexFromLocation(const std::string &location) const
+{
+	
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && !it->second.index.empty())
+		return it->second.index;
+	return "";
+}
+
+std::string Serv_config::getRootFromLocation(const std::string &location) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && !it->second.root.empty())
+		return it->second.root;
+	return "";
+}
+
+bool Serv_config::getAutoIndexFromLocation(const std::string &location) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+	if (it != this->_locations.end() && it->second.autoindex)
+		return (true);
+	return (false);
+}
+
 void Serv_config::addLocation(const std::string &path, const location_t &location)
 {
 	if (path.empty())
@@ -216,25 +261,52 @@ void Serv_config::addLocation(const std::string &path, const location_t &locatio
 	std::make_pair(path, location);
 	this->_locations.insert(std::make_pair(path, location));
 }
+
+/*return -1 if no methods are defined in the location (all methods are allowed)
+return 0 if the method is not allowed
+return 1 if the method is allowed*/
+int Serv_config::checkMethodInLocation(const std::string &location, const std::string &method) const
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+
+	const std::vector<std::string> &methods = it->second.methods;
+
+	if (it->second.methods.empty())
+		return -1;
+
+	for (size_t i = 0; i < methods.size(); ++i)
+	{
+		if (methods[i] == method)
+			return 1;
+	}
+	return 0;
+}
+
+bool Serv_config::isLocationValid(const std::string &location)
+{
+	locationMap::const_iterator it = this->_locations.find(location);
+
+	if (it == this->_locations.end())
+		return (false);
+	return (true);
+}
 /**************************** Privates functions ************************************/
 
+//Convert the max body size string in size_t, the string can contain the value in 1G or mb etc..
 size_t Serv_config::_getConvertedMaxSize(std::string const &size)
 {
 	std::string	c;
 	std::string	sub;
 	double		tmp = 0;
-
+	
 	if (!isdigit(size[size.length() - 1]))
 	{
 		sub = size.substr(0, size.length() - 1);
 		c = size.substr(size.length() - 1);
 	}
-
 	if ((c.empty() && size.find_first_not_of(DECIMAL) != std::string::npos)
-		|| c.find_first_not_of(SUFIX_BYTES) != std::string::npos
-		|| sub.find_first_not_of(DECIMAL) != std::string::npos)
+		|| c.find_first_not_of(SUFIX_BYTES) != std::string::npos || sub.find_first_not_of(DECIMAL) != std::string::npos)
 		throw std::runtime_error(ERR_MAX_SIZE_INPUT(size));
-	
 	if (c.empty())
 		tmp = std::atof(size.c_str());
 	else if (c == "b" || c == "B")
@@ -245,15 +317,14 @@ size_t Serv_config::_getConvertedMaxSize(std::string const &size)
 		tmp = std::atof(sub.c_str()) * 1024 * 1024;
 	else if (c == "g" || c == "G")
 		tmp = std::atof(sub.c_str()) * 1024 * 1024 * 1024;
-
 	if (tmp > MAX_SIZE_LIMIT)
 		throw std::runtime_error(ERR_MAX_SIZE_RANGE(size));
-
 	return static_cast<size_t>(tmp);
 }
 
 /*********************Output Operator **************************/
 
+//print Server_configue
 std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 {
 	out << "ServerName: " << server.getServName() << std::endl;
@@ -265,6 +336,7 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 	out << "Index: " << server.getIndex() << std::endl;
 	out << "ClientMaxBodySize: " << server.getMaxBodySize() << std::endl;
 	out << "ErrorPage: " << server.getErrorPage() << std::endl;
+	out << "CGI Timeout: " << server.getCgiTimeout() << " seconds" << std::endl;
 	
 	for (locationMap::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); it++)
 	{
@@ -284,6 +356,5 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 		out << "	UploadTo: " << it->second.uploadTo << std::endl;
 		out << std::endl;
 	}
-	// out << "Error Reponse ↓" << std::endl << server.getErrorResponse() << std::endl;
 	return out;
 }

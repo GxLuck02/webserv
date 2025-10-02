@@ -1,34 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   ParserCgiResponse.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:37:11 by proton           ###   ########.fr       */
+/*   Created: 2025/09/17 13:00:53 by bproton           #+#    #+#             */
+/*   Updated: 2025/09/22 09:39:04 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef PARSERCGIRESPONSE_HPP
+#define PARSERCGIRESPONSE_HPP
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include "Client.hpp"
 #include "Request.hpp"
-#include "ParseRequest.hpp"
 #include "Response.hpp"
-#include "SendResponse.hpp"
 #include "Client.hpp"
-#include "GetRequest.hpp"
-#include "RecieveCgi.hpp"
-#include "DeleteRequest.hpp"
+#include "StatusCode.hpp"
+#include "ParseRequest.hpp"
+#include "SendResponse.hpp"
 
-int	beforeRequest(Client &ClientInstance, Response &responseInstance);
-
+int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::string &response);
 
 #endif

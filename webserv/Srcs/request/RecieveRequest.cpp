@@ -3,37 +3,130 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/03 11:36:32 by proton            #+#    #+#             */
-/*   Updated: 2025/08/11 19:00:00 by ttreichl         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/10/02 09:37:55 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RecieveRequest.hpp"
-#include "Client.hpp"
 
-int	beforeRequest(Client &ClientInstance)
+
+#include "../../Includes/RecieveRequest.hpp"
+
+static int	isParentOrChildDir(std::string name)
 {
-	std::string		request = ClientInstance.getBuffer();
+	if (name == "." || name == "..")
+		return (1);
+	return (0);
+}
+
+void generateAutoIndex(const std::string &uri, Request &requestInstance, Response &responseInstance)
+{
+    std::ostringstream	html;
+
+	std::cout << " URI ========================= " << uri << std::endl;
+
+    html << "<!DOCTYPE html>\n<html>\n<head>\n";
+    html << "<meta charset=\"UTF-8\">\n";
+    html << "<title>Index of " << uri << "</title>\n";
+    html << "</head>\n<body>\n";
+    html << "<h1>Index of " << uri << "</h1>\n";
+    html << "<ul>\n";
+
+    for (size_t i = 0; i < requestInstance.getAutoIndexEntriesSize(); ++i)
+	{
+        std::string name = requestInstance.getAutoIndexEntries(i);
+        std::string displayName = name;
+
+        size_t pos = name.find_last_of('/');
+        if (pos != std::string::npos)
+            displayName = name.substr(pos + 1);
+		std::cout << "NAME ====== " << name << std::endl; 
+        if (isDirectory(name))
+		{
+            displayName += "/";
+        }
+
+        html << "<li><a href=\"" << displayName << "\">" << displayName << "</a></li>\n";
+    }
+
+    html << "</ul>\n</body>\n</html>\n";
+    responseInstance.setBody(html.str());
+	responseInstance.setStatusCode(200);
+	responseInstance.setContentType("text/html");
+}
+
+
+static int handleAutoIndex(Request &requestInstance, Response &responseInstance, std::string currPath)
+{
+	struct dirent	*currFile;
+	DIR*	directory =	opendir(currPath.c_str());
+
+	if (!directory)
+	{
+		requestInstance.setStatusCode(404);
+		requestInstance.setErrorBody("Not Found");
+		return -1;
+	}
+
+	while ((currFile = readdir(directory)) != NULL)
+	{
+		if (isParentOrChildDir(std::string(currFile->d_name)))
+			continue ;
+		
+		std::string fileName = currFile->d_name;
+		std::string	fullPath = currPath;
+
+		if (fullPath[fullPath.length() - 1] != '/')
+			fullPath += "/";
+		fullPath += fileName;
+
+		requestInstance.setAutoindexEntries(fullPath);
+	}
+	closedir(directory);
+	generateAutoIndex(requestInstance.getLocation(), requestInstance, responseInstance);
+	return (0);
+}
+
+static int isMethodAllowed(Request &requestInstance, Client &clientInstance)
+{
+	std::string method = requestInstance.getMethode();
+	std::string location = requestInstance.getLocation();
+	int foundMethode = clientInstance.getServConfig()->checkMethodInLocation(location, method);
+
+	if (foundMethode == 0)
+	{
+		requestInstance.setStatusCode(405);
+		requestInstance.setErrorBody("Method Not Allowed: The method is not allowed for the requested location");
+		return -1;
+	}
+
+	return 0;
+}
+
+int	beforeRequest(Client &clientInstance, Response &responseInstance)
+{
+	std::string		request = clientInstance.getBuffer();
 	std::string		line;
 	std::stringstream	ssrequest(request);
-
-	Request		requestInstance;
-	Response		responseInstance;
+	Request			requestInstance;
+	
+	
+	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 
 	std::getline(ssrequest, line);
 
-	std::cout << "[ Request Line ] : " << line << std::endl;
-	if (ParseRequestLine(requestInstance, line) == -1)
+	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
 	{
+		responseInstance.setStatusCode(requestInstance.getStatusCode());
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-	std::cout << "[ Request Line Parsed ]" << std::endl;
+	
 	while (getline(ssrequest, line))
 	{
-		if (line == "\r\n" || line == "\n")
+		if (line == "\r" || line.empty())
 			break ;
 		if (tokeniseRequestField(requestInstance, line ) == -1 )
 		{
@@ -41,15 +134,44 @@ int	beforeRequest(Client &ClientInstance)
 			return (0);
 		}
 	}
-	std::cout << "[ Request Fields Parsed ]" << std::endl;
-	if (parseTokenisedHeaderField(requestInstance) == -1)
+	if (requestInstance.getField("Host").empty())
+	{
+		requestInstance.setStatusCode(400);
+		requestInstance.setErrorBody("Bad Request: Host header is missing");
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
+	}
+
+	if (parseTokenisedHeaderField(requestInstance, clientInstance) == -1)
 	{
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-	std::cout << "[ Tokenised Header Fields Parsed ]" << std::endl;
+
+	if (isMethodAllowed(requestInstance, clientInstance) == -1)
+	{
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
+	}
+
+	if (requestInstance.getIsStaticCgi() == false)
+	{
+		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		else
+		{
+			makeResponse(requestInstance, responseInstance);
+			clientInstance.setResponseInstance(responseInstance);
+			return (0);
+		}
+	}
+
 	if (requestInstance.getMethode() == "POST")
 	{
+
 		if (fillContentLength(requestInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
@@ -60,30 +182,59 @@ int	beforeRequest(Client &ClientInstance)
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		if (fillBody(requestInstance, request) == -1)
+		if (requestInstance.getContentLength() > maxBodySize)
+		{
+			requestInstance.setStatusCode(413);
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		if (fillBody(requestInstance, request, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		//if (requestInstance.getContentLength() > serverInstance.getMaxBodySize())
-		//{
-		//	requestInstance.setStatusCode(413);
-		//	sendErrorResponse(requestInstance, responseInstance);
-		//	return (0);
-		//}
+		if (parseBody(requestInstance, clientInstance, responseInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+		}
 
+	else if (requestInstance.getMethode() == "GET")
+	{
+		if (requestInstance.getIsAutoIndex() == true)
+		{
+			if (handleAutoIndex(requestInstance, responseInstance, requestInstance.getUri()) == -1)
+			{
+				sendErrorResponse(requestInstance, responseInstance);
+				return (0);
+			}
+		}
+		if (handleGetRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
 	}
-	std::cout << "[ Request Body Parsed ]" << std::endl;
-	//if (makeResponse(requestInstance, responseInstance) == -1)
-	//	return (0);
-		std::cout << responseInstance.getResponse() << std::endl;
-		std::cout << requestInstance.getMethode() << std::endl;
-		std::cout << requestInstance.getUri() << std::endl;
-		std::cout << requestInstance.getHttpVersion() << std::endl;
-		std::cout << requestInstance.getStatusCode() << std::endl;
-		std::cout << requestInstance.getField("Host") << std::endl;
-		std::cout << requestInstance.getField("Connection") << std::endl;
+	else if (requestInstance.getMethode() == "DELETE")
+	{
+		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
+		{
+			sendErrorResponse(requestInstance, responseInstance);
+			return (0);
+		}
+	}
+	else
+	{
+		requestInstance.setStatusCode(501);
+		requestInstance.setErrorBody("Not Implemented: Method not supported");
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
+	}
 
-	return (0);
-	
+	makeResponse(requestInstance, responseInstance);
+	clientInstance.setResponseInstance(responseInstance);
+	// std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	return (1);
+
 }

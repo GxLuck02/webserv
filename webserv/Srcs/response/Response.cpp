@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 17:28:27 by proton            #+#    #+#             */
-/*   Updated: 2025/08/01 14:49:46 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/09/07 14:27:20 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ Response&	Response::operator=( const Response& copy )
 	{
 		this->_statusCode = copy._statusCode;
 		this->_statusLine = copy._statusLine;
+		this->_httpVersion = copy._httpVersion;
+		this->_contentType = copy._contentType;
+		this->_contentLength = copy._contentLength;
+		this->_body = copy._body;
+		this->_fileType = copy._fileType;
+		this->_header = copy._header;
+		this->_response = copy._response;
 	}
 
 	return (*this);
@@ -69,6 +76,16 @@ std::string	Response::getResponse() const
 	return (this->_response);
 }
 
+std::string	Response::getBody() const
+{
+	return (this->_body);
+}
+
+std::string	Response::getFileType() const
+{
+	return (this->_fileType);
+}
+
 void	Response::setStatusLine( std::string statusLine )
 {
 	this->_statusLine = statusLine;
@@ -94,4 +111,14 @@ void	Response::setContentType( std::string type )
 void	Response::setContentLength( int length )
 {
 	this->_contentLength = length;
+}
+
+void	Response::setBody( std::string body )
+{
+	this->_body = body;
+}
+
+void	Response::setFileType( std::string fileType)
+{
+	this->_fileType = fileType;
 }

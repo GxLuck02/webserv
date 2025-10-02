@@ -1,34 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   ParseJpeg.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:37:11 by proton           ###   ########.fr       */
+/*   Created: 2025/08/07 17:20:59 by proton            #+#    #+#             */
+/*   Updated: 2025/08/07 17:26:11 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef PARSEJPEG_HPP
+#define PARSEJPEG_HPP
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include "Client.hpp"
+#include <iostream>
+#include <string>
 #include "Request.hpp"
-#include "ParseRequest.hpp"
-#include "Response.hpp"
-#include "SendResponse.hpp"
-#include "Client.hpp"
-#include "GetRequest.hpp"
-#include "RecieveCgi.hpp"
-#include "DeleteRequest.hpp"
 
-int	beforeRequest(Client &ClientInstance, Response &responseInstance);
+int parseJpeg( Request& requestInstance, const std::string &jpegData );
 
 
 #endif

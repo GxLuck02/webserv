@@ -1,34 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   RecieveRequest.hpp                                 :+:      :+:    :+:   */
+/*   RecieveCgi.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:37:11 by proton           ###   ########.fr       */
+/*   Created: 2025/09/18 17:56:14 by proton            #+#    #+#             */
+/*   Updated: 2025/09/22 09:36:41 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef RECIEVECGI_HPP
+#define RECIEVECGI_HPP
 
-#ifndef	RECIEVEREQUEST_HPP
-#define RECIEVEREQUEST_HPP
-
-#include <dirent.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <sys/stat.h>
 #include "Client.hpp"
 #include "Request.hpp"
-#include "ParseRequest.hpp"
 #include "Response.hpp"
-#include "SendResponse.hpp"
-#include "Client.hpp"
-#include "GetRequest.hpp"
-#include "RecieveCgi.hpp"
-#include "DeleteRequest.hpp"
+#include "StatusCode.hpp"
+#include "ParserCgiResponse.hpp"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <cstring>
+#include <sstream>
 
-int	beforeRequest(Client &ClientInstance, Response &responseInstance);
+#define BUFFER_SIZE 1024
 
+int handleCgi(Request &requestInstance, Response &responseInstance, Client &clientInstance);
 
 #endif
