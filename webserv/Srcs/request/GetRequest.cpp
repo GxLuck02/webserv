@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/20 18:20:38 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:43:22 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             return -1;
         }
     }
-    std::cout << "GET request handled successfully" << std::endl;
 
     responseInstance.setStatusCode(200);
     return 0;

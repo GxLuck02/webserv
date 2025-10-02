@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:44:54 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:46:05 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void chunkedResponse(Response &responseInstance, Request &requestInstance, Clien
     size_t chunkSize = clientInstance.getServConfig()->getMaxBodySize();
     size_t offset = 0;
     int clientSocket = clientInstance.getFd();
-    (void)requestInstance; // Unused parameter
+    (void)requestInstance;
 
     while (offset < bodyLength)
     {
@@ -50,7 +50,6 @@ int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
     //     chunkedResponse(responseInstance, requestInstance, clientInstance);
     //     return 0;
     // }
-    std::cout << errorMessage << std::endl;
     std::string htmlError = genereateHtmlErrorPage(statusCode, errorMessage);
 
     std::stringstream out;
@@ -61,7 +60,6 @@ int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
     out << htmlError;
 
     responseInstance.setResponse(out.str());
-    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
 
     return 0;
 }
@@ -91,7 +89,6 @@ int makeResponse(Request& requestInstance, Response& responseInstance)
     }
 
     responseInstance.setResponse(out.str());
-    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
     return 0;
 }
 

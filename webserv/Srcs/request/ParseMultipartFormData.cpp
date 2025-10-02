@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/09/19 15:55:37 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:50:30 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,6 @@ std::string trim(const std::string& s)
 	return s.substr(start, end - start + 1);
 }
 
-// void storeName(const std::string &name, Client& clientInstance)
-// {
-// 	if (name.empty()) return;
-
-// 	std::string current = clientInstance.getServConfig()->getName();
-// 	if (current.empty())
-// 		clientInstance.getServConfig()->setName(name);
-// 	else
-// 		clientInstance.getServConfig()->setName(current + "," + name);
-// }
-
 int createFile(Request& requestInstance, std::map<std::string, std::string> &headersMap,\
 		std::map<std::string, std::string> &contentDispMap, std::string body)
 {
@@ -55,8 +44,6 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 
 	std::string contentType = headersMap["Content-Type"];
 	std::string filePath = requestInstance.getUri() + "/" + contentDispMap["filename"];
-	
-	std::cout << "CONTENT TYPE IS : " << contentType << std::endl;
 
 	if (access(filePath.c_str(), F_OK) == 0)
 	{
@@ -71,14 +58,14 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 		requestInstance.setErrorBody("Content-Type header is missing\n");
 		return (-1);
 	}
-	if (contentType == "x-www-form-urlencoded")
-	{
-		Request tempRequest;
-		if (parseWwwFormUrlEncoded(tempRequest, body) == -1)
-			return (-1);
-		if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest, filePath) == -1)
-			return (-1);
-	}
+	// if (contentType == "x-www-form-urlencoded")
+	// {
+	// 	Request tempRequest;
+	// 	if (parseWwwFormUrlEncoded(tempRequest, body) == -1)
+	// 		return (-1);
+	// 	if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest, filePath) == -1)
+	// 		return (-1);
+	// }
 	else if (contentType == "image/jpeg" || contentType == "image/jpg")
 	{
 		if (parseJpeg(requestInstance, body) == -1)
@@ -114,13 +101,6 @@ int parseContentDisposition(Request& requestInstance, const std::string &line,\
 		size_t eq_pos = token.find('=');
 		if (eq_pos == std::string::npos)
 			continue ;
-		// if (ss.str() != "form-data")
-		// {
-		// 	std::cout << ss.str() << std::endl;
-		// 	requestInstance.setStatusCode(400);
-		// 	requestInstance.setErrorBody("Invalid Content-Disposition format");
-		// 	return (-1);
-		// }
 
 		std::string key = trim(token.substr(0, eq_pos));
 		std::string value = trim(token.substr(eq_pos + 1));
@@ -179,11 +159,6 @@ int parseEachPart(Request &requestInstance, const std::string &part, Client& cli
 		if (createFile(requestInstance, headersMap, contentDispMap, body) == -1)
 			return (-1);
 	}
-	// else if ((it = headersMap.find("name")) != headersMap.end())
-	// {
-	// 	if (it != headersMap.end())
-	// 		storeName(it->second, clientInstance);
-	// }
 
 	return 0;
 }

@@ -6,22 +6,11 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/02 09:30:03 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:55:18 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ParseRequest.hpp"
-
-/*checks if the uri sent in the request a full path, from root */
-// static void identifyRealLocation(std::string &location, Request &requestInstance)
-// {
-// 	if (location != "/" && (access(location.c_str(), F_OK) != -1))
-// 	{
-// 		requestInstance.setIsFullPath(true);
-// 		return ;
-// 	}
-// 	requestInstance.setIsFullPath(false);
-// }
 
 static void removeFileFromLocation(std::string &location, Request &instance)
 {
@@ -62,8 +51,6 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 	std::string chunked;
 	int			content = 0;
 
-	std::cout << "fill content Length" << std::endl;
-
 	contentLength = instance.getField("Content-Length");
 	chunked = instance.getField("Transfer-Encoding");
 
@@ -97,8 +84,6 @@ int	fillContentType( Request& instance, Response& responseInstance )
 	std::string	contentType;
 	(void)responseInstance;
 
-	std::cout << "in fill content" << std::endl;
-
 	contentType = instance.getField("Content-Type");
 
 	if (contentType.empty())
@@ -120,7 +105,6 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		return (-1);
 	}
 	instance.setContentType(contentType);
-	std::cout << "end of fill content" << std::endl;
 
 	return (0);
 }
@@ -211,15 +195,15 @@ int	parseBody( Request& requestInstance, Client& clientInstance, Response& respo
 		return (0);
 	}
 
-	else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
-	{
-		if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
-			return (-1);
-		responseInstance.setBody("Username created\n");
-		responseInstance.setContentType("text/plain");
-		responseInstance.setStatusCode(201);
-		return (0);
-	}
+	// else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
+	// {
+	// 	if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
+	// 		return (-1);
+	// 	responseInstance.setBody("Username created\n");
+	// 	responseInstance.setContentType("text/plain");
+	// 	responseInstance.setStatusCode(201);
+	// 	return (0);
+	// }
 
 	else if (requestInstance.getContentType() == "image/jpeg\r")
 	{
@@ -396,13 +380,10 @@ static int cgiPath(Request &requestInstance, Client &clientInstance, std::string
 	else
 		fullPath = root + token;
 	
-	// Nettoyer les double slashes
 	size_t pos = 0;
 	while ((pos = fullPath.find("//", pos)) != std::string::npos) {
 		fullPath.replace(pos, 2, "/");
 	}
-	std::cout << "FULL PATH " << fullPath << std::endl;
-	std::cout << "QUETY = " << requestInstance.getQuery() << std::endl;
 	if (access(fullPath.c_str(), F_OK) == -1)
 	{
 		requestInstance.setStatusCode(403);
@@ -425,13 +406,11 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	{
 		token = urlDecode(token);
 	}
-	std::cout << "IS FILE <<<<<<<<<<<<<<<< " << token << std::endl;
 
 	if (token.find('?') != std::string::npos)
     {
         setQuery(token, requestInstance);
         uri = token.substr(0, token.find_first_of('?'));
-		std::cout << "QUERY IN GET REQUEST = " << requestInstance.getQuery() << std::endl;
 	}
 	else
 		uri = token;
@@ -451,7 +430,6 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 		root = clientInstance.getServConfig()->getRoot();
 	
 	fullPath = root + token;
-	std::cout << "FULL PATH IN FILE " << fullPath << std::endl;
 	if (requestInstance.getQuery().empty())
 	{
 		if (access(fullPath.c_str(), F_OK) == -1)
@@ -493,7 +471,6 @@ static int handlePostFullPath(Request &requestInstance, Client &clientInstance)
 	    return (-1);
 
 	requestInstance.setUri(fullPath);
-	std::cout << "FULL PATH IN POST" << fullPath << std::endl;
 	return (0);
 }
 
@@ -505,7 +482,6 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	std::string fullPath;
 
 	uri = token;
-	std::cout << "TOKEN IS : " << token << std::endl;
 
 	requestInstance.setLocation(uri);
 	requestInstance.setIsStaticCgi(true); // je dois le traiter comme static si c est un dossier
@@ -513,7 +489,6 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	std::cout << requestInstance.getMethode() << std::endl;
 	if (requestInstance.getMethode() == "POST")
 	{
-		std::cout << "IN POST " << std::endl;
 		if (handlePostFullPath(requestInstance, clientInstance) == -1)
 		{
 			requestInstance.setStatusCode(403);
@@ -536,12 +511,10 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	}
 
 	index = clientInstance.getServConfig()->getIndexFromLocation(uri);
-	std::cout << " FIRST CHECK INDEX LOCATION " << index << std::endl;
 
 	if (index.empty())
 	{
 		index = clientInstance.getServConfig()->getIndex();
-		std::cout << "SECOND CHECK INDEX SERVER " << index << std::endl;
 		if (index.empty())
 		{
 			if (clientInstance.getServConfig()->getAutoIndexFromLocation(uri) == false)
@@ -561,8 +534,6 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	}
 	else
 		fullPath = root + uri + "/" + index;
-
-	std::cout << "FULL PATH " << fullPath << std::endl;
 
 	if (access(fullPath.c_str(), F_OK) == -1)
 	{
@@ -615,7 +586,6 @@ int ParseRequestLine(Request& instance, std::string request, Client& clientInsta
     requestToken = splitRequest(request, ' ');
     if (requestToken == NULL)
     {
-		std::cout << "in token null" << std::endl;
         instance.setStatusCode(400);
         instance.setErrorBody("Bad Request");
         return (-1);
@@ -665,14 +635,12 @@ int	tokeniseRequestField( Request& instance, std::string request ) // request do
 	fieldArray = splitField(request, ':');
 	if (fieldArray.first.empty() || fieldArray.second.empty())
 	{
-		std::cout << "filed array null" << std::endl;
 		instance.setStatusCode(400);
 		instance.setErrorBody("Bad Request in header field");
 		return (-1);
 	}
 	if (fieldArray.first == "Host")
 	{
-		// If Host header contains a port, it will be in fieldArray.second (e.g. "example.com:8080")
 		instance.setField(fieldArray.first, fieldArray.second);
 	}
 	else
@@ -693,7 +661,6 @@ int	findInConfigFile(std::string value, std::string key, Client& clientInstance)
     if (key == "Host")
     {
         std::string configHost = clientInstance.getServConfig()->getServName();
-		std::cout << "configHost: " << configHost << std::endl;
         if (value != configHost && value != configHost + "\r")
             return (-1);
         return (0);
@@ -727,13 +694,6 @@ int	parseServerNameAndPort(Request& instance, std::string fieldValue, Client& cl
         host = fieldValue;
         port = "";
     }
-
-    // if (findInConfigFile(host, "Host", clientInstance) == -1)
-    // {
-    //     instance.setStatusCode(400);
-    //     instance.setErrorBody("Bad Request, host not found in config file");
-    //     return (-1);
-    // }
 
     if (!port.empty())
     {
@@ -799,7 +759,6 @@ int	parseTokenisedHeaderField( Request& instance, Client& clientInstance )
 			return (-1);
 		i++;
 	}
-	std::cout << "End of parseTokenisedHeaderField" << std::endl;
 	return (0);
 }
 

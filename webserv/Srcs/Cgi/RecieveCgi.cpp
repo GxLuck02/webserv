@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/10/02 09:29:32 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 10:08:22 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,45 +51,55 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
     std::vector<std::string> envVars;
     char **myEnv;
     std::string methods = requestInstance.getMethode();
+    std::string query = requestInstance.getQuery();
     std::stringstream port;
     std::stringstream contentLength;
     port << clientInstance.getServConfig()->getPort();
     contentLength << requestInstance.getContentLength();
 
-    std::cout << "BEFORE GET AN DELETE " << std::endl;
-
     if (methods == "GET" || methods == "DELETE")
     {
+        std::cout << "BEFORE MAKE ENV GET AND DELETE" << std::endl;
         envVars.push_back("REQUEST_METHOD=" + methods);
         envVars.push_back("SCRIPT_NAME=" + requestInstance.getUri());
         envVars.push_back("SERVER_PROTOCOL=" + requestInstance.getHttpVersion());
-        envVars.push_back("SERVER_NAME=" + requestInstance.getField("Host"));
+        envVars.push_back("SERVER_NAME=" + clientInstance.getServConfig()->getServName());
         envVars.push_back("SERVER_PORT=" + port.str());
-        envVars.push_back("QUERY_STRING=" + requestInstance.getQuery());
+        if (query.empty())
+            envVars.push_back("QUERY_STRING=");
+        else
+            envVars.push_back("QUERY_STRING=" + requestInstance.getQuery());
         envVars.push_back("CONTENT_LENGTH=");
         envVars.push_back("CONTENT_TYPE=");
         envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
+        std::cout << "AFTER MAKE ENV GET AND DELETE" << std::endl;
     }
     else if (methods == "POST")
     {
+        std::cout << "BEFORE MAKE ENV POST" << std::endl;
         envVars.push_back("REQUEST_METHOD=" + methods);
         envVars.push_back("SCRIPT_NAME=" + requestInstance.getUri());
         envVars.push_back("SERVER_PROTOCOL=" + requestInstance.getHttpVersion());
-        envVars.push_back("SERVER_NAME=" + requestInstance.getField("Host"));
+        envVars.push_back("SERVER_NAME=" + clientInstance.getServConfig()->getServName());
         envVars.push_back("SERVER_PORT=" + port.str());
-        envVars.push_back("QUERY_STRING=" + requestInstance.getQuery());
+        if (query.empty())
+            envVars.push_back("QUERY_STRING=");
+        else
+            envVars.push_back("QUERY_STRING=" + requestInstance.getQuery());
         envVars.push_back("CONTENT_LENGTH=" + contentLength.str());
         envVars.push_back("CONTENT_TYPE=" + requestInstance.getContentType());
         envVars.push_back("GATEWAY_INTERFACE=CGI/1.1");
+        std::cout << "AFTER MAKE ENV POST" << std::endl;
     }
 
 
     myEnv = new char*[envVars.size() + 1];
-
+    std::cout << "ASSIGNING ENV BEFORE" << std::endl;
     for (size_t i = 0; i < envVars.size(); ++i) {
         myEnv[i] = new char[envVars[i].size() + 1];
         std::strcpy(myEnv[i], envVars[i].c_str());
     }
+    std::cout << "ASSIGNING ENV AFTER" << std::endl;
 
     myEnv[envVars.size()] = NULL;
     return (myEnv);
@@ -115,14 +125,6 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
     }
 
     myEnv = makeEnv(requestInstance, clientInstance);
-
-    std::cout << "=== CGI DEBUG ===" << std::endl;
-    std::cout << "CGI script path: " << root << std::endl;
-    std::cout << "Method: " << requestInstance.getMethode() << std::endl;
-
-    for (size_t i = 0; myEnv[i] != NULL; ++i) {
-        std::cout << "argv[" << i << "] = " << myEnv[i] << std::endl;
-    }
     
     if (pipe(out_fd) == -1) // pour recuperer la reponse du script
     {
@@ -161,8 +163,6 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
             dup2(in_fd[0], STDIN_FILENO);
         dup2(out_fd[1], STDOUT_FILENO);
         char *args[3] = {const_cast<char *>("/usr/bin/python3"), newRoot, NULL};
-        // for (size_t i = 0; args[i] != NULL; i++)
-        //     std::cout << "args[" << i << "] = " << args[i] << std::endl;
         execve("/usr/bin/python3", args, myEnv);
         exit(1);
     }

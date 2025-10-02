@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/20 18:21:59 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:37:55 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,10 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	
 	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 
-	std::cout << "Received Request:\n" << request << std::endl;
 	std::getline(ssrequest, line);
 
 	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
 	{
-		std::cout << "Error in ParseRequestLine" << std::endl;
 		responseInstance.setStatusCode(requestInstance.getStatusCode());
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
@@ -149,7 +147,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 		sendErrorResponse(requestInstance, responseInstance);
 		return (0);
 	}
-	std::cout << "BEFORE METHODE ALLOWED" << std::endl;
 
 	if (isMethodAllowed(requestInstance, clientInstance) == -1)
 	{
@@ -159,7 +156,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	if (requestInstance.getIsStaticCgi() == false)
 	{
-		std::cout << "IN STATIC CGI " << std::endl;
 		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
@@ -175,45 +171,37 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	if (requestInstance.getMethode() == "POST")
 	{
-		std::cout << "In POST method" << std::endl;
 
 		if (fillContentLength(requestInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		std::cout << "after fill content length" << std::endl;
 		if (fillContentType(requestInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		std::cout << "after fill content type" << std::endl;
 		if (requestInstance.getContentLength() > maxBodySize)
 		{
-			std::cout << "in error maxbody size POST method" << std::endl;
 			requestInstance.setStatusCode(413);
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		std::cout << "after max body size" << std::endl;
 		if (fillBody(requestInstance, request, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		std::cout << "after fille body" << std::endl;
 		if (parseBody(requestInstance, clientInstance, responseInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
 			return (0);
 		}
-		std::cout << "After post method" << std::endl;
 		}
 
 	else if (requestInstance.getMethode() == "GET")
 	{
-		std::cout << "In GET methode" << std::endl;
 		if (requestInstance.getIsAutoIndex() == true)
 		{
 			if (handleAutoIndex(requestInstance, responseInstance, requestInstance.getUri()) == -1)
@@ -230,7 +218,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	}
 	else if (requestInstance.getMethode() == "DELETE")
 	{
-		std::cout << "In DELETE methode" << std::endl;
 		if (handleDeleteRequest(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);
@@ -247,7 +234,7 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	makeResponse(requestInstance, responseInstance);
 	clientInstance.setResponseInstance(responseInstance);
-	std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
+	// std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
 
 }
