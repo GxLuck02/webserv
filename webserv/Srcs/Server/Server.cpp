@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 18:26:59 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/21 16:29:58 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:10:11 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,13 +191,13 @@ void Server::run()
 				}
 				else
 				{
-					std::cout << "Handling read for client fd: " << this->_poll_fds[i].fd << std::endl;
+					//std::cout << "Handling read for client fd: " << this->_poll_fds[i].fd << std::endl;
 					this->handleClientRead(this->_poll_fds[i].fd);
 				}
 			}
 			if (this->_poll_fds[i].revents & POLLOUT)
 			{
-				std::cout << "Handling write for client fd: " << this->_poll_fds[i].fd << std::endl;
+				//std::cout << "Handling write for client fd: " << this->_poll_fds[i].fd << std::endl;
 				this->handleClientWrite(this->_poll_fds[i].fd);
 			}
 			if (this->_poll_fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
@@ -355,9 +355,9 @@ void Server::handleClientRead(int fd)
 	else
 	{
 		current_client->updateLastActivity();
-		std::cout << "Received " << byte_read << " bytes from client fd: " << fd << std::endl;
+		//std::cout << "Received " << byte_read << " bytes from client fd: " << fd << std::endl;
 		current_client->appendToBuffer(std::string(buffer, byte_read));
-		std::cout << "Client buffer after read: " << current_client->getBuffer() << std::endl;
+		//std::cout << "Client buffer after read: " << current_client->getBuffer() << std::endl;
 		if (current_client->isRequestComplete())
 		{
 			std::cout << "Request complete for client fd: " << fd << std::endl;
@@ -403,8 +403,14 @@ void Server::handleClientWrite(int fd)
 		current_Client->updateLastActivity();
 		std::cout << "Sent " << byte_sent << " bytes to client fd: " << fd << std::endl;
 		current_Client->clearBuffer();
-		current_Client->clearResponseInstance();
+		current_Client->setErrorFlag(false);
 		this->_poll_fds[this->getIndexPollFd(fd)].events = POLLIN; // Switch back to read mode
+
+		// Only clear the response instance if all data has been sent
+		if (static_cast<size_t>(byte_sent) == response.size())
+		{
+			current_Client->clearResponseInstance();
+		}
 	}
 	return ;
 }
@@ -546,7 +552,6 @@ std::string Server::hadHostHeader(std::string const &buffer)
 
     host = host.substr(first, last - first + 1);
 
-    // Supprimer le port s'il y en a
     size_t colon = host.find(':');
     if (colon != std::string::npos)
         host = host.substr(0, colon);
@@ -556,7 +561,7 @@ std::string Server::hadHostHeader(std::string const &buffer)
 
 void Server::setRealServConfig(Client &client, std::string const &host)
 {
-    Serv_config* matched = client.getServConfig(); // déjà initialisé à acceptNewClient()
+    Serv_config* matched = client.getServConfig(); 
     
     if (!host.empty())
     {

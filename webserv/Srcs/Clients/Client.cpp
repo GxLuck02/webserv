@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/28 15:31:50 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/02 16:51:03 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 #include <list>
 
 Client::Client(int fd, int port, in_addr_t ip, Serv_config* serv_config)
-	: _serv_config(serv_config), _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL))
+    : _serv_config(serv_config), _fd(fd), _port(port), _ip(ip), _isClosed(false), _lastActivity(time(NULL)), _isError(false)
 {
-	this->_buffer.clear();
-	std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;
+    this->_buffer.clear();
+    std::cout << "Client created with fd: " << _fd << ", port: " << _port << std::endl;
 }
 
 Client::~Client()
@@ -32,7 +32,7 @@ Client::~Client()
 }
 
 Client::Client(const Client &other)
-	: _fd(other._fd), _port(other._port), _ip(other._ip), _isClosed(other._isClosed)
+	: _fd(other._fd), _port(other._port), _ip(other._ip), _isClosed(other._isClosed), _isError(other._isError)    
 {
 	this->appendToBuffer(other.getBuffer());
 	std::cout << "Client copied with fd: " << _fd << std::endl;
@@ -42,9 +42,12 @@ Client &Client::operator=(const Client &other)
 {
 	if (this != &other)
 	{
+        _serv_config = other._serv_config;
+        _fd = other._fd;
 		_port = other._port;
 		_ip = other._ip;
 		_isClosed = other._isClosed;
+        _isError = other._isError;
 		this->appendToBuffer(other.getBuffer());
 		std::cout << "Client assigned (fd not copied) with fd: " << _fd << std::endl;
 	}
@@ -105,6 +108,16 @@ void Client::setServConfig(Serv_config* serv_config)
     this->_serv_config = serv_config;
 }
 
+bool Client::getErrorFlag() const
+{
+    return this->_isError;
+}
+
+void Client::setErrorFlag(bool flag)
+{
+    this->_isError = flag;
+}
+
 /************************************ Members functions ************************************/
 
 //append string at the buffer
@@ -115,19 +128,32 @@ void Client::appendToBuffer(const std::string& data)
 
 void Client::clearBuffer()
 {
-	_buffer.clear();
+	_buffer = "";
 }
 
 // Check if the request is complete by looking for the end of the HTTP header
-bool Client::isRequestComplete() const
+bool Client::isRequestComplete()
 {
     std::string line_ending = "\r\n";
-    std::string header_separator = "\r\n\r\n";
+    std::string header_separator = "\n\n" ; /*\r\n\r\n*/
+    std::cout << "Checking if request is complete for client fd: " << this->getFd() << std::endl;
+    std::cout << "Max body size: " << this->getServConfig()->getMaxBodySize() << std::endl;
     
+    std::cout << "Current buffer size: " << _buffer.size() << std::endl;
+    std::cout << "Current buffer content:\n" << _buffer << std::endl;
     size_t header_end = _buffer.find(header_separator);
     if (header_end == std::string::npos)
+    {
+        std::cout << "Header end not found." << std::endl;
         return false;
+    }
     size_t content_length_pos = _buffer.find("Content-Length:");
+    if (content_length_pos == std::string::npos)
+    {
+        if (checkTransferEncodingChunked())
+          return true;
+    }
+    std::cout << "Content-Length position: " << content_length_pos << std::endl;
     if (content_length_pos != std::string::npos)
     {
         size_t value_start = content_length_pos + 15;
@@ -137,25 +163,27 @@ bool Client::isRequestComplete() const
         if (value_end != std::string::npos)
         {
             std::string value_str = _buffer.substr(value_start, value_end - value_start);
-			std::cout << "[ Content-Length Value ] : " << value_str << std::endl;
-            std::cout << "[ actual buffer size ] : " << _buffer.size() - (header_end + 4) << std::endl;
-            
             size_t len_str = atoi(value_str.c_str());
 		    std::string body_buffer = _buffer.substr(header_end + 4, _buffer.size() - header_end - 4);
             try {
                 size_t content_length = len_str;
+                if (body_buffer.size() > static_cast<size_t>(this->getServConfig()->getMaxBodySize()))
+                {
+                    std::cout << "Content-Length: " << body_buffer.size() << std::endl;
+                    this->_isError = true;
+                }
                 size_t total_expected_length = header_end + 4 + content_length;
-                return _buffer.size() >= total_expected_length;
+                if (_buffer.size() >= total_expected_length)
+                    return true;
             }
             catch (const std::exception&)
             {
                 return false;
             }
         }
-        return false;
     }
-    if (checkTransferEncodingChunked())
-          return true;
+    if (_isError == true)
+        return true;
     std::string method = _buffer.substr(0, _buffer.find(' '));
     std::transform(method.begin(), method.end(), method.begin(), ::toupper);
     if (method == "GET" || method == "HEAD" || method == "DELETE" || method == "OPTIONS")
@@ -173,6 +201,7 @@ void Client::updateLastActivity()
 
 bool Client::checkTransferEncodingChunked() const
 {
+    std::cout << "Checking for chunked transfer encoding " << std::endl;
     size_t header_end = _buffer.find("\r\n\r\n");
     if (header_end == std::string::npos)
         return false;
@@ -235,8 +264,7 @@ bool Client::searchChunkedEnd(size_t header_end) const
 
 void Client::clearResponseInstance()
 {
-    Response n;
-    this->_responseInstance = n;
+    this->_responseInstance = Response();
 }
 
 // Get the server configuration for the client

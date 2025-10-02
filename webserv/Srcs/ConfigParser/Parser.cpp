@@ -73,9 +73,7 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 		throw std::runtime_error("Root directory not specified in the configuration.");
 	if (!attributeValue("client_max_body_size", ServerConfig, ParserConfig))
 		throw std::runtime_error("Max body size not specified in the configuration.");
-	
-	// CGI timeout est optionnel, utilise la valeur par défaut si non spécifié
-	attributeValue("cgi_timeout", ServerConfig, ParserConfig);
+
 }
 
 //fill the Serve_configue of the server with optrional values
@@ -87,6 +85,10 @@ void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& 
 		ServerConfig.setErrorPage(ParserConfig.directives["error_page"]);
 	else
 		ServerConfig.setErrorPage("Error.html");
+	if (hasThis("cgi_timeout", ParserConfig))
+		ServerConfig.setCgiTimeout(ParserConfig.directives["cgi_timeout"]);
+	else
+		ServerConfig.setCgiTimeout("0");
 	ServerConfig.setTimeout(TIMEOUT_DEF);
 	ServerConfig.setListenFd(-1);
 }
@@ -169,11 +171,6 @@ bool ConfigParser::attributeValue(std::string const keyWords, Serv_config& Serve
 	else if (keyWords == "client_max_body_size" && hasThis("client_max_body_size", ParserConfig))
 	{
 		ServerConfig.setMaxBodySize(value);
-		return true;
-	}
-	else if (keyWords == "cgi_timeout" && hasThis("cgi_timeout", ParserConfig))
-	{
-		ServerConfig.setCgiTimeout(value);
 		return true;
 	}
 	return false;

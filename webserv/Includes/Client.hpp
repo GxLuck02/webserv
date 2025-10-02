@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 16:57:55 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/28 15:29:37 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/02 12:07:53 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class Client
 		bool			_isClosed;
 		time_t			_lastActivity;
 		Response		_responseInstance;
+		bool			_isError;
 
 	public:
 		Client(int fd, int port, in_addr_t ip, Serv_config* serv_config);
@@ -47,10 +48,12 @@ class Client
 		Response& getResponseInstance() const;
 		void setResponseInstance(const Response& responseInstance);
 		void setServConfig(Serv_config* serv_config);
+		bool getErrorFlag() const;
+		void setErrorFlag(bool flag);
 		
 		void appendToBuffer(const std::string& data);
 		void clearBuffer();
-		bool isRequestComplete() const;
+		bool isRequestComplete();
 		bool checkTransferEncodingChunked() const;
 		bool searchChunkedEnd(size_t header_end) const;
 		void updateLastActivity();

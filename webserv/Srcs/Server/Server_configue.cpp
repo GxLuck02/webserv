@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/01 14:28:55 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/02 11:19:23 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,7 @@ void Serv_config::setCgiTimeout(const std::string &timeoutStr)
 	int timeout = std::atoi(timeoutStr.c_str());
 	if (timeout <= 0)
 	{
-		std::cerr << "Error: CGI timeout must be a positive integer. Using default value." << std::endl;
-		this->_cgiTimeout = CGI_TIMEOUT; // Valeur par défaut
+		this->_cgiTimeout = CGI_TIMEOUT;
 		return;
 	}
 	this->_cgiTimeout = timeout;
