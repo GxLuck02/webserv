@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/02 09:37:55 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 17:29:07 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,13 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	
 	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
 
+	if (clientInstance.getErrorFlag() == true)
+	{
+		requestInstance.setStatusCode(413);
+		requestInstance.setErrorBody(getStatusCodeMessage(413));
+		sendErrorResponse(requestInstance, responseInstance);
+		return (0);
+	}
 	std::getline(ssrequest, line);
 
 	if (ParseRequestLine(requestInstance, line, clientInstance) == -1)
@@ -156,6 +163,7 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	if (requestInstance.getIsStaticCgi() == false)
 	{
+		
 		if (handleCgi(requestInstance, responseInstance, clientInstance) == -1)
 		{
 			sendErrorResponse(requestInstance, responseInstance);

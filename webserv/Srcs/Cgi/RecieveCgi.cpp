@@ -3,10 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
+<<<<<<< HEAD
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
 /*   Updated: 2025/10/02 10:08:22 by proton           ###   ########.fr       */
+=======
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
+/*   Updated: 2025/10/02 11:49:01 by ttreichl         ###   ########.fr       */
+>>>>>>> main
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +27,26 @@ int handlePostCgi(Request &requestInstance, Response &responseInstance, Client &
     if (fillContentLength(requestInstance, responseInstance) == -1)
         return (-1);
 
+<<<<<<< HEAD
     if (fillContentType(requestInstance, responseInstance) == -1)
         return (-1);
 
+=======
+    std::cout << "***************  Content lenght size: " << requestInstance.getContentLength() << std::endl;
+    std::cout << "Max body size: " << clientInstance.getServConfig()->getMaxBodySize() << std::endl;
+    if (fillContentType(requestInstance, responseInstance) == -1)
+        return (-1);
+>>>>>>> main
     if (requestInstance.getContentLength() > clientInstance.getServConfig()->getMaxBodySize())
     {
         requestInstance.setStatusCode(413);
         requestInstance.setErrorBody("PayloadTooLarge");
         return (-1);
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
     if (fillBody(requestInstance, clientInstance.getBuffer(), clientInstance) == -1)
         return (-1);
 
@@ -55,7 +72,14 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
     std::stringstream port;
     std::stringstream contentLength;
     port << clientInstance.getServConfig()->getPort();
+<<<<<<< HEAD
     contentLength << requestInstance.getContentLength();
+=======
+    if (requestInstance.getContentLength() == 0)
+        contentLength << "";
+    else
+        contentLength << requestInstance.getContentLength();
+>>>>>>> main
 
     if (methods == "GET" || methods == "DELETE")
     {
@@ -245,8 +269,13 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
                 body.append(buffer, bytesRead);
             }
             close(out_fd[0]);
+<<<<<<< HEAD
             std::cout << "CGI body length: " << body.length() << std::endl;
             std::cout << "CGI body content: [" << body << "]" << std::endl;
+=======
+            //std::cout << "CGI body length: " << body.length() << std::endl;
+            //std::cout << "CGI body content: [" << body << "]" << std::endl;
+>>>>>>> main
             if (bytesRead == -1)
             {
                 close(out_fd[0]);
