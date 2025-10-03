@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/02 17:29:07 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 17:51:46 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,8 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	
 	
 	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
+
+	std::cout << "RECIEVE REQUEST" << std::endl;
 
 	if (clientInstance.getErrorFlag() == true)
 	{

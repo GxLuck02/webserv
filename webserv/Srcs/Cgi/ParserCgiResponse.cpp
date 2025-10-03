@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:00:37 by bproton           #+#    #+#             */
-/*   Updated: 2025/09/22 10:07:12 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 18:16:03 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,9 @@ static int parseHeaders(Request requestInstance, Response &responseInstance, std
 {
     std::pair<std::string, std::string>	fieldArray;
     std::string contentType;
-    std::string contentLength;
+    std::stringstream contentLength;
     std::string status;
+    int contentLen;
 
     if (line[line.length() - 1] == '\r')
     {
@@ -56,13 +57,25 @@ static int parseHeaders(Request requestInstance, Response &responseInstance, std
     }
     if (fieldArray.first == "Content-Length")
     {
-        contentLength = fieldArray.second;
-        if (contentLength.empty())
+        contentLength << fieldArray.second;
+        if (contentLength.str().empty())
         {
             requestInstance.setStatusCode(502);
             requestInstance.setErrorBody("Bad Gateway");
             return (-1);
         }
+        contentLength >> contentLen;
+        responseInstance.setContentLength(contentLen);
+    }
+    else if (fieldArray.first == "Transfer-Encoding")
+    {
+        if (fieldArray.second != "Chunked")
+        {
+            requestInstance.setStatusCode(502);
+            requestInstance.setErrorBody("Bad Gateway");
+            return (-1);
+        }
+        requestInstance.setChunked(1);
     }
     if (fieldArray.first == "Status")
     {
@@ -91,7 +104,13 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
 	}
     while (getline(ss, line))
         body += line + "\n";
-    responseInstance.setBody(body);
+    if (requestInstance.getChunked() == 1)
+    {
+        
+    }
+    else
+        responseInstance.setBody(body);
+
     if (requestInstance.getMethode() == "POST")
         responseInstance.setStatusCode(201);
     else

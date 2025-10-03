@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/02 09:55:18 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 17:50:53 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ int	isHexadecimal(const std::string &str)
 	return (0);
 }
 
-int	setChunkedBody(const std::string &body)
+int	setChunkedBody(const std::string &body, Request &requestInstance)
 {
 	std::string			chunk;
 	std::stringstream	ss(body);
@@ -149,7 +149,8 @@ int	setChunkedBody(const std::string &body)
 			continue ;
 		newBody += line;
 	}
-
+	requestInstance.setBodyStart(newBody);
+	
 	return (0);
 }
 
@@ -175,7 +176,7 @@ int	fillBody( Request& requestInstance, std::string request, Client& clientInsta
 
 	if (requestInstance.getChunked() == 1)
 	{
-		setChunkedBody(body);
+		setChunkedBody(body, requestInstance);
 		return (0);
 	}
 	
