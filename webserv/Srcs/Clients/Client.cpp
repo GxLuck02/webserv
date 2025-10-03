@@ -6,7 +6,7 @@
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/02 16:51:03 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/03 15:13:02 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,7 @@ void Client::clearBuffer()
 bool Client::isRequestComplete()
 {
     std::string line_ending = "\r\n";
-    std::string header_separator = "\n\n" ; /*\r\n\r\n*/
+    std::string header_separator = "\r\n\r\n" ; /*\r\n\r\n*/
     std::cout << "Checking if request is complete for client fd: " << this->getFd() << std::endl;
     std::cout << "Max body size: " << this->getServConfig()->getMaxBodySize() << std::endl;
     
