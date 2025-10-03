@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseMultipartFormData.cpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/10/02 09:50:30 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/03 15:30:57 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 {
 	if (contentDispMap.empty())
 		return -1;
-
 	std::string contentType = headersMap["Content-Type"];
 	std::string filePath = requestInstance.getUri() + "/" + contentDispMap["filename"];
 
