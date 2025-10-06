@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:35:26 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/03 17:34:27 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ int	    parseBody( Request& requestInstance, Client& clientInstance, Response& r
 int	    findInConfigFile( std::string value, std::string key, Client& clientInstance );
 int	    isHexadecimal(const std::string &str);
 bool    isDirectory(const std::string &path);
+int	    setChunkedBody(const std::string &body, Request &requestInstance);
 
 
 std::string*	splitRequest( std::string request, char separator );

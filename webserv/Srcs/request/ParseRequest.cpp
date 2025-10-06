@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/03 17:06:54 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/06 11:14:21 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,14 @@ int	fillContentLength( Request& instance, Response& responseInstance )
 	contentLength = instance.getField("Content-Length");
 	chunked = instance.getField("Transfer-Encoding");
 
-	if (contentLength.empty() && chunked != "chunked\r")
+	if (contentLength.empty() && chunked != "chunked")
 	{
 		instance.setStatusCode(411);
 		instance.setErrorBody("Content-Length header is missing");
 		return (-1);
 	}
 
-	else if (chunked == "chunked\r")
+	else if (chunked == "chunked")
 	{
 		instance.setChunked(1);
 		return (0);
@@ -123,7 +123,7 @@ size_t	findBodyStart( std::string request )
 int	isHexadecimal(const std::string &str)
 {
 	int value;
-	std::stringstream ss(str);
+	std::stringstream ss;
 	
 	ss << std::hex << str;
 	if (ss >> value)
@@ -143,11 +143,13 @@ int	setChunkedBody(const std::string &body, Request &requestInstance)
 
 	while(std::getline(ss, line))
 	{
-		if (line == "0\r\n")
+		if (line == "0\r")
 			break ;
-		else if (isHexadecimal(line))
+		if (!line.empty() && *(line.end() - 1) == '\r')
+    		line.erase(line.end() - 1);
+		if (isHexadecimal(line))
 			continue ;
-		newBody += line;
+		newBody += line + "\n";
 	}
 	requestInstance.setBodyStart(newBody);
 	

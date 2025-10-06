@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/10/02 17:32:00 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/06 11:20:35 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,7 +239,7 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
             freeEnv(myEnv);
             return (-1);
         }
-        else if (WIFEXITED(status))
+        if (WIFEXITED(status))
         {
             std::cout << "Reading CGI output..." << std::endl;
             while ((bytesRead = read(out_fd[0], buffer, BUFFER_SIZE)) > 0)

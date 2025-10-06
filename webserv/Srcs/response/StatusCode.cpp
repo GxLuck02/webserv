@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StatusCode.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 11:06:27 by proton            #+#    #+#             */
-/*   Updated: 2025/09/17 14:09:02 by bproton          ###   ########.fr       */
+/*   Updated: 2025/10/03 17:43:34 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,9 @@ std::string	getStatusCodeMessage( int statusCode )
 
 		case 502:
 			return ("Bad Gateway");
+
+		case 504:
+			return ("Gateway timeout");
 		
 		case 505:
 			return ("HTTP Version Not Supported");

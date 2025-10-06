@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:00:37 by bproton           #+#    #+#             */
-/*   Updated: 2025/10/02 18:16:03 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/03 18:31:12 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static void getStatusCode(Response &responseInstance, std::string& status)
     responseInstance.setStatusCode(statusCodeInt);
 }
 
-static int parseHeaders(Request requestInstance, Response &responseInstance, std::string &line)
+static int parseHeaders(Request &requestInstance, Response &responseInstance, std::string &line)
 {
     std::pair<std::string, std::string>	fieldArray;
     std::string contentType;
@@ -69,7 +69,7 @@ static int parseHeaders(Request requestInstance, Response &responseInstance, std
     }
     else if (fieldArray.first == "Transfer-Encoding")
     {
-        if (fieldArray.second != "Chunked")
+        if (fieldArray.second != "chunked")
         {
             requestInstance.setStatusCode(502);
             requestInstance.setErrorBody("Bad Gateway");
@@ -106,7 +106,8 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
         body += line + "\n";
     if (requestInstance.getChunked() == 1)
     {
-        
+        setChunkedBody(body, requestInstance);
+        responseInstance.setBody(requestInstance.getBodyStart());
     }
     else
         responseInstance.setBody(body);
@@ -116,6 +117,10 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
     else
         responseInstance.setStatusCode(200);
     if (responseInstance.getContentLength().empty())
-        responseInstance.setContentLength(body.length());
+        responseInstance.setContentLength(responseInstance.getBody().length());
+
+    std::cout << "status code : " << responseInstance.getStatusCode() << std::endl;
+    std::cout << "body : " << responseInstance.getBody() << std::endl;
+    std::cout << "content length : " << responseInstance.getContentLength() << std::endl;
     return (0);
 }
