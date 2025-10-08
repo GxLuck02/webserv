@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SendResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/09/18 17:44:54 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 16:54:58 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void chunkedResponse(Response &responseInstance, Request &requestInstance, Clien
     size_t chunkSize = clientInstance.getServConfig()->getMaxBodySize();
     size_t offset = 0;
     int clientSocket = clientInstance.getFd();
-    (void)requestInstance; // Unused parameter
+    (void)requestInstance;
 
     while (offset < bodyLength)
     {
@@ -38,21 +38,15 @@ void chunkedResponse(Response &responseInstance, Request &requestInstance, Clien
     send(clientSocket, "0\r\n\r\n", 5, 0);
 }
 
-int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
+int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance)
 {
     int statusCode = requestInstance.getStatusCode();
     std::string errorMessage = requestInstance.getErrorBody();
-    //size_t maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
-
-    // if (errorMessage.length() > maxBodySize)
-    // {
-    //     std::cout << "Error message too large, sending chunked response" << std::endl;
-    //     chunkedResponse(responseInstance, requestInstance, clientInstance);
-    //     return 0;
-    // }
-    std::cout << errorMessage << std::endl;
-    std::string htmlError = genereateHtmlErrorPage(statusCode, errorMessage);
-
+    std::string htmlError;
+    if (clientInstance.getServConfig()->getErrorPage(statusCode) != "")
+        htmlError = genereateHtmlErrorPage(clientInstance.getServConfig()->getErrorPage(statusCode));
+    else
+        htmlError = genereateHtmlErrorPageDefault(statusCode, errorMessage);
     std::stringstream out;
     out << "HTTP/1.1 " << statusCode << " " << getStatusCodeMessage(statusCode) << "\r\n";
     out << "Content-Type: text/html\r\n";
@@ -61,7 +55,6 @@ int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
     out << htmlError;
 
     responseInstance.setResponse(out.str());
-    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
 
     return 0;
 }
@@ -91,72 +84,89 @@ int makeResponse(Request& requestInstance, Response& responseInstance)
     }
 
     responseInstance.setResponse(out.str());
-    //send(clientInstance.getFd(), responseInstance.getResponse().c_str(), responseInstance.getResponse().length(), 0);
     return 0;
 }
 
-std::string genereateHtmlErrorPage(int statusCode, const std::string &errorMessage)
+std::string genereateHtmlErrorPage(std::string filename)
+{
+    std::ifstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open error page file: " << filename << std::endl;
+        return "<html><body><h1>Error</h1><p>Could not load error page.</p></body></html>";
+    }
+    std::stringstream body;
+
+    body << file.rdbuf();
+    file.close();
+    return body.str();
+}
+
+std::string genereateHtmlErrorPageDefault(int statusCode, const std::string &errorMessage)
 {
     std::stringstream body;
     body << "<!DOCTYPE html>\n"
-         << "<html lang=\"fr\">\n"
-         << "<head>\n"
-         << "  <meta charset=\"UTF-8\" />\n"
-         << "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n"
-         << "  <title>Error " << statusCode << "</title>\n"
-         << "  <style>\n"
-         << "    body {\n"
-         << "      font-family: 'Segoe UI', sans-serif;\n"
-         << "      background-image: url('https://pbs.twimg.com/media/GHc9d1PWkAANtXl?format=jpg&name=4096x4096');\n"
-         << "      background-size: cover;\n"
-         << "      background-position: center;\n"
-         << "      background-repeat: no-repeat;\n"
-         << "      background-attachment: fixed;\n"
-         << "      color: white;\n"
-         << "      margin: 0;\n"
-         << "      padding: 0;\n"
-         << "      height: 100vh;\n"
-         << "      position: relative;\n"
-         << "    }\n"
-         << "    h1 {\n"
-         << "      position: absolute;\n"
-         << "      top: 20vh;\n"
-         << "      left: 50vw;\n"
-         << "      transform: translate(-50%, -50%);\n"
-         << "      font-size: 4rem;\n"
-         << "      font-weight: bolder;\n"
-         << "    }\n"
-         << "    button_link {\n"
-         << "      position: absolute;\n"
-         << "      top: 60vh;\n"
-         << "      left: 50vw;\n"
-         << "      transform: translate(-50%, -50%);\n"
-         << "      width: 300px;\n"
-         << "      padding: 9px;\n"
-         << "      font-size: 1.2rem;\n"
-         << "      background: #c00d07;\n"
-         << "      border: none;\n"
-         << "      color: rgb(255, 255, 255);\n"
-         << "      text-align: center;\n"
-         << "      border-radius: 15px;\n"
-         << "      cursor: pointer;\n"
-         << "      transition: background 0.4s ease;\n"
-         << "    }\n"
-         << "    button_link:hover { background: #f17522; }\n"
-         << "  </style>\n"
-         << "</head>\n"
-         << "<body>\n"
-         << "  <h1>Error " << statusCode << " " << errorMessage << "</h1>\n"
-         << "  <button_link onclick=\"location.href='index.html'\">Retour à l'accueil</button_link>\n"
-         << "  <script>\n"
-         << "    const params = new URLSearchParams(window.location.search);\n"
-         << "    const error = params.get(\"error\");\n"
-         << "    if (error) {\n"
-         << "      document.querySelector(\"h1\").textContent = `Error ${error}`;\n"
-         << "    }\n"
-         << "  </script>\n"
-         << "</body>\n"
-         << "</html>\n";
+        << "<html lang=\"fr\">\n"
+        << "<head>\n"
+        << "  <meta charset=\"UTF-8\" />\n"
+        << "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n"
+        << "  <title>Error " << statusCode << "</title>\n"
+        << "  <style>\n"
+        << "    body {\n"
+        << "      font-family: 'Segoe UI', sans-serif;\n"
+        << "      background-image: url('https://pbs.twimg.com/media/GHc9d1PWkAANtXl?format=jpg&name=4096x4096');\n"
+        << "      background-size: cover;\n"
+        << "      background-position: center;\n"
+        << "      background-repeat: no-repeat;\n"
+        << "      background-attachment: fixed;\n"
+        << "      color: white;\n"
+        << "      margin: 0;\n"
+        << "      padding: 0;\n"
+        << "      height: 100vh;\n"
+        << "      position: relative;\n"
+        << "    }\n"
+        << "    h1 {\n"
+        << "      position: absolute;\n"
+        << "      top: 20vh;\n"
+        << "      left: 50vw;\n"
+        << "      transform: translate(-50%, -50%);\n"
+        << "      font-size: 4rem;\n"
+        << "      font-weight: bolder;\n"
+        << "    }\n"
+        << "    button {\n"
+        << "      position: absolute;\n"
+        << "      top: 60vh;\n"
+        << "      left: 50vw;\n"
+        << "      transform: translate(-50%, -50%);\n"
+        << "      width: 300px;\n"
+        << "      padding: 9px;\n"
+        << "      font-size: 1.2rem;\n"
+        << "      background: #c00d07;\n"
+        << "      border: none;\n"
+        << "      color: rgb(255, 255, 255);\n"
+        << "      text-align: center;\n"
+        << "      border-radius: 15px;\n"
+        << "      cursor: pointer;\n"
+        << "      transition: background 0.4s ease;\n"
+        << "    }\n"
+        << "    button:hover { background: #f17522; }\n"
+        << "  </style>\n"
+        << "</head>\n"
+        << "<body>\n"
+        << "  <h1>Error " << statusCode << " " << errorMessage << "</h1>\n"
+        << "  <button id=\"retourAccueil\">Retour à l'accueil</button>\n"
+        << "  <script>\n"
+        << "    const params = new URLSearchParams(window.location.search);\n"
+        << "    const error = params.get(\"error\");\n"
+        << "    document.getElementById(\"retourAccueil\").onclick = function() {\n"
+        << "      window.location.href = \"/index.html\";\n"
+        << "    };\n"
+        << "    if (error) {\n"
+        << "      document.querySelector(\"h1\").textContent = `Error ${error}`;\n"
+        << "    }\n"
+        << "  </script>\n"
+        << "</body>\n"
+        << "</html>\n";
     return body.str();
 }
 

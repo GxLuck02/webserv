@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   GetRequest.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:25:22 by proton            #+#    #+#             */
-/*   Updated: 2025/09/20 18:20:38 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/03 15:31:01 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int handleGetRequest(Request &requestInstance, Response &responseInstance, Clien
             return -1;
         }
     }
-    std::cout << "GET request handled successfully" << std::endl;
 
     responseInstance.setStatusCode(200);
     return 0;

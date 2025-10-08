@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/09 20:20:57 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 16:40:45 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 Serv_config::Serv_config()
 {
+	this->_cgiTimeout = CGI_TIMEOUT; // Initialiser avec la valeur par défaut de 5 secondes
 	std::cout << "Serv_config constructor called." << std::endl;
 }
 
@@ -37,6 +38,7 @@ Serv_config::Serv_config(const Serv_config &other)
 		this->_listen_fd = other._listen_fd;
 		this->_max_body_size = other._max_body_size;
 		this->_locations = other._locations;
+		this->_cgiTimeout = other._cgiTimeout;
 	}
 	std::cout << "Serv_config copy constructor called." << std::endl;
 }
@@ -50,12 +52,30 @@ Serv_config &Serv_config::operator=(const Serv_config &other)
 		this->_ip = other._ip;
 		this->_timeout = other._timeout;
 		this->_listen_fd = other._listen_fd;
+		this->_cgiTimeout = other._cgiTimeout;
 		std::cout << "Serv_config assignment operator called." << std::endl;
 	}
 	return *this;
 }
 
 /**************************** Geters and Setters ***********************************/
+
+
+void Serv_config::setCgiTimeout(const std::string &timeoutStr)
+{
+	int timeout = std::atoi(timeoutStr.c_str());
+	if (timeout <= 0)
+	{
+		this->_cgiTimeout = CGI_TIMEOUT;
+		return;
+	}
+	this->_cgiTimeout = timeout;
+}
+
+int Serv_config::getCgiTimeout() const
+{
+	return this->_cgiTimeout;
+}
 
 void Serv_config::setPort(std::string string_port)
 {
@@ -185,17 +205,25 @@ int Serv_config::getMaxBodySize() const
 	return this->_max_body_size;
 }
 
-void Serv_config::setErrorPage(const std::string &error_page)
+void Serv_config::setErrorPage(short code, const std::string &page)
 {
-	if (error_page.empty())
+	if (page.empty())
 	{
 		std::cerr << "Error: Error page cannot be empty." << std::endl;
 		return;
 	}
-	this->_error_page = error_page;
+	this->_error_page[code] = page;
 }
 
-std::string Serv_config::getErrorPage() const
+std::string Serv_config::getErrorPage(int num) const
+{
+	if (this->_error_page.find(num) != this->_error_page.end())
+		return this->_error_page.at(num);
+	else
+		return std::string();
+}
+
+const std::map<short, std::string> &Serv_config::getErrorPageMap() const
 {
 	return this->_error_page;
 }
@@ -314,7 +342,11 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 	out << "Root: " << server.getRoot() << std::endl;
 	out << "Index: " << server.getIndex() << std::endl;
 	out << "ClientMaxBodySize: " << server.getMaxBodySize() << std::endl;
-	out << "ErrorPage: " << server.getErrorPage() << std::endl;
+	for (std::map<short, std::string>::const_iterator it = server.getErrorPageMap().begin(); it != server.getErrorPageMap().end(); ++it)
+	{
+		out << "ErrorPage " << it->first << ": " << it->second << std::endl;
+	}
+	out << "CGI Timeout: " << server.getCgiTimeout() << " seconds" << std::endl;
 	
 	for (locationMap::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); it++)
 	{

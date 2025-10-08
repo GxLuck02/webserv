@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SendResponse.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 11:40:13 by proton            #+#    #+#             */
-/*   Updated: 2025/09/10 20:37:26 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 15:45:41 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,12 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "StatusCode.hpp"
+#include <fstream>
 
-int	sendErrorResponse( Request& requestInstance, Response& responseInstance);
+int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance);
 void chunkedResponse(Response &responseInstance, Request &requestInstance, Client &clientInstance);
 int makeResponse(Request& requestInstance, Response& responseInstance);
-std::string genereateHtmlErrorPage(int statusCode, const std::string &errorMessage);
+std::string genereateHtmlErrorPageDefault(int statusCode, const std::string &errorMessage);
+std::string genereateHtmlErrorPage(std::string filename);
 
 #endif

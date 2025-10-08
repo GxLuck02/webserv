@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/15 13:05:55 by proton            #+#    #+#             */
-/*   Updated: 2025/09/12 17:37:17 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/02 09:43:04 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,8 @@ int fillBodyWwwFormUrlEncoded( Request &requestInstance, Request &tempRequest, s
 int fillBodyJpeg( Request &requestInstance, std::string& body, std::string& filepath )
 {
     std::ofstream newFile(filepath.c_str(), std::ios::binary);
-    std::cout << "FILEPATH : " << filepath << std::endl;
     if (!newFile.is_open())
     {
-        std::cout << "in fill body jpeg 1" << std::endl;
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Failed to create file");
         return -1;
@@ -59,7 +57,6 @@ int fillBodyJpeg( Request &requestInstance, std::string& body, std::string& file
     newFile.write(body.c_str(), body.size());
     if (newFile.fail())
     {
-        std::cout << "in fill body jpeg 2" << std::endl;
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Failed to write to file");
         newFile.close();
@@ -76,7 +73,6 @@ int fillBodyTextPlain( Request &requestInstance, std::string& body, std::string&
     std::ofstream newFile(filepath.c_str());
     if (!newFile.is_open())
     {
-        std::cout << "in fill body text plain 1" << std::endl;
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Failed to create file");
         return -1;
@@ -84,7 +80,6 @@ int fillBodyTextPlain( Request &requestInstance, std::string& body, std::string&
     newFile << body;
     if (newFile.fail())
     {
-        std::cout << "in fill body text plain 2" << std::endl;
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Failed to write to file");
         newFile.close();
