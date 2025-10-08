@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/03 14:54:57 by proton            #+#    #+#             */
-/*   Updated: 2025/10/03 17:34:27 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:41:15 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "ParseMultipartFormData.hpp"
-#include "ParseWwwFormUrlEncoded.hpp"
 #include <iostream>
 #include <string>
 #include <cstdlib>

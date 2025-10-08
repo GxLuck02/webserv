@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/06 11:14:21 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:42:26 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data" && contentType != "image/jpeg")
+	if (contentType != "multipart/form-data" && contentType != "image/jpeg")
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
@@ -197,16 +197,6 @@ int	parseBody( Request& requestInstance, Client& clientInstance, Response& respo
 			return (-1);
 		return (0);
 	}
-
-	// else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
-	// {
-	// 	if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
-	// 		return (-1);
-	// 	responseInstance.setBody("Username created\n");
-	// 	responseInstance.setContentType("text/plain");
-	// 	responseInstance.setStatusCode(201);
-	// 	return (0);
-	// }
 
 	else if (requestInstance.getContentType() == "image/jpeg\r")
 	{
