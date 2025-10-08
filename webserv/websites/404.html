@@ -37,7 +37,7 @@
       width: 300px;
       padding: 9px;
       font-size: 1.2rem;
-      background: #c00d07;
+      background: #046968;
       border: none;
       color: rgb(255, 255, 255);
       text-align: center;
@@ -47,21 +47,16 @@
     }
 
     button:hover {
-      background: #f17522;
+      background: #13bbb8;
     }
   </style>
 </head>
 
 <body>
-  <h1>Unknown error</h1>
+  <h1>Error 404</h1>
   <button id="retourAccueil">Retour à l'accueil</button>
   <script>
-       const params = new URLSearchParams(window.location.search);
-       const error = params.get("error");
        document.getElementById("retourAccueil").onclick = function() { window.location.href = "/index.html"; }
-       if (error) {
-         document.querySelector("h1").textContent = `Error ${error}`;
-       }
   </script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/02 17:29:35 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:12:48 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,20 +38,15 @@ void chunkedResponse(Response &responseInstance, Request &requestInstance, Clien
     send(clientSocket, "0\r\n\r\n", 5, 0);
 }
 
-int	sendErrorResponse(Request& requestInstance, Response& responseInstance)
+int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance)
 {
     int statusCode = requestInstance.getStatusCode();
     std::string errorMessage = requestInstance.getErrorBody();
-    //size_t maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
-
-    // if (errorMessage.length() > maxBodySize)
-    // {
-    //     std::cout << "Error message too large, sending chunked response" << std::endl;
-    //     chunkedResponse(responseInstance, requestInstance, clientInstance);
-    //     return 0;
-    // }
-    std::string htmlError = genereateHtmlErrorPage(statusCode, errorMessage);
-
+    std::string htmlError;
+    if (clientInstance.getServConfig()->getErrorPage(statusCode) != "")
+        htmlError = genereateHtmlErrorPage(clientInstance.getServConfig()->getErrorPage(statusCode));
+    else
+        htmlError = genereateHtmlErrorPageDefault(statusCode, errorMessage);
     std::stringstream out;
     out << "HTTP/1.1 " << statusCode << " " << getStatusCodeMessage(statusCode) << "\r\n";
     out << "Content-Type: text/html\r\n";
@@ -92,7 +87,22 @@ int makeResponse(Request& requestInstance, Response& responseInstance)
     return 0;
 }
 
-std::string genereateHtmlErrorPage(int statusCode, const std::string &errorMessage)
+std::string genereateHtmlErrorPage(std::string filename)
+{
+    std::ifstream file(filename.c_str());
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open error page file: " << filename << std::endl;
+        return "<html><body><h1>Error</h1><p>Could not load error page.</p></body></html>";
+    }
+    std::stringstream body;
+
+    body << file.rdbuf();
+    file.close();
+    return body.str();
+}
+
+std::string genereateHtmlErrorPageDefault(int statusCode, const std::string &errorMessage)
 {
     std::stringstream body;
     body << "<!DOCTYPE html>\n"

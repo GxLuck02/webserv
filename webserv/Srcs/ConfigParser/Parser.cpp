@@ -79,12 +79,33 @@ void ConfigParser::fillServerValues(Serv_config& ServerConfig, ServerConfig_t& P
 //fill the Serve_configue of the server with optrional values
 void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& ParserConfig)
 {
+	static int time = 0;
+	time += 1;
+	std::cout << "Filling options values, call number: " << time << std::endl;
 	if (hasThis("index", ParserConfig))
 		ServerConfig.setIndex(ParserConfig.directives["index"]);
 	if (hasThis("error_page", ParserConfig))
-		ServerConfig.setErrorPage(ParserConfig.directives["error_page"]);
+	{
+		std::string error_pages = ParserConfig.directives["error_page"];
+		std::cout << "DEBUG error_pages: '" << error_pages << "'\n";
+		std::istringstream iss(error_pages);
+		std::string code_str;
+		std::string page;
+		ServerConfig.setErrorPage(0, "Error.html");
+		while (iss >> code_str)
+		{
+			if (!(iss >> page))
+			{
+				throw std::runtime_error("Invalid error_page directive format: missing page for code '" + code_str + "'.");
+			}
+			short code = static_cast<short>(std::atoi(code_str.c_str()));
+			ServerConfig.setErrorPage(code, page);
+		}
+	}
 	else
-		ServerConfig.setErrorPage("Error.html");
+	{
+		ServerConfig.setErrorPage(0, "Error.html");
+	}
 	if (hasThis("cgi_timeout", ParserConfig))
 		ServerConfig.setCgiTimeout(ParserConfig.directives["cgi_timeout"]);
 	else
@@ -291,11 +312,41 @@ void ConfigParser::parseBlock(std::istream& stream, ServerConfig& server)
 		}
 		else
 		{
+			// Read tokens until we encounter a token that ends with ';' so multi-token
+			// directive values are captured (e.g. "error_page 404 /404.html;").
 			std::string value;
-			stream >> value;
-			if (!value.empty() && value[value.length() - 1] == ';')
-				value = value.substr(0, value.length() - 1);
-			server.directives[token] = value;
+			std::string temp;
+			while (stream >> temp)
+			{
+				if (!temp.empty() && temp[temp.length() - 1] == ';')
+				{
+					temp = temp.substr(0, temp.length() - 1);
+					if (!temp.empty())
+					{
+						if (!value.empty()) value += " ";
+						value += temp;
+					}
+					break;
+				}
+				else
+				{
+					if (!value.empty()) value += " ";
+					value += temp;
+				}
+			}
+
+			// Preserve multiple error_page directives by appending values instead of overwriting
+			if (token == "error_page")
+			{
+				if (server.directives.find(token) != server.directives.end() && !server.directives[token].empty())
+					server.directives[token] += " " + value;
+				else
+					server.directives[token] = value;
+			}
+			else
+			{
+				server.directives[token] = value;
+			}
 		}
 	}
 }

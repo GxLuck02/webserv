@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Define.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 15:32:13 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/09/30 19:58:09 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/08 17:09:22 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 //default configuration values
 #define DEFAUT_CONF "default.conf"
+#define ERR_DEFAULT "Error.html"
 #define DECIMAL				"0123456789"
 #define SUFIX_BYTES			"bBkKmMgG"
 #define MAX_SIZE_LIMIT		10737418240.0	// 10GB

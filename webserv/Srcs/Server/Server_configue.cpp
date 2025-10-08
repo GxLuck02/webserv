@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/02 17:29:53 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:13:06 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,17 +205,25 @@ int Serv_config::getMaxBodySize() const
 	return this->_max_body_size;
 }
 
-void Serv_config::setErrorPage(const std::string &error_page)
+void Serv_config::setErrorPage(short code, const std::string &page)
 {
-	if (error_page.empty())
+	if (page.empty())
 	{
 		std::cerr << "Error: Error page cannot be empty." << std::endl;
 		return;
 	}
-	this->_error_page = error_page;
+	this->_error_page[code] = page;
 }
 
-std::string Serv_config::getErrorPage() const
+std::string Serv_config::getErrorPage(int num) const
+{
+	if (this->_error_page.find(num) != this->_error_page.end())
+		return this->_error_page.at(num);
+	else
+		return std::string();
+}
+
+const std::map<short, std::string> &Serv_config::getErrorPageMap() const
 {
 	return this->_error_page;
 }
@@ -334,7 +342,10 @@ std::ostream &operator<<(std::ostream &out, Serv_config const &server)
 	out << "Root: " << server.getRoot() << std::endl;
 	out << "Index: " << server.getIndex() << std::endl;
 	out << "ClientMaxBodySize: " << server.getMaxBodySize() << std::endl;
-	out << "ErrorPage: " << server.getErrorPage() << std::endl;
+	for (std::map<short, std::string>::const_iterator it = server.getErrorPageMap().begin(); it != server.getErrorPageMap().end(); ++it)
+	{
+		out << "ErrorPage " << it->first << ": " << it->second << std::endl;
+	}
 	out << "CGI Timeout: " << server.getCgiTimeout() << " seconds" << std::endl;
 	
 	for (locationMap::const_iterator it = server.getLocations().begin(); it != server.getLocations().end(); it++)

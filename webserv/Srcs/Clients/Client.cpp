@@ -6,7 +6,7 @@
 /*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:11:22 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/03 17:06:42 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/08 17:11:04 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,7 +191,7 @@ bool Client::isRequestComplete()
             return false;
     }
     size_t content_length_pos = _buffer.find("Content-Length:");
-    std::cout << "Content-Length position: " << content_length_pos << std::endl;
+    //std::cout << "Content-Length position: " << content_length_pos << std::endl;
     if (content_length_pos != std::string::npos)
     {
         size_t value_start = content_length_pos + 15;

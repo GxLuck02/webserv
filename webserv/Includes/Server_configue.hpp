@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.hpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tmontani <tmontani@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:37:46 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/01 14:28:58 by tmontani         ###   ########.fr       */
+/*   Updated: 2025/10/08 17:09:43 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,17 +39,17 @@ typedef std::map<std::string, location_t> locationMap;
 class Serv_config
 {
 	private:
-		std::string 	_servName;
-		int 			_port;
-		in_addr_t		_ip;
-		std::string 	_root;
-		std::string 	_index;
-		std::string 	_error_page;
-		int 			_timeout;
-		int 			_listen_fd;
-		size_t			_max_body_size;
-		locationMap		_locations;
-		int 			_cgiTimeout;
+		std::string 					_servName;
+		int 							_port;
+		in_addr_t						_ip;
+		std::string 					_root;
+		std::string 					_index;
+		std::map<short, std::string>	_error_page;
+		int 							_timeout;
+		int 							_listen_fd;
+		size_t							_max_body_size;
+		locationMap						_locations;
+		int 							_cgiTimeout;
 		
 		size_t _getConvertedMaxSize(std::string const &size);
 		
@@ -76,8 +76,9 @@ class Serv_config
 		std::string getIndex() const;
 		void setMaxBodySize(std::string size);
 		int getMaxBodySize() const;
-		void setErrorPage(const std::string &error_page);
-		std::string getErrorPage() const;
+		void setErrorPage(short code, const std::string &page);
+		std::string getErrorPage(int num) const;
+		const std::map<short, std::string> &getErrorPageMap() const;
 		std::string getIndexFromLocation(const std::string &location) const;
 		std::string getRootFromLocation(const std::string &location) const;
 		bool getAutoIndexFromLocation(const std::string &location) const;
