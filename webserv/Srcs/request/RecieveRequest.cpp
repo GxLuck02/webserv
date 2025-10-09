@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/08 14:51:46 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/08 17:12:28 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

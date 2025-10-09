@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseMultipartFormData.cpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/10/08 12:22:20 by ttreichl         ###   ########.fr       */
+/*   Updated: 2025/10/08 17:42:04 by proton           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,14 +57,6 @@ int createFile(Request& requestInstance, std::map<std::string, std::string> &hea
 		requestInstance.setErrorBody("Content-Type header is missing\n");
 		return (-1);
 	}
-	// if (contentType == "x-www-form-urlencoded")
-	// {
-	// 	Request tempRequest;
-	// 	if (parseWwwFormUrlEncoded(tempRequest, body) == -1)
-	// 		return (-1);
-	// 	if (fillBodyWwwFormUrlEncoded(requestInstance, tempRequest, filePath) == -1)
-	// 		return (-1);
-	// }
 	else if (contentType == "image/jpeg" || contentType == "image/jpg")
 	{
 		if (parseJpeg(requestInstance, body) == -1)
@@ -115,16 +107,23 @@ int parseContentDisposition(Request& requestInstance, const std::string &line,\
 int parseEachPart(Request &requestInstance, const std::string &part, Client& clientInstance)
 {
 	size_t pos = part.find("\r\n\r\n");
+	std::string body;
 	(void)clientInstance;
 	if (pos == std::string::npos)
 	{
-		requestInstance.setStatusCode(400);
-		requestInstance.setErrorBody("Invalid multipart part format\n");
-		return -1;
+		pos = part.find("\n\n");
+		if (pos == std::string::npos)
+		{
+			requestInstance.setStatusCode(400);
+			requestInstance.setErrorBody("Invalid multipart part format\n");
+			return -1;
+		}
+		else
+			body = part.substr(pos + 2);
 	}
-
+	else
+		body = part.substr(pos + 4);
 	std::string headerStr = part.substr(0, pos);
-	std::string body = part.substr(pos + 4);
 	std::istringstream headerStream(headerStr);
 	std::string line;
 	std::map<std::string, std::string> headersMap;

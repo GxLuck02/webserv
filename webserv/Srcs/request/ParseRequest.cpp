@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/06 11:14:21 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 12:39:02 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "application/x-www-form-urlencoded" && contentType != "multipart/form-data" && contentType != "image/jpeg")
+	if (contentType != "multipart/form-data" && contentType != "image/jpeg" && contentType != "application/x-www-form-urlencoded" )
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
@@ -197,16 +197,6 @@ int	parseBody( Request& requestInstance, Client& clientInstance, Response& respo
 			return (-1);
 		return (0);
 	}
-
-	// else if (requestInstance.getContentType() != "x-www-form-urlencoded\r")
-	// {
-	// 	if (parseWwwFormUrlEncoded(requestInstance, body) == -1)
-	// 		return (-1);
-	// 	responseInstance.setBody("Username created\n");
-	// 	responseInstance.setContentType("text/plain");
-	// 	responseInstance.setStatusCode(201);
-	// 	return (0);
-	// }
 
 	else if (requestInstance.getContentType() == "image/jpeg\r")
 	{
@@ -357,8 +347,15 @@ static void isExtensionValid(std::string &token, const std::string &cgiExt, Requ
 
 static int cgiPath(Request &requestInstance, Client &clientInstance, std::string &token)
 {
-	std::string cgiExt = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiExtension;
-	std::string cgiPath = clientInstance.getServConfig()->getLocations().find("/cgi-bin")->second.cgiPath;
+	std::map<std::string, location_t>::const_iterator it = clientInstance.getServConfig()->getLocations().find("/cgi-bin");
+	if (it == clientInstance.getServConfig()->getLocations().end())
+	{
+		requestInstance.setStatusCode(500);
+		requestInstance.setErrorBody("Internal Server Error: /cgi-bin location not found");
+		return (-1);
+	}
+	std::string cgiExt = it->second.cgiExtension;
+	std::string cgiPath = it->second.cgiPath;
 	std::string root = clientInstance.getServConfig()->getRootFromLocation(requestInstance.getLocation());
 	std::string fullPath;
 
