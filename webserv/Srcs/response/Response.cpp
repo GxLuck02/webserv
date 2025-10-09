@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 17:28:27 by proton            #+#    #+#             */
-/*   Updated: 2025/09/07 14:27:20 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 12:13:17 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 Response::Response() : _httpVersion("HTTP/1.1")
 {
+	this->_statusCode = 0;
 	std::cout << "Response base constructor" << std::endl;
 }
 

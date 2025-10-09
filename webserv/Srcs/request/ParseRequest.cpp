@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseRequest.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/08 17:42:26 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 11:48:25 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,7 +98,7 @@ int	fillContentType( Request& instance, Response& responseInstance )
 		instance.setContentType(contentType);
 		return (0);
 	}
-	if (contentType != "multipart/form-data" && contentType != "image/jpeg")
+	if (contentType != "multipart/form-data" && contentType != "image/jpeg" && contentType != "application/x-www-form-urlencoded")
 	{
 		instance.setStatusCode(415);
 		instance.setErrorBody("Not supported");
@@ -288,7 +288,6 @@ void	removeIfSpace( std::string& token )
 	token.erase(found);
 }
 
-// Remplace la fonction splitField par :
 std::pair<std::string, std::string> splitField(const std::string& request, char separator)
 {
     size_t sepPos = request.find(separator);
@@ -394,7 +393,6 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	std::string fullPath;
 	std::string	testPathQuery;
 
-	//check for fonction with query
 	if (looksPercentEncoded(token) == true)
 	{
 		token = urlDecode(token);
@@ -477,7 +475,7 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	uri = token;
 
 	requestInstance.setLocation(uri);
-	requestInstance.setIsStaticCgi(true); // je dois le traiter comme static si c est un dossier
+	requestInstance.setIsStaticCgi(true);
 
 	std::cout << requestInstance.getMethode() << std::endl;
 	if (requestInstance.getMethode() == "POST")

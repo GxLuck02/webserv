@@ -9,8 +9,10 @@ cgitb.enable()
 
 UPLOAD_DIR = "./websites/upload"  # make sure this exists and is writable
 
-def print_html(file_list, message=""):
+def print_html(file_list, message="", method=""):
     print("Content-Type: text/html")
+    if method == "DELETE":
+        print("Status: 202")
     print()
     print("<!DOCTYPE html>")
     print("<html><head><title>CGI Gallery</title></head>")
@@ -63,7 +65,7 @@ def handle_post():
         else:
             message = f"File '{filename}' not found."
         files = os.listdir(UPLOAD_DIR)
-        print_html(files, message)
+        print_html(files, message, "DELETE")
         return
 
     # Otherwise, handle file upload

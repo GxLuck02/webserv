@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveCgi.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/18 17:55:37 by proton            #+#    #+#             */
-/*   Updated: 2025/10/06 11:20:35 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 12:04:36 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ int handlePostCgi(Request &requestInstance, Response &responseInstance, Client &
     if (fillContentLength(requestInstance, responseInstance) == -1)
         return (-1);
 
-    std::cout << "***************  Content lenght size: " << requestInstance.getContentLength() << std::endl;
-    std::cout << "Max body size: " << clientInstance.getServConfig()->getMaxBodySize() << std::endl;
     if (fillContentType(requestInstance, responseInstance) == -1)
         return (-1);
     if (requestInstance.getContentLength() > clientInstance.getServConfig()->getMaxBodySize())
@@ -97,12 +95,10 @@ static char **makeEnv(Request &requestInstance, Client &clientInstance)
 
 
     myEnv = new char*[envVars.size() + 1];
-    std::cout << "ASSIGNING ENV BEFORE" << std::endl;
     for (size_t i = 0; i < envVars.size(); ++i) {
         myEnv[i] = new char[envVars[i].size() + 1];
         std::strcpy(myEnv[i], envVars[i].c_str());
     }
-    std::cout << "ASSIGNING ENV AFTER" << std::endl;
 
     myEnv[envVars.size()] = NULL;
     return (myEnv);
@@ -129,14 +125,14 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
 
     myEnv = makeEnv(requestInstance, clientInstance);
     
-    if (pipe(out_fd) == -1) // pour recuperer la reponse du script
+    if (pipe(out_fd) == -1)
     {
         requestInstance.setStatusCode(500);
         requestInstance.setErrorBody("Internal Server Error");
         freeEnv(myEnv);
         return (-1);
     }
-    if (pipe(in_fd) == -1) // pour passer le body au script cgi
+    if (pipe(in_fd) == -1)
     {
         close(out_fd[0]);
         close(out_fd[1]);
@@ -188,51 +184,44 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
         }
         close(in_fd[1]);
 
-        // Gestion du timeout CGI
         int cgiTimeout = clientInstance.getServConfig()->getCgiTimeout();
         time_t startTime = time(NULL);
         bool timedOut = false;
         
         std::cout << "CGI timeout set to: " << cgiTimeout << " seconds" << std::endl;
         
-        // Attendre le processus avec timeout
         while (true)
         {
             int result = waitpid(pid, &status, WNOHANG);
             
             if (result > 0)
             {
-                // Le processus s'est terminé
                 std::cout << "CGI process finished normally" << std::endl;
                 break;
             }
             else if (result == -1)
             {
-                // Erreur
                 std::cout << "CGI waitpid error" << std::endl;
                 break;
             }
             
-            // Vérifier le timeout
             if (time(NULL) - startTime >= cgiTimeout)
             {
                 std::cout << "CGI timeout reached! Killing process..." << std::endl;
                 kill(pid, SIGKILL);
-                waitpid(pid, &status, 0); // Nettoyer le processus zombi
+                waitpid(pid, &status, 0);
                 timedOut = true;
                 break;
             }
             
-            // Attendre un peu avant de vérifier à nouveau
-            usleep(100000); // 100ms
+            usleep(100000);
         }
-        std::cout << "CGI process exited with status: " << status << std::endl;
-        std::cout << "WIFEXITED: " << WIFEXITED(status) << std::endl;
-        std::cout << "WEXITSTATUS: " << WEXITSTATUS(status) << std::endl;
+        // std::cout << "CGI process exited with status: " << status << std::endl;
+        // std::cout << "WIFEXITED: " << WIFEXITED(status) << std::endl;
+        // std::cout << "WEXITSTATUS: " << WEXITSTATUS(status) << std::endl;
         
         if (timedOut)
         {
-            std::cout << "CGI timed out - returning 504 Gateway Timeout" << std::endl;
             close(out_fd[0]);
             requestInstance.setStatusCode(504);
             requestInstance.setErrorBody("Gateway Timeout");
@@ -241,7 +230,6 @@ int handleCgi(Request &requestInstance, Response &responseInstance, Client &clie
         }
         if (WIFEXITED(status))
         {
-            std::cout << "Reading CGI output..." << std::endl;
             while ((bytesRead = read(out_fd[0], buffer, BUFFER_SIZE)) > 0)
             {
                 std::cout << "Read " << bytesRead << " bytes from CGI" << std::endl;
