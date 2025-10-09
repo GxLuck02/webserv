@@ -16,7 +16,7 @@ def print_html(file_list, message="", method=""):
     print()
     print("<!DOCTYPE html>")
     print("<html><head><title>CGI Gallery</title></head>")
-    print("<body style='font-family: monospace; background: white; color: black;'>")
+    print("<body style='font-family: monospace;  color: black;'>")
     print("<h1>Simple CGI Gallery</h1>")
 
     if message:
