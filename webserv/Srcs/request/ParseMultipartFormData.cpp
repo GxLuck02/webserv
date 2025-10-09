@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseMultipartFormData.cpp                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/06 11:01:03 by proton            #+#    #+#             */
-/*   Updated: 2025/10/08 17:42:04 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 13:32:37 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,8 +164,6 @@ int parseEachPart(Request &requestInstance, const std::string &part, Client& cli
 int parseMultipartFormData( Request &requestInstance, Client& clientInstance, Response& responseInstance )
 {
 	//int maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
-	std::cout << "Parsing multipart/form-data..." << std::endl;
-	std::cout << "Uri: " << requestInstance.getUri() << std::endl;
 	std::string body = requestInstance.getBodyStart();
 	std::string contentType = requestInstance.getField("Content-Type");
 	size_t bpos = contentType.find("boundary=");

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParserCgiResponse.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: bproton <bproton@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/17 13:00:37 by bproton           #+#    #+#             */
-/*   Updated: 2025/10/03 18:31:12 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 13:21:06 by bproton          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
     
     ss << response;
     
+    std::cout << response << std::endl;
     while (getline(ss, line))
 	{
 		if (line == "\r" || line.empty())
@@ -111,16 +112,15 @@ int parseResponseCgi(Request &requestInstance, Response &responseInstance, std::
     }
     else
         responseInstance.setBody(body);
-
-    if (requestInstance.getMethode() == "POST")
-        responseInstance.setStatusCode(201);
-    else
-        responseInstance.setStatusCode(200);
+    if (responseInstance.getStatusCode() == 0)
+    {
+        if (requestInstance.getMethode() == "POST")
+            responseInstance.setStatusCode(201);
+        else
+            responseInstance.setStatusCode(200);
+    }
     if (responseInstance.getContentLength().empty())
         responseInstance.setContentLength(responseInstance.getBody().length());
 
-    std::cout << "status code : " << responseInstance.getStatusCode() << std::endl;
-    std::cout << "body : " << responseInstance.getBody() << std::endl;
-    std::cout << "content length : " << responseInstance.getContentLength() << std::endl;
     return (0);
 }

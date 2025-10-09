@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RecieveRequest.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/08 17:12:28 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 13:33:07 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 	
 	
 	int				maxBodySize = clientInstance.getServConfig()->getMaxBodySize();
-
-	std::cout << "RECIEVE REQUEST" << std::endl;
 
 	if (clientInstance.getErrorFlag() == true)
 	{
@@ -244,7 +242,6 @@ int	beforeRequest(Client &clientInstance, Response &responseInstance)
 
 	makeResponse(requestInstance, responseInstance);
 	clientInstance.setResponseInstance(responseInstance);
-	// std::cout << "client response: " << clientInstance.getResponseInstance().getResponse() << std::endl;
 	return (1);
 
 }

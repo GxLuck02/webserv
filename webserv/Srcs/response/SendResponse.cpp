@@ -3,40 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   SendResponse.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2025/10/08 17:12:48 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/09 13:33:02 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "SendResponse.hpp"
-
-void chunkedResponse(Response &responseInstance, Request &requestInstance, Client &clientInstance)
-{
-    std::string body = responseInstance.getBody();
-    size_t bodyLength = body.length();
-    size_t chunkSize = clientInstance.getServConfig()->getMaxBodySize();
-    size_t offset = 0;
-    int clientSocket = clientInstance.getFd();
-    (void)requestInstance;
-
-    while (offset < bodyLength)
-    {
-        size_t currentChunkSize = std::min(chunkSize, bodyLength - offset);
-
-        std::stringstream chunkHeader;
-        chunkHeader << std::hex << currentChunkSize << "\r\n";
-        std::string chunk = chunkHeader.str() + body.substr(offset, currentChunkSize) + "\r\n";
-
-        send(clientSocket, chunk.c_str(), chunk.size(), 0);
-
-        offset += currentChunkSize;
-    }
-
-    send(clientSocket, "0\r\n\r\n", 5, 0);
-}
 
 int	sendErrorResponse(Request& requestInstance, Response& responseInstance, Client& clientInstance)
 {

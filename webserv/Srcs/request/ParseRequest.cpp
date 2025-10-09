@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/06/20 12:41:17 by proton            #+#    #+#             */
-/*   Updated: 2025/10/09 12:39:02 by ttreichl         ###   ########.fr       */
+/*   Created: Invalid date        by                   #+#    #+#             */
+/*   Updated: 2025/10/09 13:32:47 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "ParseRequest.hpp"
 
@@ -288,7 +289,6 @@ void	removeIfSpace( std::string& token )
 	token.erase(found);
 }
 
-// Remplace la fonction splitField par :
 std::pair<std::string, std::string> splitField(const std::string& request, char separator)
 {
     size_t sepPos = request.find(separator);
@@ -401,7 +401,6 @@ static int	handleFileRequest(Request &requestInstance, Client &clientInstance, s
 	std::string fullPath;
 	std::string	testPathQuery;
 
-	//check for fonction with query
 	if (looksPercentEncoded(token) == true)
 	{
 		token = urlDecode(token);
@@ -484,7 +483,7 @@ static int	handleDirectoryRequest(Request &requestInstance, Client &clientInstan
 	uri = token;
 
 	requestInstance.setLocation(uri);
-	requestInstance.setIsStaticCgi(true); // je dois le traiter comme static si c est un dossier
+	requestInstance.setIsStaticCgi(true);
 
 	std::cout << requestInstance.getMethode() << std::endl;
 	if (requestInstance.getMethode() == "POST")
