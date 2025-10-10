@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server_configue.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: proton <proton@student.42.fr>              +#+  +:+       +#+        */
+/*   By: ttreichl <ttreichl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:47:14 by ttreichl          #+#    #+#             */
-/*   Updated: 2025/10/08 17:13:06 by proton           ###   ########.fr       */
+/*   Updated: 2025/10/10 13:17:04 by ttreichl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 Serv_config::Serv_config()
 {
 	this->_cgiTimeout = CGI_TIMEOUT; // Initialiser avec la valeur par défaut de 5 secondes
-	std::cout << "Serv_config constructor called." << std::endl;
+	//std::cout << "Serv_config constructor called." << std::endl;
 }
 
 Serv_config::~Serv_config()
 {
-	std::cout << "Serv_config destructor called." << std::endl;
+	//std::cout << "Serv_config destructor called." << std::endl;
 }
 
 Serv_config::Serv_config(const Serv_config &other)
@@ -40,7 +40,7 @@ Serv_config::Serv_config(const Serv_config &other)
 		this->_locations = other._locations;
 		this->_cgiTimeout = other._cgiTimeout;
 	}
-	std::cout << "Serv_config copy constructor called." << std::endl;
+	//std::cout << "Serv_config copy constructor called." << std::endl;
 }
 
 Serv_config &Serv_config::operator=(const Serv_config &other)
@@ -253,7 +253,7 @@ std::string Serv_config::getRootFromLocation(const std::string &location) const
 bool Serv_config::getAutoIndexFromLocation(const std::string &location) const
 {
 	locationMap::const_iterator it = this->_locations.find(location);
-	if (it != this->_locations.end() && it->second.autoindex)
+	if (it != this->_locations.end() && it->second.autoindex == true)
 		return (true);
 	return (false);
 }

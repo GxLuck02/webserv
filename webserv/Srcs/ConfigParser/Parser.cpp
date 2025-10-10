@@ -81,13 +81,13 @@ void ConfigParser::fillOptionsValues(Serv_config& ServerConfig, ServerConfig_t& 
 {
 	static int time = 0;
 	time += 1;
-	std::cout << "Filling options values, call number: " << time << std::endl;
+	//std::cout << "Filling options values, call number: " << time << std::endl;
 	if (hasThis("index", ParserConfig))
 		ServerConfig.setIndex(ParserConfig.directives["index"]);
 	if (hasThis("error_page", ParserConfig))
 	{
 		std::string error_pages = ParserConfig.directives["error_page"];
-		std::cout << "DEBUG error_pages: '" << error_pages << "'\n";
+		//std::cout << "DEBUG error_pages: '" << error_pages << "'\n";
 		std::istringstream iss(error_pages);
 		std::string code_str;
 		std::string page;

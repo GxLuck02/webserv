@@ -1,37 +1,45 @@
-NAME        := webserv
-CC          := c++
-INC_DIR     := Includes
-CFLAGS      := -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
+NAME        = webserv
+CC          = c++
+INC_DIR     = Includes
+RM			= rm -f
+CFLAGS      = -Wall -Wextra -Werror -std=c++98 -I$(INC_DIR)
 
-SRC_DIRS    := Srcs Srcs/Clients Srcs/Server Srcs/request Srcs/response Srcs/ConfigParser Srcs/Cgi
-OBJ_DIR     := obj
+DIRS_SRCS	= Srcs
+DIRS_CLIENTS = $(DIRS_SRCS)/Clients
+DIRS_SERVER  = $(DIRS_SRCS)/Server
+DIRS_REQUEST = $(DIRS_SRCS)/request
+DIRS_RESPONSE= $(DIRS_SRCS)/response
+DIRS_CONFIG  = $(DIRS_SRCS)/ConfigParser
+DIRS_CGI     = $(DIRS_SRCS)/Cgi
+
+
+OBJ_DIR     = obj
 
 # Trouve tous les fichiers .cpp dans les SRC_DIRS
-SRCS        := $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.cpp))
+SRCS        = 	$(DIRS_SRCS)/main.cpp $(DIRS_CLIENTS)/Client.cpp $(DIRS_CGI)/ParserCgiResponse.cpp $(DIRS_CGI)/RecieveCgi.cpp $(DIRS_CONFIG)/Parser.cpp \
+			   	$(DIRS_REQUEST)/DeleteRequest.cpp $(DIRS_REQUEST)/FillBodyInCreatedFile.cpp $(DIRS_REQUEST)/GetRequest.cpp $(DIRS_REQUEST)/ParseJpeg.cpp \
+			   	$(DIRS_REQUEST)/ParseMultipartFormData.cpp $(DIRS_REQUEST)/ParseRequest.cpp $(DIRS_REQUEST)/RecieveRequest.cpp $(DIRS_REQUEST)/Request.cpp \
+			 	$(DIRS_RESPONSE)/Response.cpp  $(DIRS_RESPONSE)/SendResponse.cpp  $(DIRS_RESPONSE)/StatusCode.cpp $(DIRS_SERVER)/Server.cpp $(DIRS_SERVER)/Server_configue.cpp
 
-# Pour chaque .cpp => crée le chemin obj/FICHIER.o correspondant
-OBJS        := $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
-all: $(NAME)
+OBJS = ${SRCS:.cpp=.o}
 
-# Lien final
-$(NAME): $(OBJS)
-	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) -o $@ $^
+INCLUDE = -I include
 
-$(OBJ_DIR)/%.o: %.cpp
-	@mkdir -p $(dir $@)
-	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) -c $< -o $@
+.cpp.o:
+		${CC} ${CFLAGS} ${INCLUDE} -c $< -o ${<:.cpp=.o}
+
+$(NAME): ${OBJS}
+		${CC} ${CFLAGS} ${INCLUDE} ${OBJS} -o ${NAME}
+
+all:	${NAME}
 
 clean:
-	@echo "Cleaning object files..."
-	rm -rf $(OBJ_DIR)
+		${RM} ${OBJS}
 
-fclean: clean
-	@echo "Removing executable..."
-	rm -f $(NAME)
+fclean:	clean
+		${RM} ${NAME}
 
-re: fclean all
+re: clean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean re
